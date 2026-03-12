@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
-import '../../models/product.dart';
+import 'package:bakery_flutter/models/product_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favourites_provider.dart';
 import '../../components/bakery_back_button.dart';
 import '../../components/product_bottom_cta.dart';
-
 import 'package:go_router/go_router.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
 
-  const ProductDetailScreen({
-    super.key,
-    required this.product,
-  });
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -24,25 +20,72 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 0;
   int _activeImage = 0;
-  int _selectedSideCard = 0;
-  final Set<int> _selectedAddons = {};
+
+  // Variant selection: one selected value per option axis
+  // e.g. { 'Size': 'Large', 'Flavor': 'Chocolate' }
+  final Map<String, String> _selectedOptionValues = {};
+
+  // Selected addon IDs
+  final Set<String> _selectedAddonIds = {};
+
   final TextEditingController _instructionsCtrl = TextEditingController();
 
-  static const _mockSides = [
-    (name: 'French Fries', price: 0.0),
-    (name: 'Garden Salad', price: 2.0),
-    (name: 'Grilled Asparagus', price: 4.0),
-  ];
+  // ── Helpers ────────────────────────────────────────────────────
 
-  static const _mockAddons = [
-    (name: 'Extra Cheese', price: 1.50),
-    (name: 'Crispy Bacon', price: 3.00),
-    (name: 'Fried Egg', price: 2.00),
-  ];
+  /// Find the VariantItem whose optionValues match all current selections.
+  /// Returns null if selections are incomplete or no match found.
+  VariantItem? get _matchedVariant {
+    final variants = widget.product.variants;
+    if (variants == null) return null;
+
+    // All option axes must have a selection
+    if (_selectedOptionValues.length != variants.options.length) return null;
+
+    final selectedValues = variants.options
+        .map((o) => _selectedOptionValues[o.title])
+        .whereType<String>()
+        .toList();
+
+    try {
+      return variants.variantItems.firstWhere(
+        (item) =>
+            item.optionValues.length == selectedValues.length &&
+            item.optionValues.every((v) => selectedValues.contains(v)),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<Addon> get _selectedAddons => widget.product.addons
+      .where((a) => _selectedAddonIds.contains(a.id))
+      .toList();
+
+  double get _addonTotal =>
+      _selectedAddons.fold(0.0, (sum, a) => sum + a.price);
+
+  double get _unitPrice =>
+      (_matchedVariant?.price ?? widget.product.displayPrice) + _addonTotal;
+
+  double get _totalPrice => _unitPrice * _quantity;
+
+  // ── Init ───────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
+
+    // Pre-select first value of each variant option axis
+    final variants = widget.product.variants;
+    if (variants != null) {
+      for (final option in variants.options) {
+        if (option.values.isNotEmpty) {
+          _selectedOptionValues[option.title] = option.values.first;
+        }
+      }
+    }
+
+    // Sync quantity from cart
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final cartItem = context
           .read<CartProvider>()
@@ -50,9 +93,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           .where((i) => i.product.id == widget.product.id)
           .firstOrNull;
       if (cartItem != null && mounted) {
-        setState(() {
-          _quantity = cartItem.quantity;
-        });
+        setState(() => _quantity = cartItem.quantity);
       }
     });
   }
@@ -63,20 +104,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.dispose();
   }
 
+  // ── Build ──────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final favProv = context.watch<FavouritesProvider>();
     final isFav = favProv.isFavourite(widget.product.id);
-
-    final double sidesPrice =
-        _mockSides.isNotEmpty ? _mockSides[_selectedSideCard].price : 0.0;
-
-    final double addonsPrice = _selectedAddons
-        .map((i) => _mockAddons[i].price)
-        .fold(0.0, (sum, price) => sum + price);
-
-    final double totalPrice =
-        (widget.product.price + sidesPrice + addonsPrice) * _quantity;
+    final variants = widget.product.variants;
+    final addons = widget.product.addons;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -84,9 +119,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         children: [
           CustomScrollView(
             slivers: [
-              // ── Hero Image ──────────────────────────────────────
+              // ── Hero ──────────────────────────────────────────
               SliverAppBar(
                 expandedHeight: 280,
+                scrolledUnderElevation: 0,
+                elevation: 0,
                 pinned: true,
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 leading: const Padding(
@@ -135,68 +172,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        Text(widget.product.image,
-                            style: const TextStyle(fontSize: 110)),
-                        if (widget.product.badge != null)
-                          Positioned(
-                            bottom: 50,
-                            left: 20,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surface
-                                    .withValues(alpha: 0.9),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text('✦ ${widget.product.badge}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          fontWeight: FontWeight.w600)),
-                            ),
+                        Image.network(
+                          widget.product.image,
+                          width: double.infinity,
+                          // height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                            Icons.broken_image_rounded,
+                            size: 40,
+                            // color: AppColors.softBrown,
                           ),
-                        // Gallery dots
-                        Positioned(
-                          bottom: 18,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: List.generate(3, (i) {
-                              return GestureDetector(
-                                onTap: () => setState(() => _activeImage = i),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 3),
-                                  width: _activeImage == i ? 20 : 7,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    color: _activeImage == i
-                                        ? Theme.of(context).colorScheme.surface
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .surface
-                                            .withValues(alpha: 0.45),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            );
+                          },
                         ),
+                        // Gallery dots
+                        // Positioned(
+                        //   bottom: 18,
+                        //   child: Row(
+                        //     mainAxisSize: MainAxisSize.min,
+                        //     children: List.generate(3, (i) {
+                        //       return GestureDetector(
+                        //         onTap: () => setState(() => _activeImage = i),
+                        //         child: AnimatedContainer(
+                        //           duration: const Duration(milliseconds: 300),
+                        //           margin:
+                        //               const EdgeInsets.symmetric(horizontal: 3),
+                        //           width: _activeImage == i ? 20 : 7,
+                        //           height: 7,
+                        //           decoration: BoxDecoration(
+                        //             color: _activeImage == i
+                        //                 ? Theme.of(context).colorScheme.surface
+                        //                 : Theme.of(context)
+                        //                     .colorScheme
+                        //                     .surface
+                        //                     .withValues(alpha: 0.45),
+                        //             borderRadius: BorderRadius.circular(4),
+                        //           ),
+                        //         ),
+                        //       );
+                        //     }),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
                 ),
               ),
 
-              // ── Content ─────────────────────────────────────────
+              // ── Content ───────────────────────────────────────
               SliverToBoxAdapter(
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 140),
@@ -208,114 +236,127 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Name
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.product.name,
-                              style: Theme.of(context).textTheme.displayMedium),
-                          const SizedBox(height: 6),
-                          Text(widget.product.time,
-                              style: Theme.of(context).textTheme.bodySmall),
-                        ],
-                      ),
+                      // Name + category
+                      Text(widget.product.name,
+                          style: Theme.of(context).textTheme.displayMedium),
+                      const SizedBox(height: 6),
+                      Text(widget.product.categories,
+                          style: Theme.of(context).textTheme.bodySmall),
                       const SizedBox(height: 12),
 
                       // Description
-                      Text(widget.product.description,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.color,
-                                  height: 1.6)),
+                      Text(
+                        widget.product.description,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                            height: 1.6),
+                      ),
                       const SizedBox(height: 18),
 
                       // Tags
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: widget.product.tags.map((tag) {
-                          final isGood = tag.contains('Gluten') ||
-                              tag.contains('Vegan') ||
-                              tag.contains('Organic');
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: isGood
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .secondaryContainer
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .errorContainer,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              tag,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelSmall
-                                  ?.copyWith(
-                                    color: isGood
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onSecondaryContainer
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onErrorContainer,
-                                    fontSize: 12,
-                                  ),
-                            ),
+                      if (widget.product.tags.isNotEmpty) ...[
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: widget.product.tags.map((tag) {
+                            final isGood = tag.contains('Gluten') ||
+                                tag.contains('Vegan') ||
+                                tag.contains('Organic');
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: isGood
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .errorContainer,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                tag,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: isGood
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .onSecondaryContainer
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onErrorContainer,
+                                      fontSize: 12,
+                                    ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // ── Variants ─────────────────────────────
+                      if (variants != null && variants.options.isNotEmpty) ...[
+                        ...variants.options.map((option) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _SectionHeader(title: option.title),
+                              const SizedBox(height: 12),
+                              ...option.values.map((value) {
+                                final isActive =
+                                    _selectedOptionValues[option.title] ==
+                                        value;
+
+                                // Find matching variant price for this value
+                                // (best effort: find first variantItem containing this value)
+                                final matchingItem =
+                                    variants.variantItems.firstWhere(
+                                  (item) => item.optionValues.contains(value),
+                                  orElse: () => variants.variantItems.first,
+                                );
+
+                                return _OptionItem(
+                                  name: value,
+                                  price: matchingItem.price -
+                                      widget.product.displayPrice,
+                                  isActive: isActive,
+                                  onTap: () => setState(() =>
+                                      _selectedOptionValues[option.title] =
+                                          value),
+                                );
+                              }),
+                              const SizedBox(height: 16),
+                            ],
                           );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 24),
+                        }),
+                      ],
 
-                      // Choose your side
-                      _SectionHeader(
-                        title: 'Variants',
-                      ),
-                      const SizedBox(height: 16),
-                      ...List.generate(_mockSides.length, (i) {
-                        return _OptionItem(
-                          name: _mockSides[i].name,
-                          price: _mockSides[i].price,
-                          isActive: _selectedSideCard == i,
-                          onTap: () => setState(() => _selectedSideCard = i),
-                        );
-                      }),
-                      const SizedBox(height: 24),
-
-                      // Add-ons
-                      _SectionHeader(
-                        title: 'Add-ons',
-                      ),
-                      const SizedBox(height: 16),
-                      ...List.generate(_mockAddons.length, (i) {
-                        final isActive = _selectedAddons.contains(i);
-                        return _OptionItem(
-                          name: _mockAddons[i].name,
-                          price: _mockAddons[i].price,
-                          isActive: isActive,
-                          onTap: () {
-                            setState(() {
+                      // ── Addons ────────────────────────────────
+                      if (addons.isNotEmpty) ...[
+                        _SectionHeader(title: 'Add-ons'),
+                        const SizedBox(height: 12),
+                        ...addons.map((addon) {
+                          final isActive = _selectedAddonIds.contains(addon.id);
+                          return _OptionItem(
+                            name: addon.name,
+                            price: addon.price,
+                            isActive: isActive,
+                            onTap: () => setState(() {
                               if (isActive) {
-                                _selectedAddons.remove(i);
+                                _selectedAddonIds.remove(addon.id);
                               } else {
-                                _selectedAddons.add(i);
+                                _selectedAddonIds.add(addon.id);
                               }
-                            });
-                          },
-                        );
-                      }),
-                      const SizedBox(height: 24),
+                            }),
+                          );
+                        }),
+                        const SizedBox(height: 24),
+                      ],
 
-                      // Special Instructions
+                      // ── Special Instructions ──────────────────
                       Text(
                         'Special Instructions',
                         style: Theme.of(context)
@@ -364,8 +405,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                          height: 120), // Padding for the floating action bar
                     ],
                   ),
                 ),
@@ -373,10 +412,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ],
           ),
 
-          // ── Bottom CTA ───────────────────────────────────────────
+          // ── Bottom CTA ────────────────────────────────────────
           ProductBottomCta(
             quantity: _quantity,
-            totalPrice: totalPrice,
+            totalPrice: _totalPrice,
             onDecrement: () {
               if (_quantity > 0) {
                 setState(() => _quantity--);
@@ -390,16 +429,29 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               setState(() => _quantity++);
               final cart = context.read<CartProvider>();
               if (cart.contains(widget.product)) {
-                cart.updateById(widget.product.id, _quantity);
+                cart.updateByLineKey(
+                  '${widget.product.id}__${_matchedVariant?.id ?? 'no_variant'}',
+                  _quantity,
+                );
               } else {
-                cart.addProduct(widget.product, quantity: _quantity);
+                cart.addProduct(
+                  widget.product,
+                  quantity: _quantity,
+                  variant: _matchedVariant,
+                  addons: _selectedAddons,
+                );
               }
             },
             onCheckout: () {
               if (_quantity > 0) {
                 final cart = context.read<CartProvider>();
                 if (!cart.contains(widget.product)) {
-                  cart.addProduct(widget.product, quantity: _quantity);
+                  cart.addProduct(
+                    widget.product,
+                    quantity: _quantity,
+                    variant: _matchedVariant,
+                    addons: _selectedAddons,
+                  );
                 }
                 context.push('/cart');
               } else {
@@ -416,31 +468,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 }
 
-// ── Private Helper Widgets ───────────────────────────────────────
+// ── Private Helper Widgets ────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-
-  const _SectionHeader({
-    required this.title,
-  });
+  const _SectionHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-        ),
-      ],
     );
   }
 }
@@ -501,7 +543,11 @@ class _OptionItem extends StatelessWidget {
               ),
             ),
             Text(
-              price == 0 ? 'Free' : '+\$${price.toStringAsFixed(2)}',
+              price == 0
+                  ? 'Free'
+                  : price > 0
+                      ? '+\$${price.toStringAsFixed(2)}'
+                      : '-\$${price.abs().toStringAsFixed(2)}',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: isActive
                         ? Theme.of(context).colorScheme.primary

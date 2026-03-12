@@ -1,7 +1,8 @@
+import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/screens/tablewelcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
-import '../models/product.dart';
 import 'app_shell.dart';
 import '../screens/home_screen.dart';
 import '../screens/product_detail_screen.dart';
@@ -27,6 +28,8 @@ final GlobalKey<NavigatorState> _profileNavigatorKey =
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/home',
+
+
   errorBuilder: (context, state) => Scaffold(
     appBar: AppBar(title: const Text('Page Not Found')),
     body: Center(
@@ -56,8 +59,17 @@ final router = GoRouter(
         ],
       ),
     ),
+
+    
   ),
   routes: [
+
+   GoRoute(
+      path: '/',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const TableWelcomeScreen(),
+    ),
+
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);
@@ -115,16 +127,16 @@ final router = GoRouter(
               path: '/cart',
               builder: (context, state) => const CartScreen(),
               routes: [
-                GoRoute(
-                  path: 'checkout',
-                  builder: (context, state) => const CheckoutScreen(),
-                  routes: [
-                    GoRoute(
-                      path: 'success',
-                      builder: (context, state) => const OrderSuccessScreen(),
-                    ),
-                  ],
-                ),
+                // GoRoute(
+                //   path: 'checkout',
+                //   builder: (context, state) => const CheckoutScreen(),
+                //   routes: [
+                //     GoRoute(
+                //       path: 'success',
+                //       builder: (context, state) => const OrderSuccessScreen(),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ],

@@ -1,9 +1,10 @@
+import 'package:bakery_flutter/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_text_styles.dart';
-import '../models/product.dart';
+
 import '../providers/cart_provider.dart';
 
 /// Grid-view product card with live qty counter on the add button.
@@ -25,6 +26,7 @@ class GridProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final qty = context.select<CartProvider, int>((cart) => cart.items
         .where((i) => i.product.id == product.id)
         .fold(0, (sum, i) => sum + i.quantity));
@@ -44,8 +46,23 @@ class GridProductCard extends StatelessWidget {
                   width: double.infinity,
                   decoration: AppDecorations.productImage,
                   alignment: Alignment.center,
-                  child:
-                      Text(product.image, style: const TextStyle(fontSize: 52)),
+                  child: Image.network(
+                    product.image,
+                    width: 90,
+                    height: 90,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.broken_image_rounded,
+                      size: 36,
+                      color: AppColors.softBrown,
+                    ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      );
+                    },
+                  ),
                 ),
 
                 // Favourite button
@@ -92,7 +109,7 @@ class GridProductCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  Text(product.time, style: AppTextStyles.labelSmall),
+                  Text(product.description, style: AppTextStyles.labelSmall),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -105,11 +122,11 @@ class GridProductCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       const Spacer(),
-                      _GridAddCounter(
-                        qty: qty,
-                        productId: product.id,
-                        onAdd: onQuickAdd,
-                      ),
+                      // _GridAddCounter(
+                      //   qty: qty,
+                      //   productId: product.id,
+                      //   onAdd: onQuickAdd,
+                      // ),
                     ],
                   ),
                 ],
@@ -122,11 +139,9 @@ class GridProductCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-/// Compact "+" that expands to "−  N  +" once qty > 0 (grid variant).
 class _GridAddCounter extends StatelessWidget {
   final int qty;
-  final int productId;
+  final String productId;
   final VoidCallback onAdd;
 
   const _GridAddCounter({
@@ -145,7 +160,7 @@ class _GridAddCounter extends StatelessWidget {
       height: 28,
       width: hasItems ? 80 : 28,
       decoration: BoxDecoration(
-        color: AppColors.darkBrown,
+        color: Theme.of(context).colorScheme.onPrimary,
         borderRadius: BorderRadius.circular(AppDecorations.radiusS),
       ),
       clipBehavior: Clip.hardEdge,
@@ -159,7 +174,8 @@ class _GridAddCounter extends StatelessWidget {
                         .read<CartProvider>()
                         .updateById(productId, qty - 1),
                     child: Icon(Icons.remove_rounded,
-                        color: AppColors.cream, size: 12),
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        size: 12),
                   ),
                 ),
                 // Animated count
@@ -171,7 +187,7 @@ class _GridAddCounter extends StatelessWidget {
                     '$qty',
                     key: ValueKey(qty),
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.cream,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
@@ -182,15 +198,16 @@ class _GridAddCounter extends StatelessWidget {
                   child: GestureDetector(
                     onTap: onAdd,
                     child: Icon(Icons.add_rounded,
-                        color: AppColors.cream, size: 12),
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        size: 12),
                   ),
                 ),
               ],
             )
           : GestureDetector(
               onTap: onAdd,
-              child: const Icon(Icons.add_rounded,
-                  color: AppColors.cream, size: 16),
+              child: Icon(Icons.add_rounded,
+                  color: Theme.of(context).colorScheme.onSecondary, size: 16),
             ),
     );
   }

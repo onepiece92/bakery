@@ -21,7 +21,8 @@ class CategoryPill extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return AnimatedScale(
-      scale: active ? 1.05 : 1.0,
+      scale:  1.0,
+      // scale: active ? 1.05 : 1.0,
       duration: const Duration(milliseconds: 200),
       child: ChoiceChip(
         label: Row(
@@ -33,7 +34,7 @@ class CategoryPill extends StatelessWidget {
                 icon,
                 style: theme.textTheme.labelLarge?.copyWith(
                   height: 1.2,
-                  color: active ? colorScheme.onPrimary : colorScheme.onSurface,
+                  color: active ? colorScheme.onSecondary : colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 8),
@@ -41,7 +42,7 @@ class CategoryPill extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: active ? colorScheme.onPrimary : colorScheme.onSurface,
+                color: active ? colorScheme.onSecondary : colorScheme.onSurface,
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 fontSize: 14,
                 letterSpacing: 0.1,
@@ -54,16 +55,16 @@ class CategoryPill extends StatelessWidget {
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         backgroundColor: theme.cardColor,
-        selectedColor: colorScheme.primary,
+        selectedColor: colorScheme.onPrimary,
         side: BorderSide(
-          color: active ? colorScheme.primary : theme.dividerColor,
-          width: 1.5,
+          color: active ? colorScheme.onPrimary : theme.dividerColor,
+          width: 1,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
         elevation: active ? 4 : 1,
-        shadowColor: active ? colorScheme.primary : theme.shadowColor,
+        // shadowColor: active ? colorScheme.primary : theme.shadowColor,
       ),
     );
   }

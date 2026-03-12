@@ -1,0 +1,106 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+class LocalStorageService {
+  LocalStorageService._();
+  static final LocalStorageService instance = LocalStorageService._();
+
+  SharedPreferences? _prefs;
+
+  static const String _keySessionToken = 'session_token';
+  static const String _keyUserId = 'user_id';
+  static const String _keyRole = 'role';
+  static const String _keyCustomerName = "customerName";
+  static const String _adminId = 'adminId';
+  static const String _keyBusinessId = 'id';
+  static const String _keyBusinessName = 'name';
+  static const String _keyAddress = 'address';
+
+  Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  /// SAVE METHODS
+
+  Future<void> saveSessionToken(String token) async {
+    await _prefs?.setString(_keySessionToken, token);
+  }
+
+  Future<void> saveUserId(String userId) async {
+    await _prefs?.setString(_keyUserId, userId);
+  }
+
+  Future<void> saveRole(String role) async {
+    await _prefs?.setString(_keyRole, role);
+  }
+
+  Future<void> saveCustomerName(String name) async {
+    await _prefs?.setString(_keyCustomerName, name);
+  }
+
+  Future<void> saveAdminId(String adminId) async {
+    await _prefs?.setString(_adminId, adminId);
+  }
+
+  Future<void> saveBusinessId(String id) async {
+    await _prefs?.setString(_keyBusinessId, id);
+  }
+
+  Future<void> saveBusinessName(String name) async {
+    await _prefs?.setString(_keyBusinessName, name);
+  }
+
+  Future<void> saveAddress(String address) async {
+    await _prefs?.setString(_keyAddress, address);
+  }
+
+  /// GET METHODS
+
+  String? getSessionToken() {
+    return _prefs?.getString(_keySessionToken);
+  }
+
+  String? getUserId() {
+    return _prefs?.getString(_keyUserId);
+  }
+
+  String? getRole() {
+    return _prefs?.getString(_keyRole);
+  }
+
+  String? getCustomerName() {
+    return _prefs?.getString(_keyCustomerName);
+  }
+
+  String? getAdminId() {
+    return _prefs?.getString(_adminId);
+  }
+
+  String? getBusinessId() {
+    return _prefs?.getString(_keyBusinessId);
+  }
+
+  String? getBusinessName() {
+    return _prefs?.getString(_keyBusinessName);
+  }
+
+  String? getAddress() {
+    return _prefs?.getString(_keyAddress);
+  }
+
+  /// CLEAR METHODS
+
+  Future<void> clearSession() async {
+    await _prefs?.remove(_keySessionToken);
+    await _prefs?.remove(_keyUserId);
+    await _prefs?.remove(_keyRole);
+    await _prefs?.remove(_keyCustomerName);
+    await _prefs?.remove(_adminId);
+    await _prefs?.remove(_keyBusinessId);
+    await _prefs?.remove(_keyBusinessName);
+    await _prefs?.remove(_keyAddress);
+  }
+
+  Future<void> clearAll() async {
+    await _prefs?.clear();
+  }
+}

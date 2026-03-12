@@ -200,7 +200,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                 order: order,
                                 featured: false,
                                 onReorder: () {
-                                  context.read<CartProvider>().reorder(order);
+                                  // context.read<CartProvider>().reorder(order);
                                   context.push('/cart');
                                 },
                               ),

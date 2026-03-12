@@ -1,10 +1,8 @@
+import 'package:bakery_flutter/models/cart_item.dart';
 import 'package:flutter/foundation.dart';
-import '../models/cart_item.dart';
-import '../models/product.dart';
-import '../models/order.dart';
-import '../data/bakery_data.dart';
+import 'package:bakery_flutter/models/product_model.dart';
 
-/// Manages shopping cart state.
+
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
 
@@ -13,24 +11,39 @@ class CartProvider extends ChangeNotifier {
   int get totalCount => _items.fold(0, (sum, i) => sum + i.quantity);
 
   double get subtotal =>
-      _items.fold(0.0, (sum, i) => sum + i.product.price * i.quantity);
+      _items.fold(0.0, (sum, i) => sum + i.lineTotal);
 
   static const double bakingFee = 2.50;
   double get total => subtotal + bakingFee;
 
   bool contains(Product product) =>
       _items.any((i) => i.product.id == product.id);
+      
+  void addProduct(
+    Product product, {
+    int quantity = 1,
+    VariantItem? variant,
+    List<Addon> addons = const [],
+  }) {
+    final newItem = CartItem(
+      product: product,
+      selectedVariant: variant,
+      selectedAddons: addons,
+      quantity: quantity,
+    );
 
-  void addProduct(Product product, {int quantity = 1}) {
-    final index = _items.indexWhere((i) => i.product.id == product.id);
+    final index =
+        _items.indexWhere((i) => i.lineKey == newItem.lineKey);
+
     if (index >= 0) {
       _items[index].quantity += quantity;
     } else {
-      _items.add(CartItem(product: product, quantity: quantity));
+      _items.add(newItem);
     }
     notifyListeners();
   }
 
+  /// Update quantity by list index. Removes line if qty <= 0.
   void updateQuantity(int index, int qty) {
     if (qty <= 0) {
       _items.removeAt(index);
@@ -40,8 +53,22 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateById(int productId, int qty) {
-    final index = _items.indexWhere((i) => i.product.id == productId);
+  /// Update quantity by product id (for simple products with no variant).
+  void updateById(String productId, int qty) {
+    final index =
+        _items.indexWhere((i) => i.product.id == productId);
+    if (index < 0) return;
+    if (qty <= 0) {
+      _items.removeAt(index);
+    } else {
+      _items[index].quantity = qty;
+    }
+    notifyListeners();
+  }
+
+  /// Update quantity by full lineKey (product + variant combo).
+  void updateByLineKey(String lineKey, int qty) {
+    final index = _items.indexWhere((i) => i.lineKey == lineKey);
     if (index < 0) return;
     if (qty <= 0) {
       _items.removeAt(index);
@@ -59,21 +86,5 @@ class CartProvider extends ChangeNotifier {
   void clear() {
     _items.clear();
     notifyListeners();
-  }
-
-  /// Finds items from a past order in the global BakeryData menu
-  /// and adds them directly to the current cart.
-  void reorder(Order pastOrder) {
-    for (final orderItem in pastOrder.items) {
-      try {
-        final product = BakeryData.products.firstWhere(
-          (p) => p.name == orderItem.name,
-        );
-        addProduct(product, quantity: orderItem.qty);
-      } catch (e) {
-        // If a product was removed from the menu, skip it
-        debugPrint('Product from old order no longer found: ${orderItem.name}');
-      }
-    }
   }
 }

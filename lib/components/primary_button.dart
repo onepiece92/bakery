@@ -39,11 +39,11 @@ class PrimaryButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: isLoading
-            ? const SizedBox(
+            ?  SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
-                  color: AppColors.cream,
+                  color:Theme.of(context).colorScheme.primary,
                   strokeWidth: 2,
                 ),
               )

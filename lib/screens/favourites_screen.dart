@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../data/bakery_data.dart';
 import '../../providers/favourites_provider.dart';
 import '../../providers/cart_provider.dart';
+import '../../providers/product_provider.dart';
 import '../../components/grid_product_card.dart';
 import '../../components/browse_menu_button.dart';
 import '../../components/bakery_back_button.dart';
@@ -17,8 +17,8 @@ class FavouritesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final favProv = context.watch<FavouritesProvider>();
     final cart = context.read<CartProvider>();
-    final favs =
-        BakeryData.products.where((p) => favProv.isFavourite(p.id)).toList();
+    final products = context.watch<ProductProvider>().products;
+    final favs = products.where((p) => favProv.isFavourite(p.id)).toList();
 
     return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,

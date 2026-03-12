@@ -1,7 +1,9 @@
+import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
-import '../../models/product.dart';
+
 import '../../data/bakery_data.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favourites_provider.dart';
@@ -10,8 +12,6 @@ import '../../components/address_selector.dart';
 import '../../components/category_pill.dart';
 import '../../components/product_card.dart';
 import '../../components/grid_product_card.dart';
-import '../../components/reorder_card.dart';
-import '../../components/ai_tip.dart';
 import '../../components/section_header.dart';
 import '../../providers/nav_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -37,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+    Provider.of<ProductProvider>(context, listen: false).fetchProducts();
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
@@ -64,52 +65,25 @@ class _HomeScreenState extends State<HomeScreen>
         onSelect: (id) => context.read<AddressProvider>().select(id),
         onAddNew: () {
           Navigator.pop(context);
-          // navigate to add address handled by parent router
         },
       ),
     );
   }
 
-  List<Product> get _filtered {
-    List<Product> list = _selectedCategory == 'all'
-        ? List.of(BakeryData.products)
-        : BakeryData.products
-            .where((p) => p.category == _selectedCategory)
-            .toList();
-
-    if (_searchQuery.trim().isNotEmpty) {
-      final q = _searchQuery.toLowerCase();
-      list = list.where((p) {
-        return p.name.toLowerCase().contains(q) ||
-            p.description.toLowerCase().contains(q) ||
-            p.category.toLowerCase().contains(q) ||
-            p.tags.any((t) => t.toLowerCase().contains(q));
-      }).toList();
+  void _scrollToTop() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
-
-    switch (_sortBy) {
-      case 'price_low':
-        list.sort((a, b) => a.price.compareTo(b.price));
-        break;
-      case 'price_high':
-        list.sort((a, b) => b.price.compareTo(a.price));
-        break;
-      case 'rating':
-        list.sort((a, b) => b.rating.compareTo(a.rating));
-        break;
-      case 'popular':
-        list.sort((a, b) => b.reviews.compareTo(a.reviews));
-        break;
-    }
-    return list;
   }
 
   @override
   Widget build(BuildContext context) {
     final favProv = context.watch<FavouritesProvider>();
     final addrProv = context.watch<AddressProvider>();
-    final filtered = _filtered;
-    final bool showRecent = _searchQuery.isEmpty && _selectedCategory == 'all';
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -128,7 +102,6 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Notification bell
                 IconButton(
                   onPressed: () => context.push('/profile/notifications'),
                   style: IconButton.styleFrom(
@@ -172,11 +145,7 @@ class _HomeScreenState extends State<HomeScreen>
                   active: _selectedCategory == 'all',
                   onTap: () {
                     setState(() => _selectedCategory = 'all');
-                    if (_scrollController.hasClients) {
-                      _scrollController.animateTo(0,
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOut);
-                    }
+                    _scrollToTop();
                     context.read<NavProvider>().triggerCategoryChange();
                   },
                 ),
@@ -190,11 +159,7 @@ class _HomeScreenState extends State<HomeScreen>
                       active: _selectedCategory == c.id,
                       onTap: () {
                         setState(() => _selectedCategory = c.id);
-                        if (_scrollController.hasClients) {
-                          _scrollController.animateTo(0,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOut);
-                        }
+                        _scrollToTop();
                         context.read<NavProvider>().triggerCategoryChange();
                       },
                     ),
@@ -211,139 +176,125 @@ class _HomeScreenState extends State<HomeScreen>
               controller: _scrollController,
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
               children: [
-                // ── AI Tip ───────────────────────────────────────────────
-                const AiTip(),
-                const SizedBox(height: 16),
+                Consumer<ProductProvider>(
+                  builder: (context, provider, _) {
+                    if (provider.isLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 48),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-                // Recent orders preview
-                if (showRecent) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Recent Orders',
-                          style: Theme.of(context).textTheme.headlineSmall),
-                      GestureDetector(
-                        onTap: () => context.push('/home/recent_orders'),
-                        child: Text('View all →',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.tertiary,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 13)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 140,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: BakeryData.recentOrders.length.clamp(0, 3),
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (_, i) => GestureDetector(
-                        onTap: () => context.push('/home/recent_orders'),
-                        child: SizedBox(
-                          width: 200,
-                          child: OrderCard(
-                            order: BakeryData.recentOrders[i],
-                            featured: i == 0,
-                            onReorder: () {
-                              context
-                                  .read<CartProvider>()
-                                  .reorder(BakeryData.recentOrders[i]);
-                              context.push('/cart');
-                            },
+                    if (provider.error != null) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 48),
+                        child: Center(
+                          child: Text('Error: ${provider.error}',
+                              style: Theme.of(context).textTheme.bodySmall),
+                        ),
+                      );
+                    }
+
+                    final items = provider.filteredProducts(
+                      category: _selectedCategory,
+                      searchQuery: _searchQuery,
+                      sortBy: _sortBy,
+                    );
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (_searchQuery.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              '${items.length} result${items.length != 1 ? 's' : ''}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        SectionHeader(
+                          title: 'Fresh Today',
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _SortButton(
+                                sortBy: _sortBy,
+                                onChanged: (v) =>
+                                    setState(() => _sortBy = v),
+                              ),
+                              const SizedBox(width: 8),
+                              _ViewToggle(
+                                isGrid: _gridView,
+                                onToggle: (v) =>
+                                    setState(() => _gridView = v),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // Search result info
-                if (_searchQuery.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      '${filtered.length} result${filtered.length != 1 ? 's' : ''}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-
-                // Section title + Sort + View toggle
-                SectionHeader(
-                  title: 'Fresh Today',
-                  trailing: Row(
-                    children: [
-                      _SortButton(
-                        sortBy: _sortBy,
-                        onChanged: (v) => setState(() => _sortBy = v),
-                      ),
-                      const SizedBox(width: 6),
-                      _ViewToggle(
-                        isGrid: _gridView,
-                        onToggle: (v) => setState(() => _gridView = v),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(height: 14),
+                        if (items.isEmpty)
+                          _EmptyState(
+                            onClear: () => setState(() {
+                              _searchQuery = '';
+                              _searchCtrl.clear();
+                              _sortBy = 'default';
+                              _selectedCategory = 'all';
+                            }),
+                          )
+                        else if (_gridView)
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.8,
+                            ),
+                            itemCount: items.length,
+                            itemBuilder: (_, i) {
+                              final p = items[i];
+                              return GridProductCard(
+                                product: p,
+                                onTap: () =>
+                                    context.push('/home/product', extra: p),
+                                onQuickAdd: () => _quickAdd(p),
+                                // isFavourite: false,
+                                isFavourite: favProv.isFavourite(p.id),
+                                onToggleFavourite: () =>
+                                    favProv.toggle(p.id),
+                            //  false,
+                              );
+                            },
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: items.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 14),
+                            itemBuilder: (_, i) {
+                              final p = items[i];
+                              return ProductCard(
+                                product: p,
+                                onTap: () =>
+                                    context.push('/home/product', extra: p),
+                                onQuickAdd: () => _quickAdd(p),
+                                // isFavourite: false,
+                                isFavourite: favProv.isFavourite(p.id),
+                                // onToggleFavourite: () =>
+                                //    false
+                                onToggleFavourite: () =>
+                                    favProv.toggle(p.id),
+                              );
+                            },
+                          ),
+                      ],
+                    );
+                  },
                 ),
-                const SizedBox(height: 14),
-
-                // Empty state
-                if (filtered.isEmpty)
-                  _EmptyState(
-                    onClear: () => setState(() {
-                      _searchQuery = '';
-                      _searchCtrl.clear();
-                      _sortBy = 'default';
-                      _selectedCategory = 'all';
-                    }),
-                  )
-                else if (_gridView)
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.8,
-                    ),
-                    itemCount: filtered.length,
-                    itemBuilder: (_, i) {
-                      final p = filtered[i];
-                      return GridProductCard(
-                        product: p,
-                        onTap: () => context.push('/home/product', extra: p),
-                        onQuickAdd: () => _quickAdd(p),
-                        isFavourite: favProv.isFavourite(p.id),
-                        onToggleFavourite: () => favProv.toggle(p.id),
-                      );
-                    },
-                  )
-                else
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 14),
-                    itemBuilder: (_, i) {
-                      final p = filtered[i];
-                      return ProductCard(
-                        product: p,
-                        onTap: () => context.push('/home/product', extra: p),
-                        onQuickAdd: () => _quickAdd(p),
-                        isFavourite: favProv.isFavourite(p.id),
-                        onToggleFavourite: () => favProv.toggle(p.id),
-                      );
-                    },
-                  ),
               ],
             ),
           ),
@@ -398,11 +349,11 @@ class _SortButton extends StatelessWidget {
 
   const _SortButton({required this.sortBy, required this.onChanged});
 
+  // Removed 'rating' — ProductProvider.filteredProducts() does not support it
   static const _options = [
     ('default', 'Default'),
     ('price_low', 'Price: Low → High'),
     ('price_high', 'Price: High → Low'),
-    ('rating', 'Top Rated'),
     ('popular', 'Most Popular'),
   ];
 

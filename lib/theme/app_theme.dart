@@ -4,19 +4,19 @@ import 'app_colors.dart';
 import 'app_decorations.dart';
 import 'app_text_styles.dart';
 
-/// Material theme wiring all brand tokens.
 final class AppTheme {
   AppTheme._();
 
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         colorScheme: const ColorScheme.light(
-          primary: AppColors.darkBrown,
-          onPrimary: AppColors.cream,
+          primary: AppColors
+              .darkBrown, 
+          onPrimary: AppColors.primaryRed, 
           secondary: AppColors.caramel,
           onSecondary: AppColors.white,
-          surface: AppColors.warmWhite,
-          onSurface: AppColors.text,
+          surface: AppColors.warmWhite, 
+          onSurface: AppColors.text, 
           error: AppColors.terracotta,
         ),
         scaffoldBackgroundColor: AppColors.warmWhite,
@@ -43,7 +43,7 @@ final class AppTheme {
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.darkBrown,
-            foregroundColor: AppColors.cream,
+            foregroundColor: AppColors.primaryRed,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDecorations.radiusL),
             ),
@@ -63,7 +63,7 @@ final class AppTheme {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: AppColors.softBrown,
+            foregroundColor: AppColors.white,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -75,11 +75,13 @@ final class AppTheme {
               if (states.contains(WidgetState.selected)) {
                 return AppColors.darkBrown;
               }
-              return AppColors.beige;
+              return AppColors.primaryRed;
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) return AppColors.cream;
-              return AppColors.softBrown;
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.white;
+              }
+              return AppColors.white;
             }),
           ),
         ),
@@ -92,7 +94,9 @@ final class AppTheme {
               return AppColors.beige;
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) return AppColors.cream;
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.primaryRed;
+              }
               return AppColors.softBrown;
             }),
             shape: WidgetStatePropertyAll(
@@ -107,13 +111,15 @@ final class AppTheme {
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.selected)) {
-                return AppColors.darkBrown;
+                return AppColors.primaryRed;
               }
-              return AppColors.beige;
+              return AppColors.white;
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) return AppColors.cream;
-              return AppColors.softBrown;
+              if (states.contains(WidgetState.selected)) {
+                return AppColors.warmWhite;
+              }
+              return AppColors.primaryRed;
             }),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
@@ -131,7 +137,7 @@ final class AppTheme {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),
-            borderSide: const BorderSide(color: AppColors.beige, width: 1.5),
+            borderSide: const BorderSide(color: AppColors.warmWhite, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),

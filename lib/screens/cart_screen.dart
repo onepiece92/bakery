@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/address_provider.dart';
-import '../../data/bakery_data.dart';
+import '../../providers/product_provider.dart';
 import '../../components/address_selector.dart';
 import '../../components/primary_button.dart';
 import '../../components/product_card.dart';
@@ -35,9 +35,11 @@ class CartScreen extends StatelessWidget {
     final cart = context.watch<CartProvider>();
     final addrProv = context.watch<AddressProvider>();
     final favProv = context.watch<FavouritesProvider>();
+    final productProv = context.watch<ProductProvider>();
 
+    // Products not already in cart — pulled from ProductProvider
     final cartIds = cart.items.map((i) => i.product.id).toSet();
-    final suggestions = BakeryData.products
+    final suggestions = productProv.products
         .where((p) => !cartIds.contains(p.id))
         .take(4)
         .toList();
@@ -79,7 +81,8 @@ class CartScreen extends StatelessWidget {
                                 padding: const EdgeInsets.only(bottom: 14),
                                 child: ProductCard(
                                   product: item.product,
-                                  onTap: () => context.push('/home/product',
+                                  onTap: () => context.push(
+                                      '/home/product',
                                       extra: item.product),
                                   onQuickAdd: () =>
                                       cart.addProduct(item.product),
@@ -91,7 +94,7 @@ class CartScreen extends StatelessWidget {
                               );
                             }),
 
-                            // Suggestions
+                            // ── Suggestions ──────────────────────────────
                             if (suggestions.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Text('Add something extra?',
@@ -102,8 +105,8 @@ class CartScreen extends StatelessWidget {
                                 child: ListView.separated(
                                   scrollDirection: Axis.horizontal,
                                   physics: const BouncingScrollPhysics(),
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4),
                                   itemCount: suggestions.length,
                                   separatorBuilder: (_, __) =>
                                       const SizedBox(width: 14),
@@ -113,10 +116,12 @@ class CartScreen extends StatelessWidget {
                                       width: 160,
                                       child: GridProductCard(
                                         product: p,
-                                        onTap: () => context
-                                            .push('/home/product', extra: p),
-                                        onQuickAdd: () => cart.addProduct(p),
-                                        isFavourite: favProv.isFavourite(p.id),
+                                        onTap: () => context.push(
+                                            '/home/product', extra: p),
+                                        onQuickAdd: () =>
+                                            cart.addProduct(p),
+                                        isFavourite:
+                                            favProv.isFavourite(p.id),
                                         onToggleFavourite: () =>
                                             favProv.toggle(p.id),
                                       ),
@@ -127,8 +132,9 @@ class CartScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                             ],
 
-                            // Address
-                            Text('DELIVER TO', style: AppTextStyles.labelSmall),
+                            // ── Address ──────────────────────────────────
+                            Text('DELIVER TO',
+                                style: AppTextStyles.labelSmall),
                             const SizedBox(height: 8),
                             AddressSelector(
                               selectedId: addrProv.selectedId,
@@ -137,7 +143,7 @@ class CartScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
 
-                            // Price summary
+                            // ── Price summary ─────────────────────────────
                             Card(
                               color: Theme.of(context)
                                   .colorScheme
@@ -161,7 +167,8 @@ class CartScreen extends StatelessWidget {
                                         value: cart.subtotal),
                                     const SizedBox(height: 10),
                                     _PriceSummaryRow(
-                                        label: 'Baking fee', value: 2.50),
+                                        label: 'Baking fee',
+                                        value: CartProvider.bakingFee),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12),
@@ -195,7 +202,7 @@ class CartScreen extends StatelessWidget {
               ],
             ),
 
-            // Checkout button
+            // ── Checkout button ───────────────────────────────────────────
             if (cart.items.isNotEmpty)
               Positioned(
                 bottom: 0,
@@ -229,11 +236,12 @@ class _PriceSummaryRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style:
-                AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight)),
+            style: AppTextStyles.bodyMedium
+                .copyWith(color: AppColors.textLight)),
         Text('\$${value.toStringAsFixed(2)}',
             style: AppTextStyles.bodyLarge.copyWith(
-                fontWeight: FontWeight.w600, color: AppColors.darkBrown)),
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkBrown)),
       ],
     );
   }

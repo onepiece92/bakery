@@ -45,6 +45,7 @@ class _LoyaltyCardState extends State<LoyaltyCard>
   @override
   Widget build(BuildContext context) {
     final remaining = widget.nextRewardAt - widget.points;
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -75,7 +76,7 @@ class _LoyaltyCardState extends State<LoyaltyCard>
                   Text(
                     '${widget.points} pts',
                     style: AppTextStyles.displayMedium.copyWith(
-                      color: AppColors.cream,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 28,
                     ),
                   ),
@@ -141,7 +142,7 @@ class _LoyaltyCardState extends State<LoyaltyCard>
                       Text(
                         'Next: ${widget.nextRewardName}',
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.cream,
+                          color:  Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w500,
                           fontSize: 13,
                         ),

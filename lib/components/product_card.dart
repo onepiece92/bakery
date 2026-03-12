@@ -1,9 +1,9 @@
+import 'package:bakery_flutter/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_decorations.dart';
 import '../theme/app_text_styles.dart';
-import '../models/product.dart';
 import '../providers/cart_provider.dart';
 
 /// List-view product card with live qty counter on the add button.
@@ -47,8 +47,24 @@ class ProductCard extends StatelessWidget {
                         height: 90,
                         decoration: AppDecorations.productImage,
                         alignment: Alignment.center,
-                        child: Text(product.image,
-                            style: const TextStyle(fontSize: 40)),
+                        child: Image.network(
+                          product.image,
+                          width: double.infinity,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                            Icons.broken_image_rounded,
+                            size: 40,
+                            color: AppColors.softBrown,
+                          ),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -94,7 +110,8 @@ class ProductCard extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Text(product.time, style: AppTextStyles.labelSmall),
+                          Text(product.description,
+                              style: AppTextStyles.labelSmall),
                           // Price only — button is Positioned separately
                           Expanded(
                             child: Align(
@@ -134,7 +151,7 @@ class ProductCard extends StatelessWidget {
 /// Compact "+" that expands to "−  N  +" once qty > 0.
 class AddCounter extends StatelessWidget {
   final int qty;
-  final int productId;
+  final String productId;
   final VoidCallback onAdd;
 
   const AddCounter({
@@ -154,7 +171,7 @@ class AddCounter extends StatelessWidget {
       height: 32,
       width: hasItems ? 88 : 32,
       decoration: BoxDecoration(
-        color: AppColors.darkBrown,
+        color: AppColors.primaryRed,
         borderRadius: BorderRadius.circular(AppDecorations.radiusSM),
         boxShadow: const [
           BoxShadow(
@@ -175,7 +192,7 @@ class AddCounter extends StatelessWidget {
                         .read<CartProvider>()
                         .updateById(productId, qty - 1),
                     child: Icon(Icons.remove_rounded,
-                        color: AppColors.cream, size: 14),
+                        color: Theme.of(context).colorScheme.onSecondary, size: 14),
                   ),
                 ),
                 // Animated count
@@ -187,7 +204,7 @@ class AddCounter extends StatelessWidget {
                     '$qty',
                     key: ValueKey(qty),
                     style: AppTextStyles.labelSmall.copyWith(
-                      color: AppColors.cream,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
@@ -198,15 +215,15 @@ class AddCounter extends StatelessWidget {
                   child: GestureDetector(
                     onTap: onAdd,
                     child: Icon(Icons.add_rounded,
-                        color: AppColors.cream, size: 14),
+                        color: Theme.of(context).colorScheme.onSecondary, size: 14),
                   ),
                 ),
               ],
             )
           : GestureDetector(
               onTap: onAdd,
-              child: const Icon(Icons.add_rounded,
-                  color: AppColors.cream, size: 18),
+              child: Icon(Icons.add_rounded,
+                  color: Theme.of(context).colorScheme.onSecondary, size: 18),
             ),
     );
   }
