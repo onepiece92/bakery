@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 /// Single source of truth — never hard-code colours elsewhere.
 abstract final class AppColors {
   // Brand
-  static const Color primaryRed = Color(0xFFEC4913);   // Primary orange-red
+  static const Color primaryRed = Color(0xFFEC4913);
+  static const Color backgroundLight = Color(0xFFF8F6F6);   // Primary orange-red
 
   // Backgrounds
   static const Color warmWhite = Color(0xFFF8F6F6);    // Light background

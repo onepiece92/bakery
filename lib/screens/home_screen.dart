@@ -1,9 +1,13 @@
 // home_screen.dart
+import 'package:bakery_flutter/components/reorder_card.dart';
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/models/order.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
+import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
 import 'package:bakery_flutter/providers/category_provider.dart';
 import 'package:bakery_flutter/providers/view_provider.dart';
+import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen>
         Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
       ]);
       Provider.of<FavouritesProvider>(context, listen: false).loadFavourites();
+        Provider.of<OrderProvider>(context, listen: false).loadOrders(); 
     });
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
@@ -78,6 +83,8 @@ class _HomeScreenState extends State<HomeScreen>
     final favProv = context.watch<FavouritesProvider>();
     final viewMode = context.watch<ViewModeProvider>();
     final businessName = LocalStorageService.instance.getBusinessName();
+    final bool showRecent = _searchQuery.isEmpty && _selectedCategory == 'all';
+final recentOrders = context.watch<OrderProvider>().recentOrders;
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -219,6 +226,67 @@ class _HomeScreenState extends State<HomeScreen>
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (showRecent) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Recent Orders',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall),
+                              GestureDetector(
+                                onTap: () =>
+                                    context.push('/home/recent_orders'),
+                                child: Text('View all →',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .tertiary,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          if (recentOrders.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Text(
+                                'No orders yet',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 140,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: recentOrders.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(width: 12),
+                                itemBuilder: (_, i) => GestureDetector(
+                                  onTap: () =>
+                                      context.push('/home/recent_orders'),
+                                  child: SizedBox(
+                                    width: 200,
+                                    child: OrderCard(
+                                      order: recentOrders[i],
+                                      featured: i == 0,
+                                      onReorder: () {
+                                        debugPrint(
+                                            'Reorder Clicked: ${recentOrders[i].id}');
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                        ],
                         if (_searchQuery.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 12),

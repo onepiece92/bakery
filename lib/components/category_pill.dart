@@ -54,10 +54,12 @@ class CategoryPill extends StatelessWidget {
         onSelected: (_) => onTap(),
         showCheckmark: false,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        backgroundColor: theme.cardColor,
+        backgroundColor: Colors.white,
+        // backgroundColor: theme.cardColor,
         selectedColor: colorScheme.onPrimary,
         side: BorderSide(
-          color: active ? colorScheme.onPrimary : theme.dividerColor,
+          color: active ? colorScheme.onPrimary : Colors.transparent,
+          // color: active ? colorScheme.onPrimary : theme.dividerColor,
           width: 1,
         ),
         shape: RoundedRectangleBorder(

@@ -1,3 +1,4 @@
+import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
@@ -216,12 +217,11 @@ class CartScreen extends StatelessWidget {
                     if (cart.items.isNotEmpty) {
                       final orderId =
                           'order_${DateTime.now().millisecondsSinceEpoch}';
-                      await HiveOrderService.saveOrder(
-                        orderId: orderId,
-                        items: cart.items.toList(),
-                        subtotal: cart.subtotal,
-                        isBusinessOrder: isBusiness,
-                      );
+                      await context.read<OrderProvider>().placeOrder(
+                            items: cart.items.toList(),
+                            subtotal: cart.subtotal,
+                            isBusinessOrder: isBusiness,
+                          );
                       debugPrint('Order saved: $orderId');
                       final saved = HiveOrderService.getOrder(orderId);
                       if (saved != null) {
@@ -248,7 +248,7 @@ class CartScreen extends StatelessWidget {
                             'Total Orders in box : ${HiveOrderService.getAllOrders().length}');
                       } else {
                         debugPrint(
-                            '❌ ORDER NOT FOUND IN HIVE — something went wrong');
+                            ' ORDER NOT FOUND IN HIVE — something went wrong');
                       }
 
                       if (isBusiness) {

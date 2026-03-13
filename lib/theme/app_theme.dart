@@ -19,7 +19,7 @@ final class AppTheme {
           onSurface: AppColors.text, 
           error: AppColors.terracotta,
         ),
-        scaffoldBackgroundColor: AppColors.warmWhite,
+        scaffoldBackgroundColor: AppColors.backgroundLight,
         textTheme: GoogleFonts.dmSansTextTheme().copyWith(
           displayLarge: AppTextStyles.displayLarge,
           displayMedium: AppTextStyles.displayMedium,
