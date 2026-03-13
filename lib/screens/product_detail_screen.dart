@@ -1,7 +1,8 @@
+import 'package:bakery_flutter/extensions/string_casing_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favourites_provider.dart';
 import '../../components/bakery_back_button.dart';
@@ -20,25 +21,13 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 0;
   int _activeImage = 0;
-
-  // Variant selection: one selected value per option axis
-  // e.g. { 'Size': 'Large', 'Flavor': 'Chocolate' }
   final Map<String, String> _selectedOptionValues = {};
-
-  // Selected addon IDs
   final Set<String> _selectedAddonIds = {};
 
   final TextEditingController _instructionsCtrl = TextEditingController();
-
-  // ── Helpers ────────────────────────────────────────────────────
-
-  /// Find the VariantItem whose optionValues match all current selections.
-  /// Returns null if selections are incomplete or no match found.
   VariantItem? get _matchedVariant {
     final variants = widget.product.variants;
     if (variants == null) return null;
-
-    // All option axes must have a selection
     if (_selectedOptionValues.length != variants.options.length) return null;
 
     final selectedValues = variants.options
@@ -69,13 +58,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   double get _totalPrice => _unitPrice * _quantity;
 
-  // ── Init ───────────────────────────────────────────────────────
-
   @override
   void initState() {
     super.initState();
 
-    // Pre-select first value of each variant option axis
     final variants = widget.product.variants;
     if (variants != null) {
       for (final option in variants.options) {
@@ -237,65 +223,65 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Name + category
-                      Text(widget.product.name,
+                      Text(widget.product.name.toTitleCase(),
                           style: Theme.of(context).textTheme.displayMedium),
                       const SizedBox(height: 6),
-                      Text(widget.product.categories,
-                          style: Theme.of(context).textTheme.bodySmall),
-                      const SizedBox(height: 12),
+                      // Text(widget.product.categories,
+                      //     style: Theme.of(context).textTheme.bodySmall),
+                      // const SizedBox(height: 12),
 
                       // Description
                       Text(
-                        widget.product.description,
+                        widget.product.description.toTitleCase(),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                             height: 1.6),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 6),
 
                       // Tags
-                      if (widget.product.tags.isNotEmpty) ...[
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: widget.product.tags.map((tag) {
-                            final isGood = tag.contains('Gluten') ||
-                                tag.contains('Vegan') ||
-                                tag.contains('Organic');
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: isGood
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .secondaryContainer
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .errorContainer,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                tag,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall
-                                    ?.copyWith(
-                                      color: isGood
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .onSecondaryContainer
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onErrorContainer,
-                                      fontSize: 12,
-                                    ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+                      // if (widget.product.tags.isNotEmpty) ...[
+                      //   Wrap(
+                      //     spacing: 8,
+                      //     runSpacing: 6,
+                      //     children: widget.product.tags.map((tag) {
+                      //       final isGood = tag.contains('Gluten') ||
+                      //           tag.contains('Vegan') ||
+                      //           tag.contains('Organic');
+                      //       return Container(
+                      //         padding: const EdgeInsets.symmetric(
+                      //             horizontal: 12, vertical: 5),
+                      //         decoration: BoxDecoration(
+                      //           color: isGood
+                      //               ? Theme.of(context)
+                      //                   .colorScheme
+                      //                   .secondaryContainer
+                      //               : Theme.of(context)
+                      //                   .colorScheme
+                      //                   .errorContainer,
+                      //           borderRadius: BorderRadius.circular(10),
+                      //         ),
+                      //         child: Text(
+                      //           tag,
+                      //           style: Theme.of(context)
+                      //               .textTheme
+                      //               .labelSmall
+                      //               ?.copyWith(
+                      //                 color: isGood
+                      //                     ? Theme.of(context)
+                      //                         .colorScheme
+                      //                         .onSecondaryContainer
+                      //                     : Theme.of(context)
+                      //                         .colorScheme
+                      //                         .onErrorContainer,
+                      //                 fontSize: 12,
+                      //               ),
+                      //         ),
+                      //       );
+                      //     }).toList(),
+                      //   ),
+                      //   const SizedBox(height: 24),
+                      // ],
 
                       // ── Variants ─────────────────────────────
                       if (variants != null && variants.options.isNotEmpty) ...[
@@ -309,9 +295,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 final isActive =
                                     _selectedOptionValues[option.title] ==
                                         value;
-
-                                // Find matching variant price for this value
-                                // (best effort: find first variantItem containing this value)
                                 final matchingItem =
                                     variants.variantItems.firstWhere(
                                   (item) => item.optionValues.contains(value),
@@ -320,8 +303,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                                 return _OptionItem(
                                   name: value,
-                                  price: matchingItem.price -
-                                      widget.product.displayPrice,
+                                  price: matchingItem.price,
                                   isActive: isActive,
                                   onTap: () => setState(() =>
                                       _selectedOptionValues[option.title] =
@@ -357,62 +339,60 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
 
                       // ── Special Instructions ──────────────────
-                      Text(
-                        'Special Instructions',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _instructionsCtrl,
-                        maxLines: 4,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        decoration: InputDecoration(
-                          hintText: 'E.g. No onions, sauce on the side...',
-                          hintStyle:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant
-                                        .withValues(alpha: 0.6),
-                                  ),
-                          filled: true,
-                          fillColor: Theme.of(context).cardColor,
-                          contentPadding: const EdgeInsets.all(20),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primary
-                                    .withValues(alpha: 0.5)),
-                          ),
-                        ),
-                      ),
+                      // Text(
+                      //   'Special Instructions',
+                      //   style: Theme.of(context)
+                      //       .textTheme
+                      //       .titleMedium
+                      //       ?.copyWith(
+                      //         fontWeight: FontWeight.w700,
+                      //         fontSize: 18,
+                      //         color: Theme.of(context).colorScheme.onSurface,
+                      //       ),
+                      // ),
+                      // const SizedBox(height: 16),
+                      // TextField(
+                      //   controller: _instructionsCtrl,
+                      //   maxLines: 4,
+                      //   style: Theme.of(context).textTheme.bodyLarge,
+                      //   decoration: InputDecoration(
+                      //     hintText: 'E.g. No onions, sauce on the side...',
+                      //     hintStyle:
+                      //         Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      //               color: Theme.of(context)
+                      //                   .colorScheme
+                      //                   .onSurfaceVariant
+                      //                   .withValues(alpha: 0.6),
+                      //             ),
+                      //     filled: true,
+                      //     fillColor: Theme.of(context).cardColor,
+                      //     contentPadding: const EdgeInsets.all(20),
+                      //     border: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(24),
+                      //       borderSide: BorderSide(
+                      //           color: Theme.of(context).dividerColor),
+                      //     ),
+                      //     enabledBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(24),
+                      //       borderSide: BorderSide(
+                      //           color: Theme.of(context).dividerColor),
+                      //     ),
+                      //     focusedBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(24),
+                      //       borderSide: BorderSide(
+                      //           color: Theme.of(context)
+                      //               .colorScheme
+                      //               .primary
+                      //               .withValues(alpha: 0.5)),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
               ),
             ],
           ),
-
-          // ── Bottom CTA ────────────────────────────────────────
           ProductBottomCta(
             quantity: _quantity,
             totalPrice: _totalPrice,
@@ -536,7 +516,7 @@ class _OptionItem extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Text(
-                name,
+                name.toTitleCase(),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     ),
@@ -546,8 +526,8 @@ class _OptionItem extends StatelessWidget {
               price == 0
                   ? 'Free'
                   : price > 0
-                      ? '+\$${price.toStringAsFixed(2)}'
-                      : '-\$${price.abs().toStringAsFixed(2)}',
+                      ? price.toStringAsFixed(2)
+                      : price.abs().toStringAsFixed(2),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: isActive
                         ? Theme.of(context).colorScheme.primary

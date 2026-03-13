@@ -1,4 +1,6 @@
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
+import 'package:bakery_flutter/providers/favourites_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
@@ -69,27 +71,32 @@ class GridProductCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: GestureDetector(
-                    onTap: onToggleFavourite,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withValues(alpha: 0.85),
-                        borderRadius:
-                            BorderRadius.circular(AppDecorations.radiusXS),
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        isFavourite
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_border_rounded,
-                        color: isFavourite
-                            ? AppColors.terracotta
-                            : AppColors.softBrown,
-                        size: 15,
-                      ),
-                    ),
+                  child: Consumer<FavouritesProvider>(
+                    builder: (context, favProv, _) {
+                      final isFav = favProv.isFavourite(product.id);
+                      return GestureDetector(
+                        onTap: () => favProv.toggle(product.id),
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: AppColors.white.withValues(alpha: 0.85),
+                            borderRadius:
+                                BorderRadius.circular(AppDecorations.radiusXS),
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            isFav
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            color: isFav
+                                ? AppColors.primaryRed
+                                : AppColors.primaryRed,
+                            size: 15,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -102,14 +109,14 @@ class GridProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product.name,
+                    product.name.toTitleCase(),
                     style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.darkBrown,
                         fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  Text(product.description, style: AppTextStyles.labelSmall),
+                  Text(product.description.toTitleCase(), style: AppTextStyles.labelSmall),
                   const SizedBox(height: 4),
                   Row(
                     children: [

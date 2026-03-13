@@ -1,4 +1,4 @@
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/services/products/product_service.dart';
 import 'package:flutter/foundation.dart';
 

@@ -1,3 +1,4 @@
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
@@ -19,6 +20,8 @@ class AppBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cartCount = context.watch<CartProvider>().totalCount;
+    final isBusinessSession =
+        LocalStorageService.instance.getIsBusinessSession();
 
     return Container(
       decoration: const BoxDecoration(
@@ -55,14 +58,24 @@ class AppBottomNavBar extends StatelessWidget {
                 onTap: onTap,
                 badge: cartCount,
               ),
-              _NavItem(
-                icon: Icons.person_outline_rounded,
-                activeIcon: Icons.person_rounded,
-                label: 'Profile',
-                index: 3,
-                currentIndex: currentIndex,
-                onTap: onTap,
-              ),
+              if (isBusinessSession)
+                _NavItem(
+                  icon: Icons.miscellaneous_services_outlined,
+                  activeIcon: Icons.miscellaneous_services_rounded,
+                  label: 'Services',
+                  index: 3,
+                  currentIndex: currentIndex,
+                  onTap: onTap,
+                )
+              else
+                _NavItem(
+                  icon: Icons.person_outline_rounded,
+                  activeIcon: Icons.person_rounded,
+                  label: 'Profile',
+                  index: 3,
+                  currentIndex: currentIndex,
+                  onTap: onTap,
+                ),
             ],
           ),
         ),

@@ -1,6 +1,6 @@
 import 'package:bakery_flutter/models/cart_item.dart';
 import 'package:flutter/foundation.dart';
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
 
 
 class CartProvider extends ChangeNotifier {
@@ -13,8 +13,7 @@ class CartProvider extends ChangeNotifier {
   double get subtotal =>
       _items.fold(0.0, (sum, i) => sum + i.lineTotal);
 
-  static const double bakingFee = 2.50;
-  double get total => subtotal + bakingFee;
+  double get total => subtotal ;
 
   bool contains(Product product) =>
       _items.any((i) => i.product.id == product.id);

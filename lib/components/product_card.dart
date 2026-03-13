@@ -1,4 +1,6 @@
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
+import 'package:bakery_flutter/providers/favourites_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
@@ -83,7 +85,7 @@ class ProductCard extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  product.name,
+                                  product.name.toTitleCase(),
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     color: AppColors.darkBrown,
                                     fontSize: 15,
@@ -92,25 +94,31 @@ class ProductCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: onToggleFavourite,
-                                child: AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: Icon(
-                                    isFavourite
-                                        ? Icons.favorite_rounded
-                                        : Icons.favorite_border_rounded,
-                                    color: isFavourite
-                                        ? AppColors.terracotta
-                                        : AppColors.softBrown,
-                                    size: 16,
-                                    key: ValueKey(isFavourite),
-                                  ),
-                                ),
+                              Consumer<FavouritesProvider>(
+                                builder: (context, favProv, _) {
+                                  final isFav = favProv.isFavourite(product.id);
+                                  return GestureDetector(
+                                    onTap: () => favProv.toggle(product.id),
+                                    child: AnimatedSwitcher(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      child: Icon(
+                                        isFav
+                                            ? Icons.favorite_rounded
+                                            : Icons.favorite_border_rounded,
+                                        color: isFav
+                                            ? AppColors.primaryRed
+                                            : AppColors.primaryRed,
+                                        size: 16,
+                                        key: ValueKey(isFav),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
-                          Text(product.description,
+                          Text(product.description.toTitleCase(),
                               style: AppTextStyles.labelSmall),
                           // Price only — button is Positioned separately
                           Expanded(
@@ -192,7 +200,8 @@ class AddCounter extends StatelessWidget {
                         .read<CartProvider>()
                         .updateById(productId, qty - 1),
                     child: Icon(Icons.remove_rounded,
-                        color: Theme.of(context).colorScheme.onSecondary, size: 14),
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        size: 14),
                   ),
                 ),
                 // Animated count
@@ -215,7 +224,8 @@ class AddCounter extends StatelessWidget {
                   child: GestureDetector(
                     onTap: onAdd,
                     child: Icon(Icons.add_rounded,
-                        color: Theme.of(context).colorScheme.onSecondary, size: 14),
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        size: 14),
                   ),
                 ),
               ],

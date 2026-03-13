@@ -22,7 +22,7 @@ class AppShell extends StatelessWidget {
       if (index == 0 && index == navigationShell.currentIndex) {
         context.read<NavProvider>().triggerHomeTap();
       }
-      navigationShell.goBranch(
+    navigationShell.goBranch(
         index,
         initialLocation: index == navigationShell.currentIndex,
       );

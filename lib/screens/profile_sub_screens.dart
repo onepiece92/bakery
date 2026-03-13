@@ -119,39 +119,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 20),
                     _FieldLabel('DIETARY PREFERENCE'),
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: BakeryData.dietaryPreferenceOptions.map((d) {
-                        final active = d == _selectedDiet;
-                        return ChoiceChip(
-                          label: Text(d),
-                          selected: active,
-                          onSelected: (selected) {
-                            if (selected) setState(() => _selectedDiet = d);
-                          },
-                          backgroundColor: Theme.of(context).dividerColor,
-                          selectedColor:
-                              Theme.of(context).colorScheme.onSurface,
-                          showCheckmark: false,
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          labelStyle: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(
-                                color: active
-                                    ? Theme.of(context).colorScheme.onTertiary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                fontSize: 13,
-                              ),
-                        );
-                      }).toList(),
-                    ),
+                    // Wrap(
+                    //   spacing: 8,
+                    //   runSpacing: 8,
+                    //   children: BakeryData.dietaryPreferenceOptions.map((d) {
+                    //     final active = d == _selectedDiet;
+                    //     return ChoiceChip(
+                    //       label: Text(d),
+                    //       selected: active,
+                    //       onSelected: (selected) {
+                    //         if (selected) setState(() => _selectedDiet = d);
+                    //       },
+                    //       backgroundColor: Theme.of(context).dividerColor,
+                    //       selectedColor:
+                    //           Theme.of(context).colorScheme.onSurface,
+                    //       showCheckmark: false,
+                    //       side: BorderSide.none,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //       ),
+                    //       labelStyle: Theme.of(context)
+                    //           .textTheme
+                    //           .labelMedium
+                    //           ?.copyWith(
+                    //             color: active
+                    //                 ? Theme.of(context).colorScheme.onTertiary
+                    //                 : Theme.of(context)
+                    //                     .colorScheme
+                    //                     .onSurfaceVariant,
+                    //             fontSize: 13,
+                    //           ),
+                    //     );
+                    //   }).toList(),
+                    // ),
                   ],
                 ),
               ),
@@ -247,88 +247,88 @@ class SavedAddressesScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 children: [
-                  ...BakeryData.savedAddresses.map((a) {
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      color: Theme.of(context).cardColor,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                            color: Theme.of(context).dividerColor, width: 1.5),
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        leading: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).dividerColor,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(a.icon,
-                              style: const TextStyle(fontSize: 20)),
-                        ),
-                        title: Row(
-                          children: [
-                            Text(a.label,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w500)),
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: a.type == 'Pickup'
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withValues(alpha: 0.12)
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .secondary
-                                        .withValues(alpha: 0.14),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text(
-                                a.type,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: a.type == 'Pickup'
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            a.address,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(fontSize: 12),
-                          ),
-                        ),
-                        trailing: Icon(Icons.more_vert_rounded,
-                            color: Theme.of(context).colorScheme.outline,
-                            size: 20),
-                      ),
-                    );
-                  }),
+                  // ...BakeryData.savedAddresses.map((a) {
+                  //   return Card(
+                  //     margin: const EdgeInsets.only(bottom: 12),
+                  //     color: Theme.of(context).cardColor,
+                  //     elevation: 0,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(20),
+                  //       side: BorderSide(
+                  //           color: Theme.of(context).dividerColor, width: 1.5),
+                  //     ),
+                  //     child: ListTile(
+                  //       contentPadding: const EdgeInsets.symmetric(
+                  //           horizontal: 16, vertical: 8),
+                  //       leading: Container(
+                  //         width: 48,
+                  //         height: 48,
+                  //         decoration: BoxDecoration(
+                  //           color: Theme.of(context).dividerColor,
+                  //           borderRadius: BorderRadius.circular(16),
+                  //         ),
+                  //         alignment: Alignment.center,
+                  //         child: Text(a.icon,
+                  //             style: const TextStyle(fontSize: 20)),
+                  //       ),
+                  //       title: Row(
+                  //         children: [
+                  //           Text(a.label,
+                  //               style: Theme.of(context)
+                  //                   .textTheme
+                  //                   .bodyLarge
+                  //                   ?.copyWith(fontWeight: FontWeight.w500)),
+                  //           const SizedBox(width: 6),
+                  //           Container(
+                  //             padding: const EdgeInsets.symmetric(
+                  //                 horizontal: 7, vertical: 2),
+                  //             decoration: BoxDecoration(
+                  //               color: a.type == 'Pickup'
+                  //                   ? Theme.of(context)
+                  //                       .colorScheme
+                  //                       .primary
+                  //                       .withValues(alpha: 0.12)
+                  //                   : Theme.of(context)
+                  //                       .colorScheme
+                  //                       .secondary
+                  //                       .withValues(alpha: 0.14),
+                  //               borderRadius: BorderRadius.circular(5),
+                  //             ),
+                  //             child: Text(
+                  //               a.type,
+                  //               style: Theme.of(context)
+                  //                   .textTheme
+                  //                   .bodySmall
+                  //                   ?.copyWith(
+                  //                     color: a.type == 'Pickup'
+                  //                         ? Theme.of(context)
+                  //                             .colorScheme
+                  //                             .primary
+                  //                         : Theme.of(context)
+                  //                             .colorScheme
+                  //                             .onSurfaceVariant,
+                  //                     fontWeight: FontWeight.w500,
+                  //                   ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       subtitle: Padding(
+                  //         padding: const EdgeInsets.only(top: 4),
+                  //         child: Text(
+                  //           a.address,
+                  //           style: Theme.of(context)
+                  //               .textTheme
+                  //               .bodySmall
+                  //               ?.copyWith(fontSize: 12),
+                  //         ),
+                  //       ),
+                  //       trailing: Icon(Icons.more_vert_rounded,
+                  //           color: Theme.of(context).colorScheme.outline,
+                  //           size: 20),
+                  //     ),
+                  //   );
+                  // }),
                   OutlinedButton.icon(
                     onPressed: () => context.push('/profile/addresses/add'),
                     style: OutlinedButton.styleFrom(

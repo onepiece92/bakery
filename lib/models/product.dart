@@ -6,7 +6,7 @@ class Product {
   final double price;
   final double rating;
   final int reviews;
-  final String image; // emoji
+  final String image; 
   final String? badge;
   final String description;
   final List<String> tags;

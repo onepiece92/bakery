@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService {
@@ -14,6 +15,9 @@ class LocalStorageService {
   static const String _keyBusinessId = 'id';
   static const String _keyBusinessName = 'name';
   static const String _keyAddress = 'address';
+  static const String _keyMenuIsGrid = 'menu_is_grid';
+  static const String _keyFavouriteIds = 'favourite_ids';
+  static const String _keyIsBusinessSession = 'is_business_session';
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -45,6 +49,11 @@ class LocalStorageService {
     await _prefs?.setString(_keyBusinessId, id);
   }
 
+  Future<void> saveMenuIsGrid(bool isGrid) async {
+    await _prefs?.setBool(_keyMenuIsGrid, isGrid);
+  }
+
+  bool getMenuIsGrid() => _prefs?.getBool(_keyMenuIsGrid) ?? true;
   Future<void> saveBusinessName(String name) async {
     await _prefs?.setString(_keyBusinessName, name);
   }
@@ -87,6 +96,26 @@ class LocalStorageService {
     return _prefs?.getString(_keyAddress);
   }
 
+Future<void> saveFavouriteIds(List<String> ids) async {
+  await _prefs?.setStringList(_keyFavouriteIds, ids); 
+}
+Future<void> saveIsBusinessSession(bool isBusinessSession) async {
+  await _prefs?.setBool(_keyIsBusinessSession, isBusinessSession);
+}
+
+bool getIsBusinessSession() {
+  return _prefs?.getBool(_keyIsBusinessSession) ?? true;
+}
+
+List<String> getFavouriteIds() {
+  final result = _prefs?.getStringList(_keyFavouriteIds) ?? [];
+  return result;
+}
+
+  Future<void> clearFavouriteIds() async {
+    await _prefs?.remove(_keyFavouriteIds);
+  }
+
   /// CLEAR METHODS
 
   Future<void> clearSession() async {
@@ -98,6 +127,7 @@ class LocalStorageService {
     await _prefs?.remove(_keyBusinessId);
     await _prefs?.remove(_keyBusinessName);
     await _prefs?.remove(_keyAddress);
+      await _prefs?.remove(_keyIsBusinessSession);
   }
 
   Future<void> clearAll() async {

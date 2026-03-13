@@ -1,14 +1,16 @@
-import 'package:bakery_flutter/models/product_model.dart';
+// home_screen.dart
+import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
+import 'package:bakery_flutter/providers/category_provider.dart';
+import 'package:bakery_flutter/providers/view_provider.dart';
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../data/bakery_data.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favourites_provider.dart';
-import '../../providers/address_provider.dart';
-import '../../components/address_selector.dart';
 import '../../components/category_pill.dart';
 import '../../components/product_card.dart';
 import '../../components/grid_product_card.dart';
@@ -28,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen>
   String _selectedCategory = 'all';
   String _searchQuery = '';
   String _sortBy = 'default';
-  bool _gridView = false;
   final _searchCtrl = TextEditingController();
   final _scrollController = ScrollController();
   late AnimationController _animCtrl;
@@ -37,7 +38,13 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    Provider.of<ProductProvider>(context, listen: false).fetchProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.wait([
+        Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
+        Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
+      ]);
+      Provider.of<FavouritesProvider>(context, listen: false).loadFavourites();
+    });
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
@@ -56,20 +63,6 @@ class _HomeScreenState extends State<HomeScreen>
     context.read<CartProvider>().addProduct(product);
   }
 
-  void _showAddressSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => AddressBottomSheet(
-        selectedId: context.read<AddressProvider>().selectedId,
-        onSelect: (id) => context.read<AddressProvider>().select(id),
-        onAddNew: () {
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
-
   void _scrollToTop() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -83,7 +76,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final favProv = context.watch<FavouritesProvider>();
-    final addrProv = context.watch<AddressProvider>();
+    final viewMode = context.watch<ViewModeProvider>();
+    final businessName = LocalStorageService.instance.getBusinessName();
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -95,12 +89,10 @@ class _HomeScreenState extends State<HomeScreen>
             child: Row(
               children: [
                 Expanded(
-                  child: AddressSelector(
-                    selectedId: addrProv.selectedId,
-                    onTap: _showAddressSheet,
-                    variant: AddressSelectorVariant.header,
-                  ),
-                ),
+                    child: Text(
+                  businessName ?? "Foxys Corner".toTitleCase(),
+                  style: Theme.of(context).textTheme.displayMedium,
+                )),
                 const SizedBox(width: 12),
                 IconButton(
                   onPressed: () => context.push('/profile/notifications'),
@@ -131,41 +123,64 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           const SizedBox(height: 8),
 
-          // ── Category Pills ───────────────────────────────────────
+          // ── Category Pills ───────────────────────────────────────────────
           SizedBox(
             height: 60,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              padding: const EdgeInsets.symmetric(horizontal: 22),
-              children: [
-                CategoryPill(
-                  label: 'All',
-                  icon: '✦',
-                  active: _selectedCategory == 'all',
-                  onTap: () {
-                    setState(() => _selectedCategory = 'all');
-                    _scrollToTop();
-                    context.read<NavProvider>().triggerCategoryChange();
-                  },
-                ),
-                const SizedBox(width: 10),
-                ...BakeryData.categories.map((c) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: CategoryPill(
-                      label: c.label,
-                      icon: c.icon,
-                      active: _selectedCategory == c.id,
+            child: Consumer<CategoryProvider>(
+              builder: (context, categoryProvider, _) {
+                if (categoryProvider.isLoading) {
+                  return const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+
+                if (categoryProvider.error != null) {
+                  return Center(
+                    child: Text(
+                      'Failed to load categories',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  );
+                }
+
+                return ListView(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                  children: [
+                    CategoryPill(
+                      label: 'All',
+                      icon: '✦',
+                      active: _selectedCategory == 'all',
                       onTap: () {
-                        setState(() => _selectedCategory = c.id);
+                        setState(() => _selectedCategory = 'all');
                         _scrollToTop();
                         context.read<NavProvider>().triggerCategoryChange();
                       },
                     ),
-                  );
-                }),
-              ],
+                    const SizedBox(width: 10),
+                    ...categoryProvider.categories.map((c) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: CategoryPill(
+                          label: c.name,
+                          icon: '',
+                          active: _selectedCategory == c.id,
+                          onTap: () {
+                            setState(() => _selectedCategory = c.id);
+                            _scrollToTop();
+                            context.read<NavProvider>().triggerCategoryChange();
+                          },
+                        ),
+                      );
+                    }),
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 16),
@@ -219,14 +234,13 @@ class _HomeScreenState extends State<HomeScreen>
                             children: [
                               _SortButton(
                                 sortBy: _sortBy,
-                                onChanged: (v) =>
-                                    setState(() => _sortBy = v),
+                                onChanged: (v) => setState(() => _sortBy = v),
                               ),
                               const SizedBox(width: 8),
                               _ViewToggle(
-                                isGrid: _gridView,
+                                isGrid: viewMode.isGrid,
                                 onToggle: (v) =>
-                                    setState(() => _gridView = v),
+                                    context.read<ViewModeProvider>().setGrid(v),
                               ),
                             ],
                           ),
@@ -241,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
                               _selectedCategory = 'all';
                             }),
                           )
-                        else if (_gridView)
+                        else if (viewMode.isGrid)
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -260,11 +274,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 onTap: () =>
                                     context.push('/home/product', extra: p),
                                 onQuickAdd: () => _quickAdd(p),
-                                // isFavourite: false,
                                 isFavourite: favProv.isFavourite(p.id),
-                                onToggleFavourite: () =>
-                                    favProv.toggle(p.id),
-                            //  false,
+                                onToggleFavourite: () => favProv.toggle(p.id),
                               );
                             },
                           )
@@ -282,12 +293,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 onTap: () =>
                                     context.push('/home/product', extra: p),
                                 onQuickAdd: () => _quickAdd(p),
-                                // isFavourite: false,
                                 isFavourite: favProv.isFavourite(p.id),
-                                // onToggleFavourite: () =>
-                                //    false
-                                onToggleFavourite: () =>
-                                    favProv.toggle(p.id),
+                                onToggleFavourite: () => favProv.toggle(p.id),
                               );
                             },
                           ),
@@ -349,7 +356,6 @@ class _SortButton extends StatelessWidget {
 
   const _SortButton({required this.sortBy, required this.onChanged});
 
-  // Removed 'rating' — ProductProvider.filteredProducts() does not support it
   static const _options = [
     ('default', 'Default'),
     ('price_low', 'Price: Low → High'),

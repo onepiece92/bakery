@@ -10,9 +10,14 @@ import '../../components/browse_menu_button.dart';
 import '../../components/bakery_back_button.dart';
 import 'package:go_router/go_router.dart';
 
-class FavouritesScreen extends StatelessWidget {
+class FavouritesScreen extends StatefulWidget {
   const FavouritesScreen({super.key});
 
+  @override
+  State<FavouritesScreen> createState() => _FavouritesScreenState();
+}
+
+class _FavouritesScreenState extends State<FavouritesScreen> {
   @override
   Widget build(BuildContext context) {
     final favProv = context.watch<FavouritesProvider>();

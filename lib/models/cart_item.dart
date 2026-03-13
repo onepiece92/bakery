@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
 
 class CartItem extends Equatable {
   final Product product;

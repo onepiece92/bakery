@@ -1,4 +1,4 @@
-import 'package:bakery_flutter/models/product_model.dart';
+import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/screens/tablewelcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -127,16 +127,16 @@ final router = GoRouter(
               path: '/cart',
               builder: (context, state) => const CartScreen(),
               routes: [
-                // GoRoute(
-                //   path: 'checkout',
-                //   builder: (context, state) => const CheckoutScreen(),
-                //   routes: [
-                //     GoRoute(
-                //       path: 'success',
-                //       builder: (context, state) => const OrderSuccessScreen(),
-                //     ),
-                //   ],
-                // ),
+                GoRoute(
+                  path: 'checkout',
+                  builder: (context, state) => const CheckoutScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'success',
+                      builder: (context, state) => const OrderSuccessScreen(),
+                    ),
+                  ],
+                ),
               ],
             ),
           ],
