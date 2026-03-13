@@ -85,7 +85,8 @@ class ApiService {
 
   /// Gets the refresh token from storage.
   String? _getRefreshToken() {
-    return LocalStorageService.instance.getSessionToken(); // TODO: replace with actual refresh token getter
+    return LocalStorageService.instance
+        .getSessionToken(); // TODO: replace with actual refresh token getter
   }
 
   /// Handles logout — clears session and calls onLogout callback.
@@ -122,7 +123,7 @@ class ApiService {
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final newAccessToken  = response.data['access_token'];
+        final newAccessToken = response.data['access_token'];
         final newRefreshToken = response.data['refresh_token'];
 
         if (newAccessToken != null) {
@@ -130,7 +131,8 @@ class ApiService {
           debugPrint('refreshToken → new access token saved');
         }
         if (newRefreshToken != null) {
-          await LocalStorageService.instance.saveSessionToken(newRefreshToken); // TODO: replace with saveRefreshToken when ready
+          await LocalStorageService.instance.saveSessionToken(
+              newRefreshToken); // TODO: replace with saveRefreshToken when ready
           debugPrint('refreshToken → new refresh token saved');
         }
 
@@ -140,7 +142,6 @@ class ApiService {
 
       debugPrint('refreshToken → FAILED: status ${response.statusCode}');
       return false;
-
     } catch (e) {
       debugPrint('refreshToken → ERROR: $e');
       return false;
@@ -173,6 +174,7 @@ class ApiService {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
     T Function(dynamic)? fromJson,
   }) async {
     try {
@@ -180,6 +182,7 @@ class ApiService {
         path,
         data: data,
         queryParameters: queryParameters,
+        options: headers != null ? Options(headers: headers) : null,
       );
       return _handleResponse(response, fromJson);
     } on DioException catch (e) {
@@ -309,11 +312,12 @@ class ApiService {
       case DioExceptionType.receiveTimeout:
         return ApiResponse.error('Connection timeout. Please try again.');
       case DioExceptionType.connectionError:
-        return ApiResponse.error('Network error. Please check your connection.');
+        return ApiResponse.error(
+            'Network error. Please check your connection.');
       case DioExceptionType.badResponse:
         final statusCode = error.response?.statusCode;
-        final message    = error.response?.data?['message'] ?? 'Request failed';
-        final errors     = error.response?.data?['errors'];
+        final message = error.response?.data?['message'] ?? 'Request failed';
+        final errors = error.response?.data?['errors'];
         if (statusCode == 401) {
           return ApiResponse.error('Unauthorized. Please login again.');
         }
@@ -394,7 +398,7 @@ class _AuthInterceptor extends Interceptor {
           try {
             final token = LocalStorageService.instance.getSessionToken();
             err.requestOptions.headers['Authorization'] = 'Bearer $token';
-            final dio      = Dio();
+            final dio = Dio();
             final response = await dio.fetch(err.requestOptions);
             handler.resolve(response);
             return;
@@ -406,9 +410,8 @@ class _AuthInterceptor extends Interceptor {
           debugPrint('Refresh FAILED → logging out');
           await _apiService.handleLogout();
         }
-
       } else {
-        // ── BUSINESS / GUEST: no refresh → logout directly
+
         debugPrint('Business/Guest session → no refresh → logout directly');
         _isRefreshing = false;
         await _apiService.handleLogout();
@@ -439,14 +442,16 @@ class _LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    debugPrint('✅ API Response: ${response.statusCode} ${response.requestOptions.path}');
+    debugPrint(
+        '✅ API Response: ${response.statusCode} ${response.requestOptions.path}');
     debugPrint('📥 Data: ${response.data}');
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    debugPrint('❌ API Error: ${err.response?.statusCode} ${err.requestOptions.path}');
+    debugPrint(
+        '❌ API Error: ${err.response?.statusCode} ${err.requestOptions.path}');
     debugPrint('📛 Error: ${err.message}');
     handler.next(err);
   }

@@ -2,7 +2,6 @@ import 'package:bakery_flutter/models/cart_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 
-
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
 
@@ -10,8 +9,7 @@ class CartProvider extends ChangeNotifier {
 
   int get totalCount => _items.fold(0, (sum, i) => sum + i.quantity);
 
-  double get subtotal =>
-      _items.fold(0.0, (sum, i) => sum + i.lineTotal);
+  double get subtotal => _items.fold(0.0, (sum, i) => sum + i.lineTotal);
 
   double get total => subtotal;
 
@@ -31,8 +29,7 @@ class CartProvider extends ChangeNotifier {
       quantity: quantity,
     );
 
-    final index =
-        _items.indexWhere((i) => i.lineKey == newItem.lineKey);
+    final index = _items.indexWhere((i) => i.lineKey == newItem.lineKey);
 
     if (index >= 0) {
       _items[index].quantity += quantity;
@@ -43,14 +40,30 @@ class CartProvider extends ChangeNotifier {
   }
 
   void setCartItemNote(String cartItemId, String? note) {
-    final index =
-        _items.indexWhere((i) => i.cartItemId == cartItemId);
+    final index = _items.indexWhere((i) => i.cartItemId == cartItemId);
     if (index < 0) return;
     _items[index].note = note;
     notifyListeners();
   }
 
-  /// Update quantity by list index. Removes line if qty <= 0.
+  void updateAddons(String cartItemId, List<Addon> addons) {
+    final index = _items.indexWhere((i) => i.cartItemId == cartItemId);
+    if (index < 0) return;
+    _items[index].selectedAddons = addons;
+    notifyListeners();
+  }
+
+void updateCartItem(String cartItemId, int newQty) {
+  if (newQty <= 0) {
+    _items.removeWhere((i) => i.cartItemId == cartItemId);
+  } else {
+    final index = _items.indexWhere((i) => i.cartItemId == cartItemId);
+    if (index != -1) {
+      _items[index].quantity = newQty; 
+    }
+  }
+  notifyListeners();
+}
   void updateQuantity(int index, int qty) {
     if (qty <= 0) {
       _items.removeAt(index);
@@ -62,8 +75,7 @@ class CartProvider extends ChangeNotifier {
 
   /// Update quantity by product id (for simple products with no variant).
   void updateById(String productId, int qty) {
-    final index =
-        _items.indexWhere((i) => i.product.id == productId);
+    final index = _items.indexWhere((i) => i.product.id == productId);
     if (index < 0) return;
     if (qty <= 0) {
       _items.removeAt(index);

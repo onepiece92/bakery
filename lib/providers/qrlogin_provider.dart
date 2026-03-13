@@ -64,7 +64,7 @@ class QRLoginProvider extends ChangeNotifier {
       await storage.saveIsBusinessSession(true);
       await storage.saveSessionType('qr');
 
-      debugPrint('QRLoginProvider → all saved to LocalStorage ✅');
+      debugPrint('QRLoginProvider → all saved to LocalStorage');
 
       _data      = data;
       _isLoading = false;

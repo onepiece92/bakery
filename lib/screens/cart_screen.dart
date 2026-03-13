@@ -1,5 +1,7 @@
 import 'package:bakery_flutter/models/cart_item.dart';
+import 'package:bakery_flutter/models/services_model.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
+import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +25,7 @@ class CartScreen extends StatefulWidget {
   State<CartScreen> createState() => _CartScreenState();
 }
 
-class _CartScreenState extends State<CartScreen>
-    with WidgetsBindingObserver {
+class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
   // ── Note state ────────────────────────────────────────────────────────────
   final Set<String> _expandedNoteKeys = {};
   final Map<String, TextEditingController> _noteControllers = {};
@@ -40,8 +41,8 @@ class _CartScreenState extends State<CartScreen>
 
   @override
   void didChangeMetrics() {
-    final bottomInset = WidgetsBinding
-        .instance.platformDispatcher.views.first.viewInsets.bottom;
+    final bottomInset =
+        WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
     final isOpen = bottomInset > 0;
     if (isOpen != _isKeyboardOpen) {
       setState(() => _isKeyboardOpen = isOpen);
@@ -70,8 +71,7 @@ class _CartScreenState extends State<CartScreen>
         _noteControllers.remove(key);
       } else {
         _expandedNoteKeys.add(key);
-        _noteControllers[key] =
-            TextEditingController(text: item.note ?? '');
+        _noteControllers[key] = TextEditingController(text: item.note ?? '');
       }
     });
   }
@@ -83,27 +83,13 @@ class _CartScreenState extends State<CartScreen>
     }
   }
 
-  // void _showAddressSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (_) => AddressBottomSheet(
-  //       selectedId: context.read<AddressProvider>().selectedId,
-  //       onSelect: (id) => context.read<AddressProvider>().select(id),
-  //       onAddNew: () => Navigator.pop(context),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
-    // final addrProv = context.watch<AddressProvider>();
     final favProv = context.watch<FavouritesProvider>();
     final productProv = context.watch<ProductProvider>();
     final isBusiness = LocalStorageService.instance.getIsBusinessSession();
 
-    // Products not already in cart — pulled from ProductProvider
     final cartIds = cart.items.map((i) => i.product.id).toSet();
     final suggestions = productProv.products
         .where((p) => !cartIds.contains(p.id))
@@ -147,20 +133,17 @@ class _CartScreenState extends State<CartScreen>
                           children: [
                             ...cart.items.map((item) {
                               final key = item.cartItemId;
-                              final isExpanded =
-                                  _expandedNoteKeys.contains(key);
+                              final isExpanded = _expandedNoteKeys.contains(key);
                               final hasNote =
                                   item.note != null && item.note!.isNotEmpty;
 
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 14),
                                 child: AnimatedSize(
-                                  duration:
-                                      const Duration(milliseconds: 250),
+                                  duration: const Duration(milliseconds: 250),
                                   curve: Curves.easeInOut,
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       ProductCard(
                                         product: item.product,
@@ -169,13 +152,94 @@ class _CartScreenState extends State<CartScreen>
                                             extra: item.product),
                                         onQuickAdd: () =>
                                             cart.addProduct(item.product),
-                                        isFavourite: favProv
-                                            .isFavourite(item.product.id),
+                                        isFavourite:
+                                            favProv.isFavourite(item.product.id),
                                         onToggleFavourite: () =>
                                             favProv.toggle(item.product.id),
+                                        // Pass cartItemId so AddCounter updates
+                                        // this exact entry (variant-safe)
+                                        cartItemId: item.cartItemId,
+                                        cartItemQty: item.quantity,
                                       ),
 
-                                      // ── Note toggle button ────────────
+                                      // ── Addons display ────────────────────
+                                      if (item.selectedAddons.isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 6,
+                                          children:
+                                              item.selectedAddons.map((addon) {
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 5),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.terracotta
+                                                    .withValues(alpha: 0.06),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        AppDecorations
+                                                            .radiusCard),
+                                                border: Border.all(
+                                                  color: AppColors.terracotta
+                                                      .withValues(alpha: 0.2),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    '+ ${addon.name}',
+                                                    style: AppTextStyles
+                                                        .bodySmall
+                                                        .copyWith(
+                                                      color:
+                                                          AppColors.terracotta,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '\$${addon.price.toStringAsFixed(2)}',
+                                                    style: AppTextStyles
+                                                        .bodySmall
+                                                        .copyWith(
+                                                      color: AppColors.terracotta
+                                                          .withValues(
+                                                              alpha: 0.7),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      final updatedAddons = item
+                                                          .selectedAddons
+                                                          .where((a) =>
+                                                              a.id != addon.id)
+                                                          .toList();
+                                                      cart.updateAddons(
+                                                          item.cartItemId,
+                                                          updatedAddons);
+                                                    },
+                                                    child: Icon(
+                                                      Icons.close_rounded,
+                                                      size: 14,
+                                                      color: AppColors.terracotta
+                                                          .withValues(
+                                                              alpha: 0.7),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
+
+                                      // ── Note toggle button ────────────────
                                       Padding(
                                         padding: const EdgeInsets.only(
                                             left: 4, top: 6),
@@ -189,8 +253,7 @@ class _CartScreenState extends State<CartScreen>
                                                     ? Icons
                                                         .keyboard_arrow_up_rounded
                                                     : (hasNote
-                                                        ? Icons
-                                                            .edit_note_rounded
+                                                        ? Icons.edit_note_rounded
                                                         : Icons.add),
                                                 size: 14,
                                                 color: AppColors.terracotta,
@@ -204,10 +267,8 @@ class _CartScreenState extends State<CartScreen>
                                                         : 'Add note'),
                                                 style: TextStyle(
                                                   fontSize: 12,
-                                                  color:
-                                                      AppColors.terracotta,
-                                                  fontWeight:
-                                                      FontWeight.w500,
+                                                  color: AppColors.terracotta,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
                                             ],
@@ -215,12 +276,11 @@ class _CartScreenState extends State<CartScreen>
                                         ),
                                       ),
 
-                                      // ── Expanded note field ───────────
+                                      // ── Expanded note field ───────────────
                                       if (isExpanded) ...[
                                         const SizedBox(height: 8),
                                         TextField(
-                                          controller:
-                                              _noteControllers[key],
+                                          controller: _noteControllers[key],
                                           autofocus: true,
                                           maxLines: 2,
                                           maxLength: 200,
@@ -228,16 +288,13 @@ class _CartScreenState extends State<CartScreen>
                                               TextCapitalization.sentences,
                                           style: AppTextStyles.bodyMedium
                                               .copyWith(
-                                                  color:
-                                                      AppColors.darkBrown),
+                                                  color: AppColors.darkBrown),
                                           decoration: InputDecoration(
                                             hintText:
                                                 'e.g. No nuts, extra frosting, gift message...',
-                                            hintStyle: AppTextStyles
-                                                .bodySmall
-                                                .copyWith(
-                                                    color: AppColors
-                                                        .textLight),
+                                            hintStyle:
+                                                AppTextStyles.bodySmall.copyWith(
+                                                    color: AppColors.textLight),
                                             filled: true,
                                             fillColor: Theme.of(context)
                                                 .colorScheme
@@ -250,43 +307,30 @@ class _CartScreenState extends State<CartScreen>
                                                 fontSize: 10,
                                                 color: AppColors.textLight),
                                             border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      AppDecorations
-                                                          .radiusCard),
+                                              borderRadius: BorderRadius.circular(
+                                                  AppDecorations.radiusCard),
                                               borderSide: BorderSide(
                                                   color: AppColors.softBrown
-                                                      .withValues(
-                                                          alpha: 0.2)),
+                                                      .withValues(alpha: 0.2)),
                                             ),
-                                            enabledBorder:
-                                                OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      AppDecorations
-                                                          .radiusCard),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(
+                                                  AppDecorations.radiusCard),
                                               borderSide: BorderSide(
                                                   color: AppColors.softBrown
-                                                      .withValues(
-                                                          alpha: 0.2)),
+                                                      .withValues(alpha: 0.2)),
                                             ),
-                                            focusedBorder:
-                                                OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      AppDecorations
-                                                          .radiusCard),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(
+                                                  AppDecorations.radiusCard),
                                               borderSide: BorderSide(
-                                                  color:
-                                                      AppColors.terracotta,
+                                                  color: AppColors.terracotta,
                                                   width: 1.5),
                                             ),
                                             suffixIcon: IconButton(
                                               icon: Icon(
-                                                  Icons
-                                                      .check_circle_rounded,
-                                                  color:
-                                                      AppColors.terracotta,
+                                                  Icons.check_circle_rounded,
+                                                  color: AppColors.terracotta,
                                                   size: 20),
                                               tooltip: 'Save note',
                                               onPressed: () =>
@@ -296,36 +340,30 @@ class _CartScreenState extends State<CartScreen>
                                         ),
                                       ],
 
-                                      // ── Saved note display ────────────
+                                      // ── Saved note display ────────────────
                                       if (!isExpanded && hasNote) ...[
                                         const SizedBox(height: 6),
                                         Container(
                                           width: double.infinity,
-                                          padding: const EdgeInsets
-                                              .symmetric(
-                                              horizontal: 10,
-                                              vertical: 7),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 7),
                                           decoration: BoxDecoration(
                                             color: AppColors.terracotta
                                                 .withValues(alpha: 0.06),
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    AppDecorations
-                                                        .radiusCard),
+                                            borderRadius: BorderRadius.circular(
+                                                AppDecorations.radiusCard),
                                             border: Border.all(
                                                 color: AppColors.terracotta
-                                                    .withValues(
-                                                        alpha: 0.15)),
+                                                    .withValues(alpha: 0.15)),
                                           ),
                                           child: Text(
                                             item.note!,
                                             style: AppTextStyles.bodySmall
                                                 .copyWith(
-                                                    color: AppColors
-                                                        .terracotta),
+                                                    color:
+                                                        AppColors.terracotta),
                                             maxLines: 2,
-                                            overflow:
-                                                TextOverflow.ellipsis,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
@@ -334,55 +372,6 @@ class _CartScreenState extends State<CartScreen>
                                 ),
                               );
                             }),
-
-                            // ── Suggestions ──────────────────────────────
-                            // if (suggestions.isNotEmpty) ...[
-                            //   const SizedBox(height: 8),
-                            //   Text('Add something extra?',
-                            //       style: AppTextStyles.headlineSmall),
-                            //   const SizedBox(height: 12),
-                            //   SizedBox(
-                            //     height: 230,
-                            //     child: ListView.separated(
-                            //       scrollDirection: Axis.horizontal,
-                            //       physics: const BouncingScrollPhysics(),
-                            //       padding: const EdgeInsets.symmetric(
-                            //           horizontal: 4),
-                            //       itemCount: suggestions.length,
-                            //       separatorBuilder: (_, __) =>
-                            //           const SizedBox(width: 14),
-                            //       itemBuilder: (_, i) {
-                            //         final p = suggestions[i];
-                            //         return SizedBox(
-                            //           width: 160,
-                            //           child: GridProductCard(
-                            //             product: p,
-                            //             onTap: () => context.push(
-                            //                 '/home/product', extra: p),
-                            //             onQuickAdd: () =>
-                            //                 cart.addProduct(p),
-                            //             isFavourite:
-                            //                 favProv.isFavourite(p.id),
-                            //             onToggleFavourite: () =>
-                            //                 favProv.toggle(p.id),
-                            //           ),
-                            //         );
-                            //       },
-                            //     ),
-                            //   ),
-                            //   const SizedBox(height: 16),
-                            // ],
-
-                            // ── Address ──────────────────────────────────
-                            // Text('DELIVER TO',
-                            //     style: AppTextStyles.labelSmall),
-                            // const SizedBox(height: 8),
-                            // AddressSelector(
-                            //   selectedId: addrProv.selectedId,
-                            //   onTap: () => _showAddressSheet(context),
-                            //   variant: AddressSelectorVariant.compact,
-                            // ),
-                            // const SizedBox(height: 16),
 
                             // ── Price summary ─────────────────────────────
                             Card(
@@ -395,8 +384,8 @@ class _CartScreenState extends State<CartScreen>
                                 borderRadius: BorderRadius.circular(
                                     AppDecorations.radiusCard),
                                 side: BorderSide(
-                                  color: AppColors.darkBrown
-                                      .withValues(alpha: 0.05),
+                                  color:
+                                      AppColors.darkBrown.withValues(alpha: 0.05),
                                 ),
                               ),
                               child: Padding(
@@ -407,9 +396,6 @@ class _CartScreenState extends State<CartScreen>
                                         label: 'Subtotal',
                                         value: cart.subtotal),
                                     const SizedBox(height: 10),
-                                    // _PriceSummaryRow(
-                                    //     label: 'Baking fee',
-                                    //     value: CartProvider.bakingFee),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12),
@@ -423,8 +409,8 @@ class _CartScreenState extends State<CartScreen>
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text('Total',
-                                            style: AppTextStyles
-                                                .headlineMedium),
+                                            style:
+                                                AppTextStyles.headlineMedium),
                                         Text(
                                             '\$${cart.total.toStringAsFixed(2)}',
                                             style: AppTextStyles.priceLarge
@@ -442,127 +428,208 @@ class _CartScreenState extends State<CartScreen>
                 ),
               ],
             ),
+
+            // ── Checkout button ───────────────────────────────────────────
             if (cart.items.isNotEmpty && !_isKeyboardOpen)
               Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: PrimaryButton(
-                  label: 'Checkout — \$${cart.total.toStringAsFixed(2)}',
-                  onTap: () async {
-                    _flushNotes(cart);
+                child: Consumer<TableRequestProvider>(
+                  builder: (context, tableReq, _) => PrimaryButton(
+                    label: tableReq.isLoadingFood
+                        ? 'Placing Order...'
+                        : 'Checkout — \$${cart.total.toStringAsFixed(2)}',
+                    onTap: tableReq.isLoadingFood
+                        ? null
+                        : () async {
+                            _flushNotes(cart);
 
-                    if (cart.items.isNotEmpty) {
-                      final orderId =
-                          'order_${DateTime.now().millisecondsSinceEpoch}';
-                      await context.read<OrderProvider>().placeOrder(
-                            items: cart.items.toList(),
-                            subtotal: cart.subtotal,
-                            isBusinessOrder: isBusiness,
-                          );
-                      debugPrint('Order saved: $orderId');
-                      final saved = HiveOrderService.getOrder(orderId);
-                      if (saved != null) {
-                        debugPrint(' ORDER VERIFIED IN HIVE');
-                        debugPrint('Order ID       : ${saved.orderId}');
-                        debugPrint('Created At     : ${saved.createdAt}');
-                        debugPrint(
-                            'Is Business    : ${saved.isBusinessOrder}');
-                        debugPrint(
-                            'Subtotal       : \$${saved.subtotal.toStringAsFixed(2)}');
-                        debugPrint('Total Items    : ${saved.items.length}');
-                        for (final item in saved.items) {
-                          debugPrint(
-                              '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
-                          if (item.note != null && item.note!.isNotEmpty) {
-                            debugPrint('    Note: ${item.note}');
-                          }
-                          if (item.selectedVariant != null) {
-                            debugPrint(
-                                '    Variant: ${item.selectedVariant!.optionValues.join(' / ')}');
-                          }
-                          if (item.selectedAddons.isNotEmpty) {
-                            debugPrint(
-                                '    Addons: ${item.selectedAddons.map((a) => a.name).join(', ')}');
-                          }
-                        }
-                        debugPrint(
-                            'Total Orders in box : ${HiveOrderService.getAllOrders().length}');
-                      } else {
-                        debugPrint(
-                            ' ORDER NOT FOUND IN HIVE — something went wrong');
-                      }
+                            if (cart.items.isEmpty) return;
 
-                      if (isBusiness) {
-                        debugPrint('===== CART ITEMS =====');
-                        for (final item in cart.items) {
-                          final p = item.product;
-                          debugPrint('---------------------');
-                          debugPrint('ID            : ${p.id}');
-                          debugPrint('Name          : ${p.name}');
-                          debugPrint('Description   : ${p.description}');
-                          debugPrint('Image         : ${p.image}');
-                          debugPrint('Admin ID      : ${p.adminId}');
-                          debugPrint('SKU           : ${p.sku}');
-                          debugPrint('Categories    : ${p.categories}');
-                          debugPrint('Sold By       : ${p.soldBy}');
-                          debugPrint(
-                              'Price         : \$${p.price.toStringAsFixed(2)}');
-                          debugPrint(
-                              'Cost Price    : \$${p.costPrice.toStringAsFixed(2)}');
-                          debugPrint(
-                              'Display Price : \$${p.displayPrice.toStringAsFixed(2)}');
-                          debugPrint('Is Veg        : ${p.isVeg}');
-                          debugPrint('Is Available  : ${p.isAvailable}');
-                          debugPrint('Uses Offer Px : ${p.usesOfferPrice}');
-                          debugPrint('Is Taxable    : ${p.isTaxable}');
-                          debugPrint('Uses Stocks   : ${p.usesStocks}');
-                          debugPrint('Show Ordering : ${p.showInOrdering}');
-                          debugPrint('In Stock      : ${p.inStock}');
-                          debugPrint('Low Stock     : ${p.lowStock}');
-                          debugPrint('Ordered Count : ${p.orderedCount}');
-                          debugPrint(
-                              'Tags          : ${p.tags.join(', ')}');
-                          debugPrint('Has Variants  : ${p.hasVariants}');
-                          if (p.hasVariants) {
-                            final v = p.variants!;
-                            debugPrint('  Variant ID       : ${v.id}');
-                            debugPrint(
-                                '  Variant Admin ID : ${v.adminId}');
-                            debugPrint('  Options:');
-                            for (final opt in v.options) {
+                            final orderProv = context.read<OrderProvider>();
+
+                            // Build food items from cart
+                            final foodItems = cart.items.map((item) {
+                              return FoodItemRequest(
+                                product: item.product.id,
+                                quantity: item.quantity,
+                                note: item.note,
+                                variant: item.selectedVariant?.id,
+                                addons: item.selectedAddons
+                                    .map((a) => FoodAddonRequest(
+                                        addonId: a.id, quantity: 1))
+                                    .toList(),
+                              );
+                            }).toList();
+
+                            // Send food request via TableRequestProvider
+                            await tableReq.requestFood(
+                              businessId: LocalStorageService.instance
+                                      .getBusinessId() ??
+                                  '',
+                              foodItems: foodItems,
+                            );
+
+                            if (!mounted) return;
+
+                            final success =
+                                tableReq.lastSuccessResponse?['success'] ==
+                                    true;
+
+                            if (success) {
+                              // Save to Hive only on successful order
+                              final orderId =
+                                  'order_${DateTime.now().millisecondsSinceEpoch}';
+                              await orderProv.placeOrder(
+                                items: cart.items.toList(),
+                                subtotal: cart.subtotal,
+                                isBusinessOrder: isBusiness,
+                              );
+
+                              debugPrint('Order saved: $orderId');
+                              final saved = HiveOrderService.getOrder(orderId);
+                              if (saved != null) {
+                                debugPrint(' ORDER VERIFIED IN HIVE');
+                                debugPrint(
+                                    'Order ID       : ${saved.orderId}');
+                                debugPrint(
+                                    'Created At     : ${saved.createdAt}');
+                                debugPrint(
+                                    'Is Business    : ${saved.isBusinessOrder}');
+                                debugPrint(
+                                    'Subtotal       : \$${saved.subtotal.toStringAsFixed(2)}');
+                                debugPrint(
+                                    'Total Items    : ${saved.items.length}');
+                                for (final item in saved.items) {
+                                  debugPrint(
+                                      '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
+                                  if (item.note != null &&
+                                      item.note!.isNotEmpty) {
+                                    debugPrint('    Note: ${item.note}');
+                                  }
+                                  if (item.selectedVariant != null) {
+                                    debugPrint(
+                                        '    Variant: ${item.selectedVariant!.optionValues.join(' / ')}');
+                                  }
+                                  if (item.selectedAddons.isNotEmpty) {
+                                    debugPrint(
+                                        '    Addons: ${item.selectedAddons.map((a) => a.name).join(', ')}');
+                                  }
+                                }
+                                debugPrint(
+                                    'Total Orders in box : ${HiveOrderService.getAllOrders().length}');
+                              } else {
+                                debugPrint(
+                                    ' ORDER NOT FOUND IN HIVE — something went wrong');
+                              }
+
+                              if (isBusiness) {
+                                debugPrint('===== CART ITEMS =====');
+                                for (final item in cart.items) {
+                                  final p = item.product;
+                                  debugPrint('---------------------');
+                                  debugPrint('ID            : ${p.id}');
+                                  debugPrint('Name          : ${p.name}');
+                                  debugPrint(
+                                      'Description   : ${p.description}');
+                                  debugPrint('Image         : ${p.image}');
+                                  debugPrint('Admin ID      : ${p.adminId}');
+                                  debugPrint('SKU           : ${p.sku}');
+                                  debugPrint(
+                                      'Categories    : ${p.categories}');
+                                  debugPrint('Sold By       : ${p.soldBy}');
+                                  debugPrint(
+                                      'Price         : \$${p.price.toStringAsFixed(2)}');
+                                  debugPrint(
+                                      'Cost Price    : \$${p.costPrice.toStringAsFixed(2)}');
+                                  debugPrint(
+                                      'Display Price : \$${p.displayPrice.toStringAsFixed(2)}');
+                                  debugPrint('Is Veg        : ${p.isVeg}');
+                                  debugPrint(
+                                      'Is Available  : ${p.isAvailable}');
+                                  debugPrint(
+                                      'Uses Offer Px : ${p.usesOfferPrice}');
+                                  debugPrint(
+                                      'Is Taxable    : ${p.isTaxable}');
+                                  debugPrint(
+                                      'Uses Stocks   : ${p.usesStocks}');
+                                  debugPrint(
+                                      'Show Ordering : ${p.showInOrdering}');
+                                  debugPrint('In Stock      : ${p.inStock}');
+                                  debugPrint('Low Stock     : ${p.lowStock}');
+                                  debugPrint(
+                                      'Ordered Count : ${p.orderedCount}');
+                                  debugPrint(
+                                      'Tags          : ${p.tags.join(', ')}');
+                                  debugPrint(
+                                      'Has Variants  : ${p.hasVariants}');
+                                  if (p.hasVariants) {
+                                    final v = p.variants!;
+                                    debugPrint(
+                                        '  Variant ID       : ${v.id}');
+                                    debugPrint(
+                                        '  Variant Admin ID : ${v.adminId}');
+                                    debugPrint('  Options:');
+                                    for (final opt in v.options) {
+                                      debugPrint(
+                                          '    [${opt.id}] ${opt.title}: ${opt.values.join(', ')}');
+                                    }
+                                    debugPrint('  Variant Items:');
+                                    for (final vi in v.variantItems) {
+                                      debugPrint(
+                                          '    [${vi.id}] ${vi.optionValues.join(' / ')} — \$${vi.price.toStringAsFixed(2)} | Cost: \$${vi.costPrice.toStringAsFixed(2)} | Stock: ${vi.inStock} | Available: ${vi.isAvailable}');
+                                    }
+                                  }
+                                  if (p.addons.isNotEmpty) {
+                                    debugPrint('  Addons:');
+                                    for (final a in p.addons) {
+                                      debugPrint(
+                                          '    [${a.id}] ${a.name} — \$${a.price.toStringAsFixed(2)} | Max: ${a.maxAvailable} | ${a.description}');
+                                    }
+                                  }
+                                  debugPrint(
+                                      'Qty in Cart   : ${item.quantity}');
+                                  debugPrint(
+                                      'Note          : ${item.note ?? '—'}');
+                                  debugPrint(
+                                      'Line Total    : \$${item.lineTotal.toStringAsFixed(2)}');
+                                }
+                                debugPrint('---------------------');
+                                debugPrint(
+                                    'Subtotal   : \$${cart.subtotal.toStringAsFixed(2)}');
+                                debugPrint(
+                                    'Total      : \$${cart.total.toStringAsFixed(2)}');
+                                debugPrint('=====================');
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      tableReq.lastSuccessResponse?[
+                                              'message'] ??
+                                          'Order placed!',
+                                    ),
+                                    backgroundColor: AppColors.terracotta,
+                                  ),
+                                );
+                              } else {
+                                context.push('/cart/checkout');
+                              }
+
+                              cart.clear();
+                            } else {
                               debugPrint(
-                                  '    [${opt.id}] ${opt.title}: ${opt.values.join(', ')}');
+                                  ' FOOD REQUEST FAILED — ${tableReq.message}');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(tableReq.message ??
+                                      'Failed to place order.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
                             }
-                            debugPrint('  Variant Items:');
-                            for (final vi in v.variantItems) {
-                              debugPrint(
-                                  '    [${vi.id}] ${vi.optionValues.join(' / ')} — \$${vi.price.toStringAsFixed(2)} | Cost: \$${vi.costPrice.toStringAsFixed(2)} | Stock: ${vi.inStock} | Available: ${vi.isAvailable}');
-                            }
-                          }
-                          if (p.addons.isNotEmpty) {
-                            debugPrint('  Addons:');
-                            for (final a in p.addons) {
-                              debugPrint(
-                                  '    [${a.id}] ${a.name} — \$${a.price.toStringAsFixed(2)} | Max: ${a.maxAvailable} | ${a.description}');
-                            }
-                          }
-                          debugPrint('Qty in Cart   : ${item.quantity}');
-                          debugPrint('Note          : ${item.note ?? '—'}');
-                          debugPrint(
-                              'Line Total    : \$${item.lineTotal.toStringAsFixed(2)}');
-                        }
-                        debugPrint('---------------------');
-                        debugPrint(
-                            'Subtotal   : \$${cart.subtotal.toStringAsFixed(2)}');
-                        debugPrint(
-                            'Total      : \$${cart.total.toStringAsFixed(2)}');
-                        debugPrint('=====================');
-                      } else {
-                        context.push('/cart/checkout');
-                      }
-                    }
-                  },
+                          },
+                  ),
                 ),
               ),
           ],

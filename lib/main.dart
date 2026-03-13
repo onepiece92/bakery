@@ -4,8 +4,10 @@ import 'package:bakery_flutter/models/product/hive/order_item_snapshot.dart';
 import 'package:bakery_flutter/models/product/hive/product_snapshot.dart';
 import 'package:bakery_flutter/models/product/hive/variant_snapshot.dart';
 import 'package:bakery_flutter/providers/category_provider.dart';
+import 'package:bakery_flutter/providers/customerlogin_provider.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
+import 'package:bakery_flutter/providers/profile_provider.dart';
 import 'package:bakery_flutter/providers/qrlogin_provider.dart';
 import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/providers/view_provider.dart';
@@ -27,11 +29,11 @@ void main() async {
   await LocalStorageService.instance.init();
   await Hive.initFlutter();
 
-  Hive.registerAdapter(HiveAddonSnapshotAdapter());       
-  Hive.registerAdapter(HiveVariantSnapshotAdapter());   
-  Hive.registerAdapter(HiveProductSnapshotAdapter());    
-  Hive.registerAdapter(HiveOrderItemSnapshotAdapter());  
-  Hive.registerAdapter(OrderModelAdapter());             
+  Hive.registerAdapter(HiveAddonSnapshotAdapter());
+  Hive.registerAdapter(HiveVariantSnapshotAdapter());
+  Hive.registerAdapter(HiveProductSnapshotAdapter());
+  Hive.registerAdapter(HiveOrderItemSnapshotAdapter());
+  Hive.registerAdapter(OrderModelAdapter());
 
   await HiveOrderService.openBox();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -46,8 +48,23 @@ void main() async {
   runApp(const BakeryApp());
 }
 
-class BakeryApp extends StatelessWidget {
+class BakeryApp extends StatefulWidget {
   const BakeryApp({super.key});
+
+  @override
+  State<BakeryApp> createState() => _BakeryAppState();
+}
+
+class _BakeryAppState extends State<BakeryApp> {
+  // Create provider instance here so we can pass it to the router
+  final _loginProvider = CustomerLoginProvider();
+  late final _router = createRouter(_loginProvider);
+
+  @override
+  void dispose() {
+    _loginProvider.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +79,15 @@ class BakeryApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => TableRequestProvider()),
         ChangeNotifierProvider(create: (_) => QRLoginProvider()),
+        // Use .value so the same instance is shared with the router
+        ChangeNotifierProvider.value(value: _loginProvider),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ],
       child: MaterialApp.router(
         title: 'Foxys Corner',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        routerConfig: router,
+        routerConfig: _router,
       ),
     );
   }

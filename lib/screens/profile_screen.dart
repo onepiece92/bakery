@@ -1,197 +1,270 @@
+import 'package:bakery_flutter/providers/customerlogin_provider.dart';
+import 'package:bakery_flutter/providers/profile_provider.dart';
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../components/loyalty_card.dart';
 import '../../theme/app_theme.dart';
-
 import 'package:go_router/go_router.dart';
 import '../../components/service_icon.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
-        children: [
-          Text('My Profile', style: Theme.of(context).textTheme.displayMedium),
-          const SizedBox(height: 20),
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
-          // Profile card
-          GestureDetector(
-            onTap: () => context.push('/profile/edit'),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFFAF3), Color(0x66F5E6D3)],
-                ),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .tertiary
-                        .withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 68,
-                    height: 68,
-                    decoration: BoxDecoration(
-                      gradient: Theme.of(context)
-                          .extension<AppThemeExtension>()
-                          ?.primaryGradient,
-                      borderRadius: BorderRadius.circular(22),
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().fetchProfile();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ProfileProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const SafeArea(
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final storage = LocalStorageService.instance;
+        final customerName = provider.isLoaded
+            ? provider.name
+            : (storage.getCustomerName() ?? 'User');
+        final customerEmail = provider.isLoaded ? provider.email : '';
+        final initial =
+            customerName.isNotEmpty ? customerName[0].toUpperCase() : 'U';
+
+        return SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
+            children: [
+              Text('My Profile',
+                  style: Theme.of(context).textTheme.displayMedium),
+              const SizedBox(height: 20),
+
+              // ── Profile card ─────────────────────────────────────
+              GestureDetector(
+                onTap: () => context.push('/profile/edit'),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFFFFAF3), Color(0x66F5E6D3)],
                     ),
-                    alignment: Alignment.center,
-                    child: Text('S',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge
-                            ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 28)),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withValues(alpha: 0.3),
+                    ),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Sophie Martin',
-                            style: Theme.of(context).textTheme.headlineLarge),
-                        Text('sophie.martin@email.com',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(fontSize: 13)),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .tertiary
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text('🥐 Croissant Member',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(
+                  child: Row(
+                    children: [
+                      // Avatar
+                      Container(
+                        width: 68,
+                        height: 68,
+                        decoration: BoxDecoration(
+                          gradient: Theme.of(context)
+                              .extension<AppThemeExtension>()
+                              ?.primaryGradient,
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          initial,
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 28,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              customerName,
+                              style: Theme.of(context).textTheme.headlineLarge,
+                            ),
+                            if (customerEmail.isNotEmpty) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                customerEmail,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .tertiary
+                                    .withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '🥐 Croissant Member',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .tertiary,
-                                      fontSize: 11)),
+                                      fontSize: 11,
+                                    ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        size: 22,
+                      ),
+                    ],
                   ),
-                  Icon(Icons.chevron_right_rounded,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      size: 22),
-                ],
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
+              const SizedBox(height: 16),
+              const LoyaltyCard(),
+              const SizedBox(height: 24),
 
-          // Loyalty card
-          const LoyaltyCard(),
-          const SizedBox(height: 24),
-
-          // Menu sections
-          const _SectionHeader(label: 'ORDERS & HISTORY'),
-          const SizedBox(height: 8),
-          _MenuTile(
-              icon: '📦',
-              label: 'My Orders',
-              sub: '4 recent orders',
-              onTap: () => context.push('/profile/orders')),
-          _MenuTile(
-              icon: '❤️',
-              label: 'Favourites',
-              sub: 'Saved items',
-              onTap: () => context.push('/profile/favourites')),
-          const SizedBox(height: 16),
-          const _SectionHeader(label: 'ACCOUNT'),
-          const SizedBox(height: 8),
-          _MenuTile(
-              icon: '📍',
-              label: 'Saved Addresses',
-              sub: 'Manage delivery locations',
-              onTap: () => context.push('/profile/addresses')),
-          _MenuTile(
-              icon: '💳',
-              label: 'Payment Methods',
-              sub: 'Cards & digital wallets',
-              onTap: () => context.push('/profile/payments')),
-          const SizedBox(height: 16),
-          const _SectionHeader(label: 'PREFERENCES'),
-          const SizedBox(height: 8),
-          _MenuTile(
-              icon: '🔔',
-              label: 'Notifications',
-              sub: 'Push & email settings',
-              onTap: () => context.push('/profile/notifications')),
-          _MenuTile(
-              icon: '⚙️',
-              label: 'Settings',
-              sub: 'App preferences',
-              onTap: () => context.push('/profile/settings')),
-          const SizedBox(height: 20),
-
-          // Sign out
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .errorContainer
-                    .withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(18),
+              // ── Orders & History ─────────────────────────────────
+              const _SectionHeader(label: 'ORDERS & HISTORY'),
+              const SizedBox(height: 8),
+              _MenuTile(
+                icon: '📦',
+                label: 'My Orders',
+                sub: '4 recent orders',
+                onTap: () => context.push('/profile/orders'),
               ),
-              child: Row(
-                children: [
-                  ServiceIcon(
-                    icon: '👋',
-                    backgroundColor:
-                        Theme.of(context).colorScheme.errorContainer,
+              _MenuTile(
+                icon: '❤️',
+                label: 'Favourites',
+                sub: 'Saved items',
+                onTap: () => context.push('/profile/favourites'),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Account ──────────────────────────────────────────
+              const _SectionHeader(label: 'ACCOUNT'),
+              const SizedBox(height: 8),
+              _MenuTile(
+                icon: '📍',
+                label: 'Saved Addresses',
+                sub: 'Manage delivery locations',
+                onTap: () => context.push('/profile/addresses'),
+              ),
+              _MenuTile(
+                icon: '💳',
+                label: 'Payment Methods',
+                sub: 'Cards & digital wallets',
+                onTap: () => context.push('/profile/payments'),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Preferences ──────────────────────────────────────
+              const _SectionHeader(label: 'PREFERENCES'),
+              const SizedBox(height: 8),
+              _MenuTile(
+                icon: '🔔',
+                label: 'Notifications',
+                sub: 'Push & email settings',
+                onTap: () => context.push('/profile/notifications'),
+              ),
+              _MenuTile(
+                icon: '⚙️',
+                label: 'Settings',
+                sub: 'App preferences',
+                onTap: () => context.push('/profile/settings'),
+              ),
+              const SizedBox(height: 20),
+
+              // ── Sign Out ─────────────────────────────────────────
+              GestureDetector(
+                onTap: () async {
+                  await context.read<CustomerLoginProvider>().logout();
+                  // Router rebuilds automatically via refreshListenable
+                  // No navigation needed
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .errorContainer
+                        .withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(18),
                   ),
-                  const SizedBox(width: 14),
-                  Text('Sign Out',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.error)),
-                ],
+                  child: Row(
+                    children: [
+                      ServiceIcon(
+                        icon: '👋',
+                        backgroundColor:
+                            Theme.of(context).colorScheme.errorContainer,
+                      ),
+                      const SizedBox(width: 14),
+                      Text(
+                        'Sign Out',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
 
+// ── Section Header ─────────────────────────────────────────────────────────
+
 class _SectionHeader extends StatelessWidget {
   final String label;
-
   const _SectionHeader({required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return Text(label,
-        style: Theme.of(context)
-            .textTheme
-            .labelSmall
-            ?.copyWith(letterSpacing: 1, fontSize: 11));
+    return Text(
+      label,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            letterSpacing: 1,
+            fontSize: 11,
+          ),
+    );
   }
 }
+
+// ── Menu Tile ──────────────────────────────────────────────────────────────
 
 class _MenuTile extends StatelessWidget {
   final String icon;
@@ -211,10 +284,7 @@ class _MenuTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           children: [
-            ServiceIcon(
-              icon: icon,
-              size: 44,
-            ),
+            ServiceIcon(icon: icon, size: 44),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -222,17 +292,21 @@ class _MenuTile extends StatelessWidget {
                 children: [
                   Text(label, style: Theme.of(context).textTheme.bodyLarge),
                   if (sub != null)
-                    Text(sub!,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(fontSize: 12)),
+                    Text(
+                      sub!,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 12),
+                    ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                size: 20),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 20,
+            ),
           ],
         ),
       ),

@@ -23,8 +23,6 @@ class TableWelcomeScreen extends StatefulWidget {
 class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
   bool _isLoading = false;
   String? _errorMessage;
-
-  // ── ENTRY POINT ────────────────────────────────────────────────────────────
   @override
   void initState() {
     super.initState();
@@ -43,29 +41,24 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
     debugPrint('token(storage) : $token');
     debugPrint('isBusiness     : $isBusiness');
     debugPrint('====================================');
-
-    // CASE 1: QR params detected in URL
     if (widget.tableId != null && widget.businessId != null) {
       debugPrint('CASE 1: QR params in URL → _handleQRLogin()');
       _handleQRLogin();
       return;
     }
 
-    // CASE 2: Business session exists in storage
     if (token != null && isBusiness) {
       debugPrint('CASE 2: Business session in storage → _verifyToken()');
       _verifyToken(isBusinessSession: true);
       return;
     }
 
-    // CASE 3: Customer session exists in storage
     if (token != null && !isBusiness) {
       debugPrint('CASE 3: Customer session in storage → _verifyToken()');
       _verifyToken(isBusinessSession: false);
       return;
     }
 
-    // CASE 4: Nothing exists — show UI normally
     debugPrint('CASE 4: No session → show UI normally');
   }
 
@@ -97,70 +90,33 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
   }
 
   // ── CASE 2 & 3: Verify Token via fetchProducts ─────────────────────────────
-  Future<void> _verifyToken({required bool isBusinessSession}) async {
+Future<void> _verifyToken({required bool isBusinessSession}) async {
     debugPrint('--- _verifyToken START ---');
     debugPrint('isBusinessSession : $isBusinessSession');
-
     setState(() { _isLoading = true; _errorMessage = null; });
-
     try {
-      // Use fetchProducts as token verification
       final productProvider = context.read<ProductProvider>();
       await productProvider.fetchProducts();
-
       if (productProvider.error != null) {
         throw Exception(productProvider.error);
       }
 
-      // ON SUCCESS
       debugPrint('Token verify → SUCCESS → navigating to /home');
       if (mounted) context.go('/home');
 
     } catch (e) {
       debugPrint('Token verify → FAILED: $e');
-
-      if (isBusinessSession) {
-        // ── BUSINESS: no refresh, clear immediately ────
-        debugPrint('Business session → NO refresh → clearing session');
-        await LocalStorageService.instance.clearSession();
-        setState(() {
-          _isLoading    = false;
-          _errorMessage = 'Your session has expired. Please scan the table QR again.';
-        });
-
-      } else {
-        // ── CUSTOMER: try refresh token ────────────────
-        debugPrint('Customer session → trying _refreshToken()');
-        await _refreshToken();
-      }
-    }
-  }
-
-  // ── Refresh Token (Customer only) ──────────────────────────────────────────
-  Future<void> _refreshToken() async {
-    debugPrint('--- _refreshToken START --- (Customer only)');
-
-    try {
-      // TODO: your refresh token API call
-      // final newToken = await AuthService.refreshToken();
-
-      // ON SUCCESS
-      debugPrint('Token refresh → SUCCESS → saving new token');
-      await LocalStorageService.instance.saveSessionToken('new_token_from_api');
-      debugPrint('New token saved → navigating to /home');
-      if (mounted) context.go('/home');
-
-    } catch (e) {
-      debugPrint('Token refresh → FAILED: $e → clearing session');
       await LocalStorageService.instance.clearSession();
+
       setState(() {
         _isLoading    = false;
-        _errorMessage = 'Your session has expired. Please login again.';
+        _errorMessage = isBusinessSession
+            ? 'Your session has expired. Please scan the table QR again.'
+            : 'Your session has expired. Please log in again.';
       });
     }
   }
 
-  // ── BUILD ──────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -332,7 +288,7 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
                                   debugPrint('USER ACTION  : Continue as Guest');
                                   debugPrint('SESSION TYPE : GUEST');
                                   debugPrint('====================================');
-                                  await LocalStorageService.instance.saveSessionType('guest');
+                  
                                   if (mounted) context.go('/home');
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -372,7 +328,7 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
                                   debugPrint('USER ACTION  : Tapped Login with Account');
                                   debugPrint('Navigating to: /login');
                                   debugPrint('====================================');
-                                  context.go('/login');
+                                  context.push('/login');
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: const BorderSide(color: Colors.white24, width: 1),

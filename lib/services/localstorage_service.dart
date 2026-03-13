@@ -73,8 +73,6 @@ class LocalStorageService {
     await _prefs?.setString(_keyAddress, address);
   }
 
-  /// GET METHODS
-
   String? getSessionToken() {
     return _prefs?.getString(_keySessionToken);
   }
@@ -116,7 +114,7 @@ class LocalStorageService {
   }
 
   bool getIsBusinessSession() {
-    return _prefs?.getBool(_keyIsBusinessSession) ?? true;
+    return _prefs?.getBool(_keyIsBusinessSession) ?? false;
   }
 
   List<String> getFavouriteIds() {
@@ -128,8 +126,6 @@ class LocalStorageService {
     await _prefs?.remove(_keyFavouriteIds);
   }
 
-  /// CLEAR METHODS
-
   Future<void> clearSession() async {
     await _prefs?.remove(_keySessionToken);
     await _prefs?.remove(_keyUserId);
@@ -140,6 +136,7 @@ class LocalStorageService {
     await _prefs?.remove(_keyBusinessName);
     await _prefs?.remove(_keyAddress);
     await _prefs?.remove(_keyIsBusinessSession);
+    await _prefs?.remove('session_type');
   }
 
   Future<void> clearAll() async {

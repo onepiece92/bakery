@@ -1,4 +1,7 @@
 import 'package:bakery_flutter/models/product/product_model.dart';
+import 'package:bakery_flutter/providers/customerlogin_provider.dart';
+import 'package:bakery_flutter/screens/login_screen.dart';
+import 'package:bakery_flutter/screens/signupprompt_screen.dart';
 import 'package:bakery_flutter/screens/table_request_screen.dart';
 import 'package:bakery_flutter/screens/tablewelcome_screen.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
@@ -27,215 +30,208 @@ final GlobalKey<NavigatorState> _cartNavigatorKey =
 final GlobalKey<NavigatorState> _profileNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'profile');
 
-final router = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
-  redirect: (context, state) {
-    final sessionType = LocalStorageService.instance.getSessionType();
-    final currentLocation = state.matchedLocation;
-    debugPrint('====================================');
-    debugPrint('REDIRECT CHECK');
-    debugPrint('currentLocation : $currentLocation');
-    debugPrint('sessionType     : $sessionType');
-    debugPrint('====================================');
-    return null;
-  },
-  errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('Page Not Found')),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(
-            child: Lottie.asset(
-              'assets/animations/error_404.json',
-              width: 250,
-              fit: BoxFit.contain,
-            ),
+GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
+      navigatorKey: _rootNavigatorKey,
+      initialLocation: '/',
+      refreshListenable: loginProvider,
+      redirect: (context, state) {
+        final sessionType = LocalStorageService.instance.getSessionType();
+        if (sessionType == 'qr') return null;
+        return null;
+      },
+      errorBuilder: (context, state) => Scaffold(
+        appBar: AppBar(title: const Text('Page Not Found')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Lottie.asset(
+                  'assets/animations/error_404.json',
+                  width: 250,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Something went wrong',
+                  style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 8),
+              Text("We couldn't find the page you're looking for.",
+                  style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 24),
+              OutlinedButton(
+                onPressed: () {
+                  while (context.canPop()) {
+                    context.pop();
+                  }
+                  context.go('/home');
+                },
+                child: const Text('Return to Home'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Something went wrong',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "We couldn't find the page you're looking for.",
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 24),
-          OutlinedButton(
-            onPressed: () {
-              while (context.canPop()) {
-                context.pop();
-              }
-              context.go('/home');
-            },
-            child: const Text('Return to Home'),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-  routes: [
-    GoRoute(
-      path: '/',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final uri = Uri.base;
-        final tableNumber = uri.queryParameters['tableNumber'];
-        final businessId = uri.queryParameters['businessId'];
-        debugPrint('====================================');
-        debugPrint('ROUTE: /');
-        debugPrint('tableId(url)   : $tableNumber');
-        debugPrint('businessId(url): $businessId');
-        debugPrint('====================================');
-
-        return TableWelcomeScreen(
-          tableId: tableNumber,
-          businessId: businessId,
-        );
-      },
-    ),
-
-    // ── /login → UserLoginScreen ───────────────────────────────────────────
-
-    // ── Main app shell (home, favourites, cart, profile) ───────────────────
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) {
-        return AppShell(navigationShell: navigationShell);
-      },
-      branches: [
-        // ── Branch 0: Home ─────────────────────────────────────────────────
-        StatefulShellBranch(
-          navigatorKey: _homeNavigatorKey,
-          routes: [
-            GoRoute(
-              path: '/home',
-              builder: (context, state) => const HomeScreen(),
-              routes: [
-                GoRoute(
-                  path: 'product',
-                  builder: (context, state) {
-                    final product = state.extra as Product;
-                    return ProductDetailScreen(product: product);
-                  },
-                ),
-                GoRoute(
-                  path: 'recent_orders',
-                  builder: (context, state) => const RecentOrdersScreen(),
-                ),
-              ],
-            ),
-          ],
+      routes: [
+        GoRoute(
+          path: '/',
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) {
+            final uri = Uri.base;
+            final tableNumber = uri.queryParameters['tableNumber'];
+            final businessId = uri.queryParameters['businessId'];
+            debugPrint('====================================');
+            debugPrint('ROUTE: /');
+            debugPrint('tableId(url)   : $tableNumber');
+            debugPrint('businessId(url): $businessId');
+            debugPrint('====================================');
+            return TableWelcomeScreen(
+              tableId: tableNumber,
+              businessId: businessId,
+            );
+          },
         ),
-
-        // ── Branch 1: Favourites ────────────────────────────────────────────
-        StatefulShellBranch(
-          navigatorKey: _favouritesNavigatorKey,
-          routes: [
-            GoRoute(
-              path: '/favourites',
-              builder: (context, state) => const FavouritesScreen(),
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) =>
+              AppShell(navigationShell: navigationShell),
+          branches: [
+            // ── Branch 0: Home ──────────────────────────────────────────
+            StatefulShellBranch(
+              navigatorKey: _homeNavigatorKey,
               routes: [
                 GoRoute(
-                  path: 'product',
-                  builder: (context, state) {
-                    final product = state.extra as Product;
-                    return ProductDetailScreen(product: product);
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-
-        // ── Branch 2: Cart & Checkout ───────────────────────────────────────
-        StatefulShellBranch(
-          navigatorKey: _cartNavigatorKey,
-          routes: [
-            GoRoute(
-              path: '/cart',
-              builder: (context, state) => const CartScreen(),
-              routes: [
-                GoRoute(
-                  path: 'checkout',
-                  // Cart and checkout handle guest/session logic internally
-                  builder: (context, state) => const CheckoutScreen(),
+                  path: '/home',
+                  builder: (context, state) => const HomeScreen(),
                   routes: [
                     GoRoute(
-                      path: 'success',
-                      builder: (context, state) => const OrderSuccessScreen(),
+                      path: 'product',
+                      builder: (context, state) {
+                        final product = state.extra as Product;
+                        return ProductDetailScreen(product: product);
+                      },
+                    ),
+                    GoRoute(
+                      path: 'recent_orders',
+                      builder: (context, state) => const RecentOrdersScreen(),
                     ),
                   ],
                 ),
               ],
             ),
-          ],
-        ),
 
-        // ── Branch 3: Profile ───────────────────────────────────────────────
-        StatefulShellBranch(
-          navigatorKey: _profileNavigatorKey,
-          routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) {
-                final sessionType =
-                    LocalStorageService.instance.getSessionType();
-
-                debugPrint('====================================');
-                debugPrint('ROUTE: /profile');
-                debugPrint('sessionType : $sessionType');
-                debugPrint('====================================');
-
-                // QR → TableRequestScreen
-                // manual / guest → ProfileScreen
-                // (ProfileScreen handles guest UI internally)
-                return sessionType == 'qr'
-                    ? const TableRequestScreen()
-                    : const ProfileScreen();
-              },
+            // ── Branch 1: Favourites ────────────────────────────────────
+            StatefulShellBranch(
+              navigatorKey: _favouritesNavigatorKey,
               routes: [
                 GoRoute(
-                  path: 'edit',
-                  builder: (context, state) => const EditProfileScreen(),
-                ),
-                GoRoute(
-                  path: 'addresses',
-                  builder: (context, state) => const SavedAddressesScreen(),
-                  routes: [
-                    GoRoute(
-                      path: 'add',
-                      builder: (context, state) => const AddNewAddressScreen(),
-                    ),
-                  ],
-                ),
-                GoRoute(
-                  path: 'payments',
-                  builder: (context, state) => const PaymentMethodsScreen(),
-                ),
-                GoRoute(
-                  path: 'notifications',
-                  builder: (context, state) => const NotificationsScreen(),
-                ),
-                GoRoute(
-                  path: 'settings',
-                  builder: (context, state) => const SettingsScreen(),
-                ),
-                GoRoute(
-                  path: 'orders',
-                  builder: (context, state) => const RecentOrdersScreen(),
-                ),
-                GoRoute(
-                  path: 'favourites',
+                  path: '/favourites',
                   builder: (context, state) => const FavouritesScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'product',
+                      builder: (context, state) {
+                        final product = state.extra as Product;
+                        return ProductDetailScreen(product: product);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // ── Branch 2: Cart & Checkout ───────────────────────────────
+            StatefulShellBranch(
+              navigatorKey: _cartNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/cart',
+                  builder: (context, state) => const CartScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'checkout',
+                      builder: (context, state) => const CheckoutScreen(),
+                      routes: [
+                        GoRoute(
+                          path: 'success',
+                          builder: (context, state) =>
+                              const OrderSuccessScreen(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // ── Branch 3: Profile ───────────────────────────────────────
+            StatefulShellBranch(
+              navigatorKey: _profileNavigatorKey,
+              routes: [
+                GoRoute(
+                  path: '/profile',
+                  builder: (context, state) {
+                    return ListenableBuilder(
+                      listenable: loginProvider,
+                      builder: (context, _) {
+                        final sessionType =
+                            LocalStorageService.instance.getSessionType();
+                        final isLoggedIn = loginProvider.isLoggedIn;
+
+                        if (sessionType == 'qr') {
+                          return const TableRequestScreen();
+                        }
+                        if (!isLoggedIn) return const SignupPromptScreen();
+                        return const ProfileScreen();
+                      },
+                    );
+                  },
+                  routes: [
+                    // ── Login (full screen, no shell) ───────────────────
+                    GoRoute(
+                      path: 'login',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) => const Login(),
+                    ),
+                    GoRoute(
+                      path: 'edit',
+                      builder: (context, state) => const EditProfileScreen(),
+                    ),
+                    GoRoute(
+                      path: 'addresses',
+                      builder: (context, state) => const SavedAddressesScreen(),
+                      routes: [
+                        GoRoute(
+                          path: 'add',
+                          builder: (context, state) =>
+                              const AddNewAddressScreen(),
+                        ),
+                      ],
+                    ),
+                    GoRoute(
+                      path: 'payments',
+                      builder: (context, state) => const PaymentMethodsScreen(),
+                    ),
+                    GoRoute(
+                      path: 'notifications',
+                      builder: (context, state) => const NotificationsScreen(),
+                    ),
+                    GoRoute(
+                      path: 'settings',
+                      builder: (context, state) => const SettingsScreen(),
+                    ),
+                    GoRoute(
+                      path: 'orders',
+                      builder: (context, state) => const RecentOrdersScreen(),
+                    ),
+                    GoRoute(
+                      path: 'favourites',
+                      builder: (context, state) => const FavouritesScreen(),
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
       ],
-    ),
-  ],
-);
+    );
