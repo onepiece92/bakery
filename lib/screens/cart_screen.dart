@@ -1,15 +1,13 @@
+import 'package:bakery_flutter/models/cart_item.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
-import '../../providers/address_provider.dart';
 import '../../providers/product_provider.dart';
-import '../../components/address_selector.dart';
 import '../../components/primary_button.dart';
 import '../../components/product_card.dart';
-import '../../components/grid_product_card.dart';
 import '../../components/bakery_back_button.dart';
 import '../../providers/favourites_provider.dart';
 import '../../components/empty_cart_view.dart';
@@ -18,8 +16,72 @@ import '../../theme/app_decorations.dart';
 import '../../theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen>
+    with WidgetsBindingObserver {
+  // ── Note state ────────────────────────────────────────────────────────────
+  final Set<String> _expandedNoteKeys = {};
+  final Map<String, TextEditingController> _noteControllers = {};
+
+  // ── Keyboard visibility ───────────────────────────────────────────────────
+  bool _isKeyboardOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeMetrics() {
+    final bottomInset = WidgetsBinding
+        .instance.platformDispatcher.views.first.viewInsets.bottom;
+    final isOpen = bottomInset > 0;
+    if (isOpen != _isKeyboardOpen) {
+      setState(() => _isKeyboardOpen = isOpen);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    for (final c in _noteControllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _toggleNote(CartItem item) {
+    final key = item.cartItemId;
+    final cart = context.read<CartProvider>();
+
+    setState(() {
+      if (_expandedNoteKeys.contains(key)) {
+        final text = _noteControllers[key]?.text.trim() ?? '';
+        cart.setCartItemNote(key, text.isEmpty ? null : text);
+        _expandedNoteKeys.remove(key);
+        _noteControllers[key]?.dispose();
+        _noteControllers.remove(key);
+      } else {
+        _expandedNoteKeys.add(key);
+        _noteControllers[key] =
+            TextEditingController(text: item.note ?? '');
+      }
+    });
+  }
+
+  void _flushNotes(CartProvider cart) {
+    for (final key in _expandedNoteKeys.toList()) {
+      final text = _noteControllers[key]?.text.trim() ?? '';
+      cart.setCartItemNote(key, text.isEmpty ? null : text);
+    }
+  }
 
   // void _showAddressSheet(BuildContext context) {
   //   showModalBottomSheet(
@@ -49,6 +111,7 @@ class CartScreen extends StatelessWidget {
         .toList();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         scrolledUnderElevation: 0,
@@ -83,18 +146,191 @@ class CartScreen extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(24, 0, 24, 150),
                           children: [
                             ...cart.items.map((item) {
+                              final key = item.cartItemId;
+                              final isExpanded =
+                                  _expandedNoteKeys.contains(key);
+                              final hasNote =
+                                  item.note != null && item.note!.isNotEmpty;
+
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 14),
-                                child: ProductCard(
-                                  product: item.product,
-                                  onTap: () => context.push('/home/product',
-                                      extra: item.product),
-                                  onQuickAdd: () =>
-                                      cart.addProduct(item.product),
-                                  isFavourite:
-                                      favProv.isFavourite(item.product.id),
-                                  onToggleFavourite: () =>
-                                      favProv.toggle(item.product.id),
+                                child: AnimatedSize(
+                                  duration:
+                                      const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ProductCard(
+                                        product: item.product,
+                                        onTap: () => context.push(
+                                            '/home/product',
+                                            extra: item.product),
+                                        onQuickAdd: () =>
+                                            cart.addProduct(item.product),
+                                        isFavourite: favProv
+                                            .isFavourite(item.product.id),
+                                        onToggleFavourite: () =>
+                                            favProv.toggle(item.product.id),
+                                      ),
+
+                                      // ── Note toggle button ────────────
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 4, top: 6),
+                                        child: GestureDetector(
+                                          onTap: () => _toggleNote(item),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                isExpanded
+                                                    ? Icons
+                                                        .keyboard_arrow_up_rounded
+                                                    : (hasNote
+                                                        ? Icons
+                                                            .edit_note_rounded
+                                                        : Icons.add),
+                                                size: 14,
+                                                color: AppColors.terracotta,
+                                              ),
+                                              const SizedBox(width: 3),
+                                              Text(
+                                                isExpanded
+                                                    ? 'Hide note'
+                                                    : (hasNote
+                                                        ? 'Edit note'
+                                                        : 'Add note'),
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color:
+                                                      AppColors.terracotta,
+                                                  fontWeight:
+                                                      FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+
+                                      // ── Expanded note field ───────────
+                                      if (isExpanded) ...[
+                                        const SizedBox(height: 8),
+                                        TextField(
+                                          controller:
+                                              _noteControllers[key],
+                                          autofocus: true,
+                                          maxLines: 2,
+                                          maxLength: 200,
+                                          textCapitalization:
+                                              TextCapitalization.sentences,
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(
+                                                  color:
+                                                      AppColors.darkBrown),
+                                          decoration: InputDecoration(
+                                            hintText:
+                                                'e.g. No nuts, extra frosting, gift message...',
+                                            hintStyle: AppTextStyles
+                                                .bodySmall
+                                                .copyWith(
+                                                    color: AppColors
+                                                        .textLight),
+                                            filled: true,
+                                            fillColor: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerLow
+                                                .withValues(alpha: 0.4),
+                                            contentPadding:
+                                                const EdgeInsets.all(10),
+                                            isDense: true,
+                                            counterStyle: TextStyle(
+                                                fontSize: 10,
+                                                color: AppColors.textLight),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      AppDecorations
+                                                          .radiusCard),
+                                              borderSide: BorderSide(
+                                                  color: AppColors.softBrown
+                                                      .withValues(
+                                                          alpha: 0.2)),
+                                            ),
+                                            enabledBorder:
+                                                OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      AppDecorations
+                                                          .radiusCard),
+                                              borderSide: BorderSide(
+                                                  color: AppColors.softBrown
+                                                      .withValues(
+                                                          alpha: 0.2)),
+                                            ),
+                                            focusedBorder:
+                                                OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      AppDecorations
+                                                          .radiusCard),
+                                              borderSide: BorderSide(
+                                                  color:
+                                                      AppColors.terracotta,
+                                                  width: 1.5),
+                                            ),
+                                            suffixIcon: IconButton(
+                                              icon: Icon(
+                                                  Icons
+                                                      .check_circle_rounded,
+                                                  color:
+                                                      AppColors.terracotta,
+                                                  size: 20),
+                                              tooltip: 'Save note',
+                                              onPressed: () =>
+                                                  _toggleNote(item),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+
+                                      // ── Saved note display ────────────
+                                      if (!isExpanded && hasNote) ...[
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets
+                                              .symmetric(
+                                              horizontal: 10,
+                                              vertical: 7),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.terracotta
+                                                .withValues(alpha: 0.06),
+                                            borderRadius:
+                                                BorderRadius.circular(
+                                                    AppDecorations
+                                                        .radiusCard),
+                                            border: Border.all(
+                                                color: AppColors.terracotta
+                                                    .withValues(
+                                                        alpha: 0.15)),
+                                          ),
+                                          child: Text(
+                                            item.note!,
+                                            style: AppTextStyles.bodySmall
+                                                .copyWith(
+                                                    color: AppColors
+                                                        .terracotta),
+                                            maxLines: 2,
+                                            overflow:
+                                                TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
                               );
                             }),
@@ -187,8 +423,8 @@ class CartScreen extends StatelessWidget {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text('Total',
-                                            style:
-                                                AppTextStyles.headlineMedium),
+                                            style: AppTextStyles
+                                                .headlineMedium),
                                         Text(
                                             '\$${cart.total.toStringAsFixed(2)}',
                                             style: AppTextStyles.priceLarge
@@ -206,7 +442,7 @@ class CartScreen extends StatelessWidget {
                 ),
               ],
             ),
-            if (cart.items.isNotEmpty)
+            if (cart.items.isNotEmpty && !_isKeyboardOpen)
               Positioned(
                 bottom: 0,
                 left: 0,
@@ -214,6 +450,8 @@ class CartScreen extends StatelessWidget {
                 child: PrimaryButton(
                   label: 'Checkout — \$${cart.total.toStringAsFixed(2)}',
                   onTap: () async {
+                    _flushNotes(cart);
+
                     if (cart.items.isNotEmpty) {
                       final orderId =
                           'order_${DateTime.now().millisecondsSinceEpoch}';
@@ -228,13 +466,17 @@ class CartScreen extends StatelessWidget {
                         debugPrint(' ORDER VERIFIED IN HIVE');
                         debugPrint('Order ID       : ${saved.orderId}');
                         debugPrint('Created At     : ${saved.createdAt}');
-                        debugPrint('Is Business    : ${saved.isBusinessOrder}');
+                        debugPrint(
+                            'Is Business    : ${saved.isBusinessOrder}');
                         debugPrint(
                             'Subtotal       : \$${saved.subtotal.toStringAsFixed(2)}');
                         debugPrint('Total Items    : ${saved.items.length}');
                         for (final item in saved.items) {
                           debugPrint(
                               '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
+                          if (item.note != null && item.note!.isNotEmpty) {
+                            debugPrint('    Note: ${item.note}');
+                          }
                           if (item.selectedVariant != null) {
                             debugPrint(
                                 '    Variant: ${item.selectedVariant!.optionValues.join(' / ')}');
@@ -279,12 +521,14 @@ class CartScreen extends StatelessWidget {
                           debugPrint('In Stock      : ${p.inStock}');
                           debugPrint('Low Stock     : ${p.lowStock}');
                           debugPrint('Ordered Count : ${p.orderedCount}');
-                          debugPrint('Tags          : ${p.tags.join(', ')}');
+                          debugPrint(
+                              'Tags          : ${p.tags.join(', ')}');
                           debugPrint('Has Variants  : ${p.hasVariants}');
                           if (p.hasVariants) {
                             final v = p.variants!;
                             debugPrint('  Variant ID       : ${v.id}');
-                            debugPrint('  Variant Admin ID : ${v.adminId}');
+                            debugPrint(
+                                '  Variant Admin ID : ${v.adminId}');
                             debugPrint('  Options:');
                             for (final opt in v.options) {
                               debugPrint(
@@ -304,6 +548,7 @@ class CartScreen extends StatelessWidget {
                             }
                           }
                           debugPrint('Qty in Cart   : ${item.quantity}');
+                          debugPrint('Note          : ${item.note ?? '—'}');
                           debugPrint(
                               'Line Total    : \$${item.lineTotal.toStringAsFixed(2)}');
                         }

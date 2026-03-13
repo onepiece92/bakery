@@ -13,11 +13,11 @@ class CartProvider extends ChangeNotifier {
   double get subtotal =>
       _items.fold(0.0, (sum, i) => sum + i.lineTotal);
 
-  double get total => subtotal ;
+  double get total => subtotal;
 
   bool contains(Product product) =>
       _items.any((i) => i.product.id == product.id);
-      
+
   void addProduct(
     Product product, {
     int quantity = 1,
@@ -39,6 +39,14 @@ class CartProvider extends ChangeNotifier {
     } else {
       _items.add(newItem);
     }
+    notifyListeners();
+  }
+
+  void setCartItemNote(String cartItemId, String? note) {
+    final index =
+        _items.indexWhere((i) => i.cartItemId == cartItemId);
+    if (index < 0) return;
+    _items[index].note = note;
     notifyListeners();
   }
 

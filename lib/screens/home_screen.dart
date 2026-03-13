@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen>
         Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
       ]);
       Provider.of<FavouritesProvider>(context, listen: false).loadFavourites();
-        Provider.of<OrderProvider>(context, listen: false).loadOrders(); 
+      Provider.of<OrderProvider>(context, listen: false).loadOrders();
     });
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen>
     final viewMode = context.watch<ViewModeProvider>();
     final businessName = LocalStorageService.instance.getBusinessName();
     final bool showRecent = _searchQuery.isEmpty && _selectedCategory == 'all';
-final recentOrders = context.watch<OrderProvider>().recentOrders;
+    final recentOrders = context.watch<OrderProvider>().recentOrders;
 
     return FadeTransition(
       opacity: _fadeAnim,

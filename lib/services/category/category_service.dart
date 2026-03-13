@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/models/category.dart';
 import 'package:bakery_flutter/services/api_service.dart';
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/cupertino.dart';
 
 class CategoryService {
@@ -9,7 +10,8 @@ class CategoryService {
 
 Future<List<Category>> fetchCategories() async {
   try {
-    const String businessId = "698c89dd6f97647ce9de2194";
+      String businessId = LocalStorageService.instance.getBusinessId() ??
+          "698c89dd6f97647ce9de2194";
 
     final response = await _api.get(
       'businesses/$businessId/products/categories',

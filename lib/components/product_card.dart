@@ -8,7 +8,6 @@ import '../theme/app_decorations.dart';
 import '../theme/app_text_styles.dart';
 import '../providers/cart_provider.dart';
 
-/// List-view product card with live qty counter on the add button.
 class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;

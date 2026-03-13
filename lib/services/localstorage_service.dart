@@ -23,8 +23,19 @@ class LocalStorageService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  /// SAVE METHODS
+  Future<void> saveSessionType(String type) async =>
+      await _prefs?.setString('session_type', type);
 
+  String? getSessionType() => _prefs?.getString('session_type');
+
+  Future<void> saveWasSessionExpired(bool val) async =>
+      await _prefs?.setBool('was_session_expired', val);
+
+  bool getWasSessionExpired() =>
+      _prefs?.getBool('was_session_expired') ?? false;
+
+  Future<void> clearWasSessionExpired() async =>
+      await _prefs?.remove('was_session_expired');
   Future<void> saveSessionToken(String token) async {
     await _prefs?.setString(_keySessionToken, token);
   }
@@ -96,21 +107,22 @@ class LocalStorageService {
     return _prefs?.getString(_keyAddress);
   }
 
-Future<void> saveFavouriteIds(List<String> ids) async {
-  await _prefs?.setStringList(_keyFavouriteIds, ids); 
-}
-Future<void> saveIsBusinessSession(bool isBusinessSession) async {
-  await _prefs?.setBool(_keyIsBusinessSession, isBusinessSession);
-}
+  Future<void> saveFavouriteIds(List<String> ids) async {
+    await _prefs?.setStringList(_keyFavouriteIds, ids);
+  }
 
-bool getIsBusinessSession() {
-  return _prefs?.getBool(_keyIsBusinessSession) ?? true;
-}
+  Future<void> saveIsBusinessSession(bool isBusinessSession) async {
+    await _prefs?.setBool(_keyIsBusinessSession, isBusinessSession);
+  }
 
-List<String> getFavouriteIds() {
-  final result = _prefs?.getStringList(_keyFavouriteIds) ?? [];
-  return result;
-}
+  bool getIsBusinessSession() {
+    return _prefs?.getBool(_keyIsBusinessSession) ?? true;
+  }
+
+  List<String> getFavouriteIds() {
+    final result = _prefs?.getStringList(_keyFavouriteIds) ?? [];
+    return result;
+  }
 
   Future<void> clearFavouriteIds() async {
     await _prefs?.remove(_keyFavouriteIds);
@@ -127,7 +139,7 @@ List<String> getFavouriteIds() {
     await _prefs?.remove(_keyBusinessId);
     await _prefs?.remove(_keyBusinessName);
     await _prefs?.remove(_keyAddress);
-      await _prefs?.remove(_keyIsBusinessSession);
+    await _prefs?.remove(_keyIsBusinessSession);
   }
 
   Future<void> clearAll() async {

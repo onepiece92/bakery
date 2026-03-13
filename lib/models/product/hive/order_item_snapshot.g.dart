@@ -22,13 +22,14 @@ class HiveOrderItemSnapshotAdapter extends TypeAdapter<HiveOrderItemSnapshot> {
       selectedAddons: (fields[2] as List).cast<HiveAddonSnapshot>(),
       quantity: fields[3] as int,
       lineTotal: fields[4] as double,
+      note: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, HiveOrderItemSnapshot obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.product)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class HiveOrderItemSnapshotAdapter extends TypeAdapter<HiveOrderItemSnapshot> {
       ..writeByte(3)
       ..write(obj.quantity)
       ..writeByte(4)
-      ..write(obj.lineTotal);
+      ..write(obj.lineTotal)
+      ..writeByte(5)
+      ..write(obj.note);
   }
 
   @override

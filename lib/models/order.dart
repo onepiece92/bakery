@@ -26,6 +26,7 @@ class OrderItemVariant {
 }
 
 class OrderItem {
+  final String productId; // ← add this
   final String name;
   final String image;
   final int qty;
@@ -35,6 +36,7 @@ class OrderItem {
   final List<OrderItemAddon> addons;
 
   const OrderItem({
+    required this.productId, // ← add this
     required this.name,
     required this.image,
     required this.qty,
@@ -44,16 +46,9 @@ class OrderItem {
     this.addons = const [],
   });
 
-  /// Total price of all addons combined
   double get addonTotal => addons.fold(0.0, (sum, a) => sum + a.price);
-
-  /// Effective unit price including addons
   double get effectiveUnitPrice => unitPrice + addonTotal;
-
-  /// Variant label e.g. 'Large / Chocolate'
   String get variantLabel => variant?.optionValues.join(' / ') ?? '';
-
-  /// Addon names joined e.g. 'Extra Butter, Jam'
   String get addonLabel => addons.map((a) => a.name).join(', ');
 }
 
@@ -74,10 +69,7 @@ class Order {
     this.isBusinessOrder = false,
   });
 
-  /// Total item count across all lines
   int get totalQty => items.fold(0, (sum, i) => sum + i.qty);
-
-  /// Build an Order directly from a Hive OrderModel
   factory Order.fromHive(OrderModel hive) => Order(
         id: hive.orderId,
         date: DateFormat('MMM d, yyyy · h:mm a').format(hive.createdAt),
@@ -105,6 +97,7 @@ class Order {
 
           return OrderItem(
             name: i.product.name,
+              productId: i.product.id, 
             image: i.product.image,
             unitPrice: i.product.price,
             lineTotal: i.lineTotal,

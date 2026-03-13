@@ -1,5 +1,7 @@
 import 'package:bakery_flutter/models/product/product_model.dart';
+import 'package:bakery_flutter/screens/table_request_screen.dart';
 import 'package:bakery_flutter/screens/tablewelcome_screen.dart';
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
@@ -27,9 +29,17 @@ final GlobalKey<NavigatorState> _profileNavigatorKey =
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/home',
-
-
+  initialLocation: '/',
+  redirect: (context, state) {
+    final sessionType = LocalStorageService.instance.getSessionType();
+    final currentLocation = state.matchedLocation;
+    debugPrint('====================================');
+    debugPrint('REDIRECT CHECK');
+    debugPrint('currentLocation : $currentLocation');
+    debugPrint('sessionType     : $sessionType');
+    debugPrint('====================================');
+    return null;
+  },
   errorBuilder: (context, state) => Scaffold(
     appBar: AppBar(title: const Text('Page Not Found')),
     body: Center(
@@ -37,15 +47,22 @@ final router = GoRouter(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Flexible(
-            child: Lottie.asset('assets/animations/error_404.json',
-                width: 250, fit: BoxFit.contain),
+            child: Lottie.asset(
+              'assets/animations/error_404.json',
+              width: 250,
+              fit: BoxFit.contain,
+            ),
           ),
           const SizedBox(height: 16),
-          Text('Something went wrong',
-              style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            'Something went wrong',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 8),
-          Text("We couldn't find the page you're looking for.",
-              style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            "We couldn't find the page you're looking for.",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: 24),
           OutlinedButton(
             onPressed: () {
@@ -59,23 +76,37 @@ final router = GoRouter(
         ],
       ),
     ),
-
-    
   ),
   routes: [
-
-   GoRoute(
+    GoRoute(
       path: '/',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const TableWelcomeScreen(),
+      builder: (context, state) {
+        final uri = Uri.base;
+        final tableNumber = uri.queryParameters['tableNumber'];
+        final businessId = uri.queryParameters['businessId'];
+        debugPrint('====================================');
+        debugPrint('ROUTE: /');
+        debugPrint('tableId(url)   : $tableNumber');
+        debugPrint('businessId(url): $businessId');
+        debugPrint('====================================');
+
+        return TableWelcomeScreen(
+          tableId: tableNumber,
+          businessId: businessId,
+        );
+      },
     ),
 
+    // ── /login → UserLoginScreen ───────────────────────────────────────────
+
+    // ── Main app shell (home, favourites, cart, profile) ───────────────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        // Branch 0: Home
+        // ── Branch 0: Home ─────────────────────────────────────────────────
         StatefulShellBranch(
           navigatorKey: _homeNavigatorKey,
           routes: [
@@ -99,7 +130,7 @@ final router = GoRouter(
           ],
         ),
 
-        // Branch 1: Favourites
+        // ── Branch 1: Favourites ────────────────────────────────────────────
         StatefulShellBranch(
           navigatorKey: _favouritesNavigatorKey,
           routes: [
@@ -119,7 +150,7 @@ final router = GoRouter(
           ],
         ),
 
-        // Branch 2: Cart & Checkout flow
+        // ── Branch 2: Cart & Checkout ───────────────────────────────────────
         StatefulShellBranch(
           navigatorKey: _cartNavigatorKey,
           routes: [
@@ -129,6 +160,7 @@ final router = GoRouter(
               routes: [
                 GoRoute(
                   path: 'checkout',
+                  // Cart and checkout handle guest/session logic internally
                   builder: (context, state) => const CheckoutScreen(),
                   routes: [
                     GoRoute(
@@ -142,13 +174,28 @@ final router = GoRouter(
           ],
         ),
 
-        // Branch 3: Profile
+        // ── Branch 3: Profile ───────────────────────────────────────────────
         StatefulShellBranch(
           navigatorKey: _profileNavigatorKey,
           routes: [
             GoRoute(
               path: '/profile',
-              builder: (context, state) => const ProfileScreen(),
+              builder: (context, state) {
+                final sessionType =
+                    LocalStorageService.instance.getSessionType();
+
+                debugPrint('====================================');
+                debugPrint('ROUTE: /profile');
+                debugPrint('sessionType : $sessionType');
+                debugPrint('====================================');
+
+                // QR → TableRequestScreen
+                // manual / guest → ProfileScreen
+                // (ProfileScreen handles guest UI internally)
+                return sessionType == 'qr'
+                    ? const TableRequestScreen()
+                    : const ProfileScreen();
+              },
               routes: [
                 GoRoute(
                   path: 'edit',

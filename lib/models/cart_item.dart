@@ -2,17 +2,23 @@ import 'package:equatable/equatable.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 
 class CartItem extends Equatable {
+  final String cartItemId;
   final Product product;
-  final VariantItem? selectedVariant;  
-  final List<Addon> selectedAddons;    
+  final VariantItem? selectedVariant;
+  final List<Addon> selectedAddons;
   int quantity;
+  String? note;
 
   CartItem({
+    String? cartItemId,
     required this.product,
     this.selectedVariant,
     this.selectedAddons = const [],
     this.quantity = 1,
-  });
+    this.note,
+  }) : cartItemId = cartItemId ??
+            '${product.id}__${selectedVariant?.id ?? 'no_variant'}__${DateTime.now().microsecondsSinceEpoch}';
+
   String get lineKey {
     final variantPart = selectedVariant?.id ?? 'no_variant';
     return '${product.id}__$variantPart';

@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/services/api_service.dart';
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/cupertino.dart';
 
 class ProductService {
@@ -9,8 +10,8 @@ class ProductService {
 
   Future<List<Product>> fetchProducts() async {
     try {
-      String businessId = "698c89dd6f97647ce9de2194";
-
+      String businessId = LocalStorageService.instance.getBusinessId() ??
+          "698c89dd6f97647ce9de2194";
       final response = await _api.get<Map<String, dynamic>>(
         'businesses/$businessId/products',
       );

@@ -13,6 +13,7 @@ class HiveOrderItemSnapshot extends HiveObject {
   @HiveField(2) final List<HiveAddonSnapshot> selectedAddons;
   @HiveField(3) final int quantity;
   @HiveField(4) final double lineTotal;
+  @HiveField(5) final String? note;
 
   HiveOrderItemSnapshot({
     required this.product,
@@ -20,5 +21,6 @@ class HiveOrderItemSnapshot extends HiveObject {
     required this.selectedAddons,
     required this.quantity,
     required this.lineTotal,
+    this.note,
   });
 }

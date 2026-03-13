@@ -6,6 +6,8 @@ import 'package:bakery_flutter/models/product/hive/variant_snapshot.dart';
 import 'package:bakery_flutter/providers/category_provider.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
+import 'package:bakery_flutter/providers/qrlogin_provider.dart';
+import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/providers/view_provider.dart';
 import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
@@ -53,12 +55,13 @@ class BakeryApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => FavouritesProvider()),
-        // ChangeNotifierProvider(create: (_) => AddressProvider()),
         ChangeNotifierProvider(create: (_) => NavProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => ViewModeProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => TableRequestProvider()),
+        ChangeNotifierProvider(create: (_) => QRLoginProvider()),
       ],
       child: MaterialApp.router(
         title: 'Foxys Corner',
