@@ -14,14 +14,9 @@ class OrderCard extends StatelessWidget {
   });
 
   Color _textColor(BuildContext context) =>  Theme.of(context).colorScheme.onSurface;
-  // Color _textColor(BuildContext context) => featured
-  //     ? Theme.of(context).colorScheme.onPrimary
-  //     : Theme.of(context).colorScheme.onSurface;
+
 
   Color _subTextColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
-  // Color _subTextColor(BuildContext context) => featured
-  //     ? Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.6)
-  //     : Theme.of(context).colorScheme.onSurfaceVariant;
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +24,6 @@ class OrderCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        // color: featured
-        //     ? Theme.of(context).colorScheme.primary
-        //     : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         // border: featured
         //     ? null

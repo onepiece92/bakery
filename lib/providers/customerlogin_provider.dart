@@ -58,7 +58,7 @@ class CustomerLoginProvider extends ChangeNotifier {
   }
 
   // ── LOGOUT ──────────────────────────────────────────────────────────────────
-  Future<void> logout() async {
+ Future<void> logout() async {
     debugPrint('====================================');
     debugPrint('CustomerLoginProvider.logout START');
     debugPrint('====================================');
@@ -67,19 +67,19 @@ class CustomerLoginProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      await CustomerLoginService.instance.logout();
+      debugPrint('CustomerLoginProvider → API logout successful');
       final storage = LocalStorageService.instance;
-      await storage
-          .clearAll(); // clears token, userId, customerName, sessionType, isBusinessSession
-
+      await storage.clearAll();
       debugPrint('CustomerLoginProvider → LocalStorage cleared');
+
     } catch (e) {
       debugPrint('CustomerLoginProvider → logout ERROR: $e');
+      await LocalStorageService.instance.clearAll();
     }
-
     _data = null;
     _errorMessage = null;
     _isLoading = false;
-
     debugPrint('CustomerLoginProvider → logout COMPLETE');
     notifyListeners();
   }

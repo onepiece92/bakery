@@ -116,7 +116,7 @@ final class AppTheme {
         segmentedButtonTheme: SegmentedButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
-              // Selected segment → primary brand red.
+    
               if (states.contains(WidgetState.selected)) {
                 return AppColors.primaryRed;
               }
@@ -130,6 +130,7 @@ final class AppTheme {
               // Unselected → primary red text on white.
               return AppColors.primaryRed;
             }),
+            
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppDecorations.radiusS),

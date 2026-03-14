@@ -13,7 +13,7 @@ class AutoScrollTicker extends StatefulWidget {
     required this.text,
     this.style,
     this.initialDelay = const Duration(milliseconds: 800),
-    this.pauseAtEnd = const Duration(milliseconds: 1000),
+    this.pauseAtEnd = const Duration(milliseconds: 600),
     this.scrollSpeedFactor = 12,
     this.physics = const BouncingScrollPhysics(),
   });

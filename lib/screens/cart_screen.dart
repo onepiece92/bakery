@@ -11,7 +11,6 @@ import '../../providers/cart_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../components/primary_button.dart';
 import '../../components/product_card.dart';
-import '../../components/bakery_back_button.dart';
 import '../../providers/favourites_provider.dart';
 import '../../components/empty_cart_view.dart';
 import '../../theme/app_colors.dart';
@@ -103,7 +102,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
               border: Border(
-                top: BorderSide(color: Colors.grey.shade300),
+                // top: BorderSide(color: Colors.grey.shade300),
                 left: BorderSide(color: Colors.grey.shade300),
                 right: BorderSide(color: Colors.grey.shade300),
                 bottom: BorderSide.none,
@@ -115,10 +114,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
               appBar: AppBar(
                 scrolledUnderElevation: 0,
                 elevation: 0,
-                leading: const Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: BakeryBackButton(),
-                ),
+               automaticallyImplyActions: true,
                 title: const Text('Your Cart'),
                 actions: [
                   if (cart.items.isNotEmpty)
@@ -334,7 +330,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                               .backgroundDark),
                                                   decoration: InputDecoration(
                                                     hintText:
-                                                        'e.g. No nuts, extra frosting, gift message...',
+                                                        '',
                                                     hintStyle: context
                                                         .text.bodySmall
                                                         ?.copyWith(
@@ -541,6 +537,11 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                           '',
                                       foodItems: foodItems,
                                     );
+                                      await orderProv.placeOrder(
+                                        items: cart.items.toList(),
+                                        subtotal: cart.subtotal,
+                                        isBusinessOrder: isBusiness,
+                                      );
 
                                     if (!mounted) return;
 
@@ -551,11 +552,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                     if (success) {
                                       final orderId =
                                           'order_${DateTime.now().millisecondsSinceEpoch}';
-                                      await orderProv.placeOrder(
-                                        items: cart.items.toList(),
-                                        subtotal: cart.subtotal,
-                                        isBusinessOrder: isBusiness,
-                                      );
+                                    
 
                                       debugPrint('Order saved: $orderId');
                                       final saved =

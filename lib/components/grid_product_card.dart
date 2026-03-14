@@ -1,4 +1,5 @@
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/extensions/ticker.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/providers/favourites_provider.dart';
 import 'package:flutter/material.dart';
@@ -109,13 +110,16 @@ class GridProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    product.name.toTitleCase(),
-                    style: AppTextStyles.bodyMedium.copyWith(
+                  SizedBox(
+                    width: double.infinity,
+                    child: AutoScrollTicker(
+                      // text: "DSJVNJFVNKDFNVKDFNVKDNVKDFNV",
+                      text: product.name.toTitleCase(),
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.backgroundDark,
-                        fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(

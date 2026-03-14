@@ -1,11 +1,14 @@
 import 'package:bakery_flutter/components/bakery_back_button.dart';
+import 'package:bakery_flutter/components/confirmation_dialog.dart';
 import 'package:bakery_flutter/components/reorder_card.dart';
 import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/models/order.dart';
+import 'package:bakery_flutter/models/services_model.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
+import 'package:bakery_flutter/providers/table_request_provider.dart';
+import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 
 class RecentOrdersScreen extends StatefulWidget {
   const RecentOrdersScreen({super.key});
@@ -34,7 +37,6 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
     _pageSlide = Tween<Offset>(begin: const Offset(0, 0.05), end: Offset.zero)
         .animate(CurvedAnimation(parent: _pageCtrl, curve: Curves.easeOut));
 
-    // ── Load orders then build card controllers ──────────────────
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final orderProv = Provider.of<OrderProvider>(context, listen: false);
       orderProv.loadOrders();
@@ -51,6 +53,40 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
         }
       });
     });
+  }
+
+  Future<void> _handleReorder(BuildContext context, Order order) async {
+    await ConfirmOrderDialog.show(
+      context,
+      order: order,
+      onConfirm: () async {
+        final provider = context.read<TableRequestProvider>();
+        final businessId = LocalStorageService.instance.getBusinessId();
+
+        final foodItems = order.items.map((item) {
+          return FoodItemRequest(
+            product: item.productId,
+            quantity: item.qty,
+            variant: item.variant?.id,
+            addons: item.addons
+                .map((a) => FoodAddonRequest(addonId: a.id, quantity: 1))
+                .toList(),
+          );
+        }).toList();
+
+        await provider.requestFood(
+          businessId: businessId ?? '',
+          foodItems: foodItems,
+        );
+
+        if (context.mounted && provider.message != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(provider.message!)),
+          );
+          provider.clearMessage();
+        }
+      },
+    );
   }
 
   void _buildCardControllers(int count) {
@@ -89,7 +125,11 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(2),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border(
+                  left: BorderSide(color: Colors.grey.shade300),
+                  right: BorderSide(color: Colors.grey.shade300),
+                  bottom: BorderSide.none,
+                ),
               ),
               child: Scaffold(
                 backgroundColor: context.theme.scaffoldBackgroundColor,
@@ -127,8 +167,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                           child: SlideTransition(
                             position: _pageSlide,
                             child: ListView(
-                              padding:
-                                  const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                               children: [
                                 // ── Summary card ─────────────────────────────
                                 Container(
@@ -151,8 +190,8 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                     children: [
                                       Text(
                                         'Order History',
-                                        style: context.text.labelSmall
-                                            ?.copyWith(
+                                        style:
+                                            context.text.labelSmall?.copyWith(
                                           color: context.colors.tertiary,
                                           letterSpacing: 1.5,
                                           fontSize: 11,
@@ -173,7 +212,8 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                                 '${orders.length}',
                                                 style: context.text.displayLarge
                                                     ?.copyWith(
-                                                  color: context.colors.onPrimary,
+                                                  color:
+                                                      context.colors.onPrimary,
                                                   fontSize: 32,
                                                 ),
                                               ),
@@ -196,7 +236,8 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                                 '\$${totalSpent.toStringAsFixed(2)}',
                                                 style: context.text.displayLarge
                                                     ?.copyWith(
-                                                  color: context.colors.onPrimary,
+                                                  color:
+                                                      context.colors.onPrimary,
                                                   fontSize: 24,
                                                 ),
                                               ),
@@ -230,8 +271,8 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                       child: OrderCard(
                                         order: order,
                                         featured: false,
-                                        onReorder: () => debugPrint(
-                                            '🔁 Reorder Clicked: ${order.id}'),
+                                        onReorder: () =>
+                                            _handleReorder(context, order),
                                       ),
                                     );
                                   }
@@ -245,16 +286,15 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                         begin: const Offset(0, 0.08),
                                         end: Offset.zero,
                                       ).animate(CurvedAnimation(
-                                          parent: ctrl,
-                                          curve: Curves.easeOut)),
+                                          parent: ctrl, curve: Curves.easeOut)),
                                       child: Padding(
                                         padding:
                                             const EdgeInsets.only(bottom: 12),
                                         child: OrderCard(
                                           order: order,
                                           featured: false,
-                                          onReorder: () => debugPrint(
-                                              '🔁 Reorder Clicked: ${order.id}'),
+                                          onReorder: () =>
+                                              _handleReorder(context, order),
                                         ),
                                       ),
                                     ),

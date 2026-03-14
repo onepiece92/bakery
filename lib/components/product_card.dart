@@ -1,4 +1,5 @@
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/extensions/ticker.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/providers/favourites_provider.dart';
 import 'package:flutter/material.dart';
@@ -85,14 +86,14 @@ class ProductCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
-                              product.name.toTitleCase(),
+                            child: AutoScrollTicker(
+                              // text: "dsknvjsdvnjdnvjkdfnvdfkjvnkdfvnkfdnv",
+                              text: product.name.toTitleCase(),
                               style: AppTextStyles.bodyMedium.copyWith(
                                 color: AppColors.backgroundDark,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Consumer<FavouritesProvider>(

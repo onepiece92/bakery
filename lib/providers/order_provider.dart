@@ -8,7 +8,7 @@ class OrderProvider extends ChangeNotifier {
 
   List<Order> get orders => _orders;
   List<Order> get recentOrders => _orders.toList();
-  // List<Order> get recentOrders => _orders.take(3).toList();
+
 
   void loadOrders() {
     _orders = HiveOrderService.getAllOrders()

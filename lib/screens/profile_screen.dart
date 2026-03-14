@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/providers/customerlogin_provider.dart';
+import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/profile_provider.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
@@ -52,21 +53,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
                   border: Border(
-                    top: BorderSide(color: Colors.grey.shade300),
+                    // top: BorderSide(color: Colors.grey.shade300),
                     left: BorderSide(color: Colors.grey.shade300),
                     right: BorderSide(color: Colors.grey.shade300),
                     bottom: BorderSide.none,
                   ),
                 ),
-                child: SafeArea(
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
-                    children: [
-                      Text(
+                child: Scaffold(
+                  appBar: AppBar(
+                    automaticallyImplyActions: true,
+                    scrolledUnderElevation: 0,
+                    elevation: 0,
+                    title: Text(
                         'My Profile',
                         style: context.text.displayMedium,
-                      ),
-                      const SizedBox(height: 20),
+                      ), 
+                  ),
+                  body: ListView(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
+                    children: [
+                     
+                      // const SizedBox(height: 20),
 
                       // ── Profile card ─────────────────────────────────────
                       GestureDetector(
@@ -123,23 +130,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ],
                                     const SizedBox(height: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: context.colors.tertiary
-                                            .withValues(alpha: 0.12),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        '🥐 Croissant Member',
-                                        style: context.text.labelMedium
-                                            ?.copyWith(
-                                          color: context.colors.tertiary,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
+                                    // Container(
+                                    //   padding: const EdgeInsets.symmetric(
+                                    //       horizontal: 10, vertical: 4),
+                                    //   decoration: BoxDecoration(
+                                    //     color: context.colors.tertiary
+                                    //         .withValues(alpha: 0.12),
+                                    //     borderRadius: BorderRadius.circular(8),
+                                    //   ),
+                                    //   child: Text(
+                                    //     '🥐 Croissant Member',
+                                    //     style:
+                                    //         context.text.labelMedium?.copyWith(
+                                    //       color: context.colors.tertiary,
+                                    //       fontSize: 11,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -153,17 +160,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      const LoyaltyCard(),
-                      const SizedBox(height: 24),
+                      // const LoyaltyCard(),
+                      // const SizedBox(height: 24),
 
                       // ── Orders & History ─────────────────────────────────
                       const _SectionHeader(label: 'ORDERS & HISTORY'),
                       const SizedBox(height: 8),
-                      _MenuTile(
-                        icon: '📦',
-                        label: 'My Orders',
-                        sub: '4 recent orders',
-                        onTap: () => context.push('/profile/orders'),
+                      Consumer<OrderProvider>(
+                        builder: (context, orderProvider, _) => _MenuTile(
+                          icon: '📦',
+                          label: 'My Orders',
+                          sub: '${orderProvider.orders.length} recent orders',
+                          onTap: () => context.push('/profile/orders'),
+                        ),
                       ),
                       _MenuTile(
                         icon: '❤️',
@@ -174,14 +183,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 16),
 
                       // ── Account ──────────────────────────────────────────
-                      const _SectionHeader(label: 'ACCOUNT'),
-                      const SizedBox(height: 8),
-                      _MenuTile(
-                        icon: '📍',
-                        label: 'Saved Addresses',
-                        sub: 'Manage delivery locations',
-                        onTap: () => context.push('/profile/addresses'),
-                      ),
+                      const _SectionHeader(label: 'Account'),
+                      // const SizedBox(height: 8),
+                      // _MenuTile(
+                      //   icon: '📍',
+                      //   label: 'Saved Addresses',
+                      //   sub: 'Manage delivery locations',
+                      //   onTap: () => context.push('/profile/addresses'),
+                      // ),
                       _MenuTile(
                         icon: '💳',
                         label: 'Payment Methods',
@@ -191,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 16),
 
                       // ── Preferences ──────────────────────────────────────
-                      const _SectionHeader(label: 'PREFERENCES'),
+                      const _SectionHeader(label: 'Preferences'),
                       const SizedBox(height: 8),
                       _MenuTile(
                         icon: '🔔',
@@ -210,9 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // ── Sign Out ─────────────────────────────────────────
                       GestureDetector(
                         onTap: () async {
-                          await context
-                              .read<CustomerLoginProvider>()
-                              .logout();
+                          await context.read<CustomerLoginProvider>().logout();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -298,8 +305,7 @@ class _MenuTile extends StatelessWidget {
                   if (sub != null)
                     Text(
                       sub!,
-                      style:
-                          context.text.bodySmall?.copyWith(fontSize: 12),
+                      style: context.text.bodySmall?.copyWith(fontSize: 12),
                     ),
                 ],
               ),

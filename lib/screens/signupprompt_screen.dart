@@ -18,7 +18,7 @@ class SignupPromptScreen extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
               border: Border(
-                top: BorderSide(color: Colors.grey.shade300),
+                // top: BorderSide(color: Colors.grey.shade300),
                 left: BorderSide(color: Colors.grey.shade300),
                 right: BorderSide(color: Colors.grey.shade300),
                 bottom: BorderSide.none,

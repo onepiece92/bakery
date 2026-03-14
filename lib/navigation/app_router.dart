@@ -1,6 +1,7 @@
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/providers/customerlogin_provider.dart';
 import 'package:bakery_flutter/screens/login_screen.dart';
+import 'package:bakery_flutter/screens/qrscan_screen.dart';
 import 'package:bakery_flutter/screens/signupprompt_screen.dart';
 import 'package:bakery_flutter/screens/table_request_screen.dart';
 import 'package:bakery_flutter/screens/tablewelcome_screen.dart';
@@ -39,21 +40,21 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
         if (sessionType == 'qr') return null;
         return null;
       },
-      errorBuilder: (context, state) => LayoutBuilder(
-      builder: (context, constraints) {
+      errorBuilder: (context, state) =>
+          LayoutBuilder(builder: (context, constraints) {
         final isWide = constraints.maxWidth > 500;
         final maxWidth = isWide ? 500.0 : double.infinity;
-          return Center(
-            child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxWidth),
-              child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                child: Scaffold(
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Scaffold(
                   appBar: AppBar(title: const Text('Page Not Found')),
-                  body:  Center(
+                  body: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -82,14 +83,11 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
                         ),
                       ],
                     ),
-                  )
-                   
-                ),
-              ),
+                  )),
             ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
       routes: [
         GoRoute(
           path: '/',
@@ -131,6 +129,12 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
                     GoRoute(
                       path: 'recent_orders',
                       builder: (context, state) => const RecentOrdersScreen(),
+                    ),
+                    GoRoute(
+                      path: 'scan',
+                      parentNavigatorKey:
+                          _rootNavigatorKey, 
+                      builder: (context, state) => const QrScannerPage(),
                     ),
                   ],
                 ),

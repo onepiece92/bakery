@@ -1,11 +1,10 @@
+import 'package:bakery_flutter/components/comming_soon.dart';
 import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:flutter/material.dart';
 import '../../components/primary_button.dart';
 import 'package:go_router/go_router.dart';
 import '../../components/bakery_back_button.dart';
 import '../../components/service_icon.dart';
-
-
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -111,8 +110,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 decoration: InputDecoration(
                                   hintText:
                                       'Pastry enthusiast and weekend baker...',
-                                  hintStyle: context.text.bodyMedium?.copyWith(
-                                      color: context.colors.outline),
+                                  hintStyle: context.text.bodyMedium
+                                      ?.copyWith(color: context.colors.outline),
                                   border: InputBorder.none,
                                   isDense: true,
                                   contentPadding: EdgeInsets.zero,
@@ -207,8 +206,7 @@ class SavedAddressesScreen extends StatelessWidget {
                 children: [
                   const BakeryBackButton(),
                   const SizedBox(width: 12),
-                  Text('Saved Addresses',
-                      style: context.text.headlineLarge),
+                  Text('Saved Addresses', style: context.text.headlineLarge),
                 ],
               ),
             ),
@@ -250,80 +248,98 @@ class PaymentMethodsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: const Icon(Icons.chevron_left_rounded, size: 24),
-                    style: IconButton.styleFrom(
-                      backgroundColor: context.theme.dividerColor,
-                      foregroundColor: context.colors.onSurface,
-                      minimumSize: const Size(40, 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text('Payment Methods', style: context.text.headlineLarge),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                children: [
-                  const _PaymentCard(
-                    icon: '💳',
-                    label: 'Visa ending in 4289',
-                    sub: 'Expires 09/27',
-                    isDefault: true,
-                  ),
-                  const SizedBox(height: 10),
-                  const _PaymentCard(
-                    icon: '🍎',
-                    label: 'Apple Pay',
-                    sub: 'Express checkout',
-                  ),
-                  const SizedBox(height: 10),
-                  const _PaymentCard(
-                    icon: '🅿️',
-                    label: 'PayPal',
-                    sub: 'sophie@email.com',
-                  ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
-                      side: BorderSide(
-                          color: context.theme.dividerColor, width: 2),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      foregroundColor: context.colors.onSurfaceVariant,
-                    ),
-                    icon: const Icon(Icons.add_rounded),
-                    label: Text('Add Payment Method',
-                        style: context.text.bodyMedium
-                            ?.copyWith(color: context.colors.onSurfaceVariant)),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        appBar: AppBar(
+          automaticallyImplyActions: true,
         ),
-      ),
-    );
+        backgroundColor: context.theme.scaffoldBackgroundColor,
+        body: Center(
+          child: CommingSoon(
+            title: 'Payment, Coming Soon',
+            subtitle: 'This feature is under development.',
+          ),
+        ));
   }
 }
+// class PaymentMethodsScreen extends StatelessWidget {
+//   const PaymentMethodsScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: context.theme.scaffoldBackgroundColor,
+//       body: SafeArea(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Padding(
+//               padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+//               child: Row(
+//                 children: [
+//                   IconButton(
+//                     onPressed: () => context.pop(),
+//                     icon: const Icon(Icons.chevron_left_rounded, size: 24),
+//                     style: IconButton.styleFrom(
+//                       backgroundColor: context.theme.dividerColor,
+//                       foregroundColor: context.colors.onSurface,
+//                       minimumSize: const Size(40, 40),
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(12),
+//                       ),
+//                     ),
+//                   ),
+//                   const SizedBox(width: 12),
+//                   Text('Payment Methods', style: context.text.headlineLarge),
+//                 ],
+//               ),
+//             ),
+//             Expanded(
+//               child: ListView(
+//                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+//                 children: [
+//                   const _PaymentCard(
+//                     icon: '💳',
+//                     label: 'Visa ending in 4289',
+//                     sub: 'Expires 09/27',
+//                     isDefault: true,
+//                   ),
+//                   const SizedBox(height: 10),
+//                   const _PaymentCard(
+//                     icon: '🍎',
+//                     label: 'Apple Pay',
+//                     sub: 'Express checkout',
+//                   ),
+//                   const SizedBox(height: 10),
+//                   const _PaymentCard(
+//                     icon: '🅿️',
+//                     label: 'PayPal',
+//                     sub: 'sophie@email.com',
+//                   ),
+//                   const SizedBox(height: 12),
+//                   OutlinedButton.icon(
+//                     onPressed: () {},
+//                     style: OutlinedButton.styleFrom(
+//                       padding: const EdgeInsets.all(16),
+//                       side: BorderSide(
+//                           color: context.theme.dividerColor, width: 2),
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(18),
+//                       ),
+//                       foregroundColor: context.colors.onSurfaceVariant,
+//                     ),
+//                     icon: const Icon(Icons.add_rounded),
+//                     label: Text('Add Payment Method',
+//                         style: context.text.bodyMedium
+//                             ?.copyWith(color: context.colors.onSurfaceVariant)),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _PaymentCard extends StatelessWidget {
   final String icon;
@@ -349,8 +365,7 @@ class _PaymentCard extends StatelessWidget {
         side: BorderSide(color: context.theme.dividerColor, width: 1.5),
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: ServiceIcon(
           icon: icon,
           size: 48,
@@ -365,8 +380,7 @@ class _PaymentCard extends StatelessWidget {
             if (isDefault) ...[
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
                   color: context.colors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
@@ -381,8 +395,8 @@ class _PaymentCard extends StatelessWidget {
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
-          child: Text(sub,
-              style: context.text.bodySmall?.copyWith(fontSize: 12)),
+          child:
+              Text(sub, style: context.text.bodySmall?.copyWith(fontSize: 12)),
         ),
         trailing: Icon(Icons.more_vert_rounded,
             color: context.colors.outline, size: 20),
@@ -412,89 +426,124 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
-              border: Border.all(color: Colors.grey.shade300),
+               border: Border(
+                left: BorderSide(color: Colors.grey.shade300),
+                right: BorderSide(color: Colors.grey.shade300),
+                bottom: BorderSide.none,
+              ),
             ),
             child: Scaffold(
+              appBar: AppBar(automaticallyImplyActions: true,),
               backgroundColor: context.theme.scaffoldBackgroundColor,
-              body: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-                      child: Row(
-                        children: [
-                          const BakeryBackButton(),
-                          const SizedBox(width: 12),
-                          Text('Notifications',
-                              style: context.text.headlineLarge),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 8),
-                        children: [
-                          const _SectionLabel('TODAY'),
-                          const SizedBox(height: 8),
-                          _buildNotificationCard(
-                            context,
-                            icon: Icons.shopping_bag_rounded,
-                            iconColor: context.colors.primary,
-                            title: 'Order Ready for Pickup',
-                            message:
-                                'Your order #BAK-1942 is freshly baked and ready to be picked up at the store.',
-                            time: '10m ago',
-                            isUnread: true,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildNotificationCard(
-                            context,
-                            icon: Icons.cake_rounded,
-                            iconColor: context.colors.tertiary,
-                            title: 'New Seasonal Item',
-                            message:
-                                'Our signature Strawberry Shortcake is back for a limited time! 🍓',
-                            time: '2h ago',
-                            isUnread: true,
-                          ),
-                          const SizedBox(height: 24),
-                          const _SectionLabel('THIS WEEK'),
-                          const SizedBox(height: 8),
-                          _buildNotificationCard(
-                            context,
-                            icon: Icons.stars_rounded,
-                            iconColor: Colors.amber.shade700,
-                            title: 'Points Earned!',
-                            message:
-                                'You earned 50 loyalty points from your last order. You now have 320 points.',
-                            time: '1d ago',
-                            isUnread: false,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildNotificationCard(
-                            context,
-                            icon: Icons.local_offer_rounded,
-                            iconColor: context.colors.secondary,
-                            title: 'Weekend Promo',
-                            message:
-                                'Get 20% off all whole cakes this weekend. Use code SWEET20 at checkout.',
-                            time: '3d ago',
-                            isUnread: false,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              body: Center(
+                child: CommingSoon(
+                  title: 'Notification Comming soon',
+                  subtitle: 'This feature is under development.',
+                  // onNotify: () => print('Notify tapped'),
                 ),
               ),
+              
             ),
           ),
         ),
       );
     });
   }
+// class _NotificationsScreenState extends State<NotificationsScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return LayoutBuilder(builder: (context, constraints) {
+//       final isWide = constraints.maxWidth > 500;
+//       final maxWidth = isWide ? 500.0 : double.infinity;
+//       return Center(
+//         child: ConstrainedBox(
+//           constraints: BoxConstraints(maxWidth: maxWidth),
+//           child: Container(
+//             decoration: BoxDecoration(
+//               borderRadius: BorderRadius.circular(2),
+//               border: Border.all(color: Colors.grey.shade300),
+//             ),
+//             child: Scaffold(
+//               backgroundColor: context.theme.scaffoldBackgroundColor,
+//               body: SafeArea(
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Padding(
+//                       padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+//                       child: Row(
+//                         children: [
+//                           const BakeryBackButton(),
+//                           const SizedBox(width: 12),
+//                           Text('Notifications',
+//                               style: context.text.headlineLarge),
+//                         ],
+//                       ),
+//                     ),
+//                     Expanded(
+//                       child: ListView(
+//                         padding: const EdgeInsets.symmetric(
+//                             horizontal: 24, vertical: 8),
+//                         children: [
+//                           const _SectionLabel('TODAY'),
+//                           const SizedBox(height: 8),
+//                           _buildNotificationCard(
+//                             context,
+//                             icon: Icons.shopping_bag_rounded,
+//                             iconColor: context.colors.primary,
+//                             title: 'Order Ready for Pickup',
+//                             message:
+//                                 'Your order #BAK-1942 is freshly baked and ready to be picked up at the store.',
+//                             time: '10m ago',
+//                             isUnread: true,
+//                           ),
+//                           const SizedBox(height: 12),
+//                           _buildNotificationCard(
+//                             context,
+//                             icon: Icons.cake_rounded,
+//                             iconColor: context.colors.tertiary,
+//                             title: 'New Seasonal Item',
+//                             message:
+//                                 'Our signature Strawberry Shortcake is back for a limited time! 🍓',
+//                             time: '2h ago',
+//                             isUnread: true,
+//                           ),
+//                           const SizedBox(height: 24),
+//                           const _SectionLabel('THIS WEEK'),
+//                           const SizedBox(height: 8),
+//                           _buildNotificationCard(
+//                             context,
+//                             icon: Icons.stars_rounded,
+//                             iconColor: Colors.amber.shade700,
+//                             title: 'Points Earned!',
+//                             message:
+//                                 'You earned 50 loyalty points from your last order. You now have 320 points.',
+//                             time: '1d ago',
+//                             isUnread: false,
+//                           ),
+//                           const SizedBox(height: 12),
+//                           _buildNotificationCard(
+//                             context,
+//                             icon: Icons.local_offer_rounded,
+//                             iconColor: context.colors.secondary,
+//                             title: 'Weekend Promo',
+//                             message:
+//                                 'Get 20% off all whole cakes this weekend. Use code SWEET20 at checkout.',
+//                             time: '3d ago',
+//                             isUnread: false,
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ),
+//       );
+//     });
+//   }
 
   Widget _buildNotificationCard(
     BuildContext context, {
@@ -842,8 +891,8 @@ class AddNewAddressScreen extends StatelessWidget {
           border: Border.all(color: context.theme.dividerColor, width: 1.5),
         ),
         child: Text(hint,
-            style:
-                context.text.bodyMedium?.copyWith(color: context.colors.outline)),
+            style: context.text.bodyMedium
+                ?.copyWith(color: context.colors.outline)),
       );
 }
 

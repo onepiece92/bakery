@@ -46,8 +46,8 @@ class EmptyFavourites extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            // ── Browse CTA ────────────────────────────────────────────
-            const BrowseMenuButton(),
+            // // ── Browse CTA ────────────────────────────────────────────
+            // const BrowseMenuButton(),
           ],
         ),
       ),
