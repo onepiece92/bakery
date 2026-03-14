@@ -1,13 +1,12 @@
 // home_screen.dart
 import 'package:bakery_flutter/components/reorder_card.dart';
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
-import 'package:bakery_flutter/models/order.dart';
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
 import 'package:bakery_flutter/providers/category_provider.dart';
 import 'package:bakery_flutter/providers/view_provider.dart';
-import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -97,10 +96,9 @@ class _HomeScreenState extends State<HomeScreen>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(1),
               border: Border(
-                top: BorderSide(color: Colors.grey.shade300),
                 left: BorderSide(color: Colors.grey.shade300),
                 right: BorderSide(color: Colors.grey.shade300),
-                bottom: BorderSide.none, // removes bottom border
+                bottom: BorderSide.none,
               ),
             ),
             child: FadeTransition(
@@ -113,18 +111,18 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Row(
                       children: [
                         Expanded(
-                            child: Text(
-                          businessName ?? "Foxys Corner".toTitleCase(),
-                          style: Theme.of(context).textTheme.displayMedium,
-                        )),
+                          child: Text(
+                            businessName ?? "Foxys Corner".toTitleCase(),
+                            style: context.text.displayMedium,
+                          ),
+                        ),
                         const SizedBox(width: 12),
                         IconButton(
                           onPressed: () =>
                               context.push('/profile/notifications'),
                           style: IconButton.styleFrom(
-                            backgroundColor: Theme.of(context).dividerColor,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            backgroundColor: context.theme.dividerColor,
+                            foregroundColor: context.colors.onSurfaceVariant,
                             minimumSize: const Size(44, 44),
                           ),
                           icon: const Icon(Icons.notifications_outlined,
@@ -168,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen>
                           return Center(
                             child: Text(
                               'Failed to load categories',
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: context.text.bodySmall,
                             ),
                           );
                         }
@@ -236,10 +234,10 @@ class _HomeScreenState extends State<HomeScreen>
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 48),
                                 child: Center(
-                                  child: Text('Error: ${provider.error}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
+                                  child: Text(
+                                    'Error: ${provider.error}',
+                                    style: context.text.bodySmall,
+                                  ),
                                 ),
                               );
                             }
@@ -258,23 +256,22 @@ class _HomeScreenState extends State<HomeScreen>
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Recent Orders',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall),
+                                      Text(
+                                        'Recent Orders',
+                                        style: context.text.headlineSmall,
+                                      ),
                                       GestureDetector(
                                         onTap: () =>
                                             context.push('/home/recent_orders'),
-                                        child: Text('View all →',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .tertiary,
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 13)),
+                                        child: Text(
+                                          'View all →',
+                                          style:
+                                              context.text.bodySmall?.copyWith(
+                                            color: context.colors.tertiary,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -285,9 +282,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           const EdgeInsets.only(bottom: 16),
                                       child: Text(
                                         'No orders yet',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                                        style: context.text.bodySmall,
                                       ),
                                     )
                                   else
@@ -323,8 +318,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     padding: const EdgeInsets.only(bottom: 12),
                                     child: Text(
                                       '${items.length} result${items.length != 1 ? 's' : ''}',
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
+                                      style: context.text.bodySmall,
                                     ),
                                   ),
                                 SectionHeader(
@@ -439,20 +433,24 @@ class _SearchBar extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
-      style: Theme.of(context)
-          .textTheme
-          .bodyMedium
-          ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+      style: context.text.bodyMedium?.copyWith(
+        color: context.colors.onSurface,
+      ),
       decoration: InputDecoration(
         hintText: 'Search breads, pastries...',
-        prefixIcon: Icon(Icons.search_rounded,
-            color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+        prefixIcon: Icon(
+          Icons.search_rounded,
+          color: context.colors.onSurfaceVariant,
+          size: 20,
+        ),
         suffixIcon: controller.text.isNotEmpty
             ? IconButton(
                 onPressed: onClear,
-                icon: Icon(Icons.close_rounded,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    size: 16),
+                icon: Icon(
+                  Icons.close_rounded,
+                  color: context.colors.onSurfaceVariant,
+                  size: 16,
+                ),
               )
             : null,
       ),
@@ -491,14 +489,13 @@ class _SortButton extends StatelessWidget {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).dividerColor,
+                      color: context.theme.dividerColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('Sort by',
-                    style: Theme.of(context).textTheme.headlineSmall),
+                Text('Sort by', style: context.text.headlineSmall),
                 const SizedBox(height: 12),
                 ..._options.map((opt) => ListTile(
                       contentPadding: EdgeInsets.zero,
@@ -506,13 +503,12 @@ class _SortButton extends StatelessWidget {
                         onChanged(opt.$1);
                         Navigator.pop(context);
                       },
-                      title: Text(opt.$2,
-                          style: Theme.of(context).textTheme.bodyLarge),
+                      title: Text(opt.$2, style: context.text.bodyLarge),
                       trailing: sortBy == opt.$1
-                          ? Icon(Icons.check_rounded,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer)
+                          ? Icon(
+                              Icons.check_rounded,
+                              color: context.colors.secondaryContainer,
+                            )
                           : null,
                     )),
               ],
@@ -563,16 +559,21 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         children: [
           Flexible(
-            child: Lottie.asset('assets/animations/empty_search.json',
-                width: 200, repeat: false, fit: BoxFit.contain),
+            child: Lottie.asset(
+              'assets/animations/empty_search.json',
+              width: 200,
+              repeat: false,
+              fit: BoxFit.contain,
+            ),
           ),
           const SizedBox(height: 14),
-          Text('No items found',
-              style: Theme.of(context).textTheme.headlineSmall),
+          Text('No items found', style: context.text.headlineSmall),
           const SizedBox(height: 6),
-          Text('Try adjusting your search or filters',
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center),
+          Text(
+            'Try adjusting your search or filters',
+            style: context.text.bodySmall,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           OutlinedButton(
             onPressed: onClear,

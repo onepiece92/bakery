@@ -52,7 +52,7 @@ class AppBottomNavBar extends StatelessWidget {
                 index: 1,
                 currentIndex: currentIndex,
                 onTap: onTap,
-                activeColor: AppColors.terracotta,
+                // activeColor: AppColors.terracotta,
               ),
               _NavItemCart(
                 index: 2,
@@ -102,7 +102,7 @@ class _NavItem extends StatelessWidget {
     required this.index,
     required this.currentIndex,
     required this.onTap,
-    this.activeColor = AppColors.darkBrown,
+    this.activeColor = AppColors.primaryRed,
   });
 
   @override
@@ -146,7 +146,7 @@ class _NavItemCart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = index == currentIndex;
-    final color = isActive ? AppColors.darkBrown : AppColors.textLight;
+    final color = isActive ? AppColors.primaryRed : AppColors.textLight;
     return GestureDetector(
       onTap: () => onTap(index),
       behavior: HitTestBehavior.opaque,

@@ -1,10 +1,10 @@
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/providers/customerlogin_provider.dart';
 import 'package:bakery_flutter/providers/profile_provider.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../components/loyalty_card.dart';
-import '../../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import '../../components/service_icon.dart';
 
@@ -52,18 +52,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
                   border: Border(
-                top: BorderSide(color: Colors.grey.shade300),
-                left: BorderSide(color: Colors.grey.shade300),
-                right: BorderSide(color: Colors.grey.shade300),
-                bottom: BorderSide.none, // removes bottom border
-              ),
+                    top: BorderSide(color: Colors.grey.shade300),
+                    left: BorderSide(color: Colors.grey.shade300),
+                    right: BorderSide(color: Colors.grey.shade300),
+                    bottom: BorderSide.none,
+                  ),
                 ),
                 child: SafeArea(
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 100),
                     children: [
-                      Text('My Profile',
-                          style: Theme.of(context).textTheme.displayMedium),
+                      Text(
+                        'My Profile',
+                        style: context.text.displayMedium,
+                      ),
                       const SizedBox(height: 20),
 
                       // ── Profile card ─────────────────────────────────────
@@ -79,9 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             borderRadius: BorderRadius.circular(22),
                             border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .tertiary
+                              color: context.colors.tertiary
                                   .withValues(alpha: 0.3),
                             ),
                           ),
@@ -92,23 +92,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 width: 68,
                                 height: 68,
                                 decoration: BoxDecoration(
-                                  gradient: Theme.of(context)
-                                      .extension<AppThemeExtension>()
-                                      ?.primaryGradient,
+                                  gradient: context.appTheme.primaryGradient,
                                   borderRadius: BorderRadius.circular(22),
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
                                   initial,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displayLarge
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                        fontSize: 28,
-                                      ),
+                                  style: context.text.displayLarge?.copyWith(
+                                    color: context.colors.onPrimary,
+                                    fontSize: 28,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 14),
@@ -118,17 +111,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   children: [
                                     Text(
                                       customerName,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineLarge,
+                                      style: context.text.headlineLarge,
                                     ),
                                     if (customerEmail.isNotEmpty) ...[
                                       const SizedBox(height: 3),
                                       Text(
                                         customerEmail,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
+                                        style: context.text.bodySmall
                                             ?.copyWith(fontSize: 12),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -138,23 +127,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 10, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .tertiary
+                                        color: context.colors.tertiary
                                             .withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         '🥐 Croissant Member',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelMedium
+                                        style: context.text.labelMedium
                                             ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              fontSize: 11,
-                                            ),
+                                          color: context.colors.tertiary,
+                                          fontSize: 11,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -162,9 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               Icon(
                                 Icons.chevron_right_rounded,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                                color: context.colors.onSurfaceVariant,
                                 size: 22,
                               ),
                             ],
@@ -229,16 +210,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // ── Sign Out ─────────────────────────────────────────
                       GestureDetector(
                         onTap: () async {
-                          await context.read<CustomerLoginProvider>().logout();
-                          // Router rebuilds automatically via refreshListenable
-                          // No navigation needed
+                          await context
+                              .read<CustomerLoginProvider>()
+                              .logout();
                         },
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .errorContainer
+                            color: context.colors.errorContainer
                                 .withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(18),
                           ),
@@ -246,20 +225,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               ServiceIcon(
                                 icon: '👋',
-                                backgroundColor: Theme.of(context)
-                                    .colorScheme
-                                    .errorContainer,
+                                backgroundColor: context.colors.errorContainer,
                               ),
                               const SizedBox(width: 14),
                               Text(
                                 'Sign Out',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
+                                style: context.text.bodyLarge?.copyWith(
+                                  color: context.colors.error,
+                                ),
                               ),
                             ],
                           ),
@@ -287,10 +260,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            letterSpacing: 1,
-            fontSize: 11,
-          ),
+      style: context.text.labelSmall?.copyWith(
+        letterSpacing: 1,
+        fontSize: 11,
+      ),
     );
   }
 }
@@ -321,21 +294,19 @@ class _MenuTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: Theme.of(context).textTheme.bodyLarge),
+                  Text(label, style: context.text.bodyLarge),
                   if (sub != null)
                     Text(
                       sub!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 12),
+                      style:
+                          context.text.bodySmall?.copyWith(fontSize: 12),
                     ),
                 ],
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: context.colors.onSurfaceVariant,
               size: 20,
             ),
           ],

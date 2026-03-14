@@ -1,12 +1,11 @@
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:flutter/material.dart';
-
 import '../../components/primary_button.dart';
-import '../../data/bakery_data.dart';
 import 'package:go_router/go_router.dart';
 import '../../components/bakery_back_button.dart';
 import '../../components/service_icon.dart';
 
-// ── Edit Profile ──────────────────────────────────────────────────────────────
+
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -32,7 +31,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: context.theme.scaffoldBackgroundColor,
               body: SafeArea(
                 child: Column(
                   children: [
@@ -43,7 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           const BakeryBackButton(),
                           const SizedBox(width: 12),
                           Text('Edit Profile',
-                              style: Theme.of(context).textTheme.headlineLarge),
+                              style: context.text.headlineLarge),
                         ],
                       ),
                     ),
@@ -62,30 +61,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     height: 80,
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(colors: [
-                                        Theme.of(context).colorScheme.secondary,
-                                        Theme.of(context).colorScheme.tertiary
+                                        context.colors.secondary,
+                                        context.colors.tertiary,
                                       ]),
                                       borderRadius: BorderRadius.circular(28),
                                     ),
                                     alignment: Alignment.center,
                                     child: Text('S',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .displayLarge
+                                        style: context.text.displayLarge
                                             ?.copyWith(
                                                 color: Colors.white,
                                                 fontSize: 32)),
                                   ),
                                   const SizedBox(height: 8),
                                   Text('Change photo',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              fontWeight: FontWeight.w500)),
+                                      style: context.text.bodySmall?.copyWith(
+                                          color: context.colors.tertiary,
+                                          fontWeight: FontWeight.w500)),
                                 ],
                               ),
                             ),
@@ -108,10 +100,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Container(
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
+                                color: context.theme.cardColor,
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                    color: Theme.of(context).dividerColor,
+                                    color: context.theme.dividerColor,
                                     width: 1.5),
                               ),
                               child: TextField(
@@ -119,13 +111,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 decoration: InputDecoration(
                                   hintText:
                                       'Pastry enthusiast and weekend baker...',
-                                  hintStyle: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .outline),
+                                  hintStyle: context.text.bodyMedium?.copyWith(
+                                      color: context.colors.outline),
                                   border: InputBorder.none,
                                   isDense: true,
                                   contentPadding: EdgeInsets.zero,
@@ -135,39 +122,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             const SizedBox(height: 20),
                             _FieldLabel('DIETARY PREFERENCE'),
                             const SizedBox(height: 8),
-                            // Wrap(
-                            //   spacing: 8,
-                            //   runSpacing: 8,
-                            //   children: BakeryData.dietaryPreferenceOptions.map((d) {
-                            //     final active = d == _selectedDiet;
-                            //     return ChoiceChip(
-                            //       label: Text(d),
-                            //       selected: active,
-                            //       onSelected: (selected) {
-                            //         if (selected) setState(() => _selectedDiet = d);
-                            //       },
-                            //       backgroundColor: Theme.of(context).dividerColor,
-                            //       selectedColor:
-                            //           Theme.of(context).colorScheme.onSurface,
-                            //       showCheckmark: false,
-                            //       side: BorderSide.none,
-                            //       shape: RoundedRectangleBorder(
-                            //         borderRadius: BorderRadius.circular(10),
-                            //       ),
-                            //       labelStyle: Theme.of(context)
-                            //           .textTheme
-                            //           .labelMedium
-                            //           ?.copyWith(
-                            //             color: active
-                            //                 ? Theme.of(context).colorScheme.onTertiary
-                            //                 : Theme.of(context)
-                            //                     .colorScheme
-                            //                     .onSurfaceVariant,
-                            //             fontSize: 13,
-                            //           ),
-                            //     );
-                            //   }).toList(),
-                            // ),
                           ],
                         ),
                       ),
@@ -198,9 +152,7 @@ class _FieldLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(text,
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
+          style: context.text.labelSmall
               ?.copyWith(fontSize: 11, letterSpacing: 0.5)),
     );
   }
@@ -217,22 +169,19 @@ class _FieldInput extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: context.theme.cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Theme.of(context).dividerColor, width: 1.5),
+        border: Border.all(color: context.theme.dividerColor, width: 1.5),
       ),
       child: Row(
         children: [
           Expanded(
             child: Text(hint,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                style: context.text.bodyMedium
+                    ?.copyWith(color: context.colors.onSurface)),
           ),
           if (suffixIcon != null)
-            Icon(suffixIcon,
-                color: Theme.of(context).colorScheme.outline, size: 18),
+            Icon(suffixIcon, color: context.colors.outline, size: 18),
         ],
       ),
     );
@@ -247,7 +196,7 @@ class SavedAddressesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +208,7 @@ class SavedAddressesScreen extends StatelessWidget {
                   const BakeryBackButton(),
                   const SizedBox(width: 12),
                   Text('Saved Addresses',
-                      style: Theme.of(context).textTheme.headlineLarge),
+                      style: context.text.headlineLarge),
                 ],
               ),
             ),
@@ -267,106 +216,21 @@ class SavedAddressesScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 children: [
-                  // ...BakeryData.savedAddresses.map((a) {
-                  //   return Card(
-                  //     margin: const EdgeInsets.only(bottom: 12),
-                  //     color: Theme.of(context).cardColor,
-                  //     elevation: 0,
-                  //     shape: RoundedRectangleBorder(
-                  //       borderRadius: BorderRadius.circular(20),
-                  //       side: BorderSide(
-                  //           color: Theme.of(context).dividerColor, width: 1.5),
-                  //     ),
-                  //     child: ListTile(
-                  //       contentPadding: const EdgeInsets.symmetric(
-                  //           horizontal: 16, vertical: 8),
-                  //       leading: Container(
-                  //         width: 48,
-                  //         height: 48,
-                  //         decoration: BoxDecoration(
-                  //           color: Theme.of(context).dividerColor,
-                  //           borderRadius: BorderRadius.circular(16),
-                  //         ),
-                  //         alignment: Alignment.center,
-                  //         child: Text(a.icon,
-                  //             style: const TextStyle(fontSize: 20)),
-                  //       ),
-                  //       title: Row(
-                  //         children: [
-                  //           Text(a.label,
-                  //               style: Theme.of(context)
-                  //                   .textTheme
-                  //                   .bodyLarge
-                  //                   ?.copyWith(fontWeight: FontWeight.w500)),
-                  //           const SizedBox(width: 6),
-                  //           Container(
-                  //             padding: const EdgeInsets.symmetric(
-                  //                 horizontal: 7, vertical: 2),
-                  //             decoration: BoxDecoration(
-                  //               color: a.type == 'Pickup'
-                  //                   ? Theme.of(context)
-                  //                       .colorScheme
-                  //                       .primary
-                  //                       .withValues(alpha: 0.12)
-                  //                   : Theme.of(context)
-                  //                       .colorScheme
-                  //                       .secondary
-                  //                       .withValues(alpha: 0.14),
-                  //               borderRadius: BorderRadius.circular(5),
-                  //             ),
-                  //             child: Text(
-                  //               a.type,
-                  //               style: Theme.of(context)
-                  //                   .textTheme
-                  //                   .bodySmall
-                  //                   ?.copyWith(
-                  //                     color: a.type == 'Pickup'
-                  //                         ? Theme.of(context)
-                  //                             .colorScheme
-                  //                             .primary
-                  //                         : Theme.of(context)
-                  //                             .colorScheme
-                  //                             .onSurfaceVariant,
-                  //                     fontWeight: FontWeight.w500,
-                  //                   ),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //       subtitle: Padding(
-                  //         padding: const EdgeInsets.only(top: 4),
-                  //         child: Text(
-                  //           a.address,
-                  //           style: Theme.of(context)
-                  //               .textTheme
-                  //               .bodySmall
-                  //               ?.copyWith(fontSize: 12),
-                  //         ),
-                  //       ),
-                  //       trailing: Icon(Icons.more_vert_rounded,
-                  //           color: Theme.of(context).colorScheme.outline,
-                  //           size: 20),
-                  //     ),
-                  //   );
-                  // }),
                   OutlinedButton.icon(
                     onPressed: () => context.push('/profile/addresses/add'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.all(16),
                       side: BorderSide(
-                          color: Theme.of(context).dividerColor, width: 2),
+                          color: context.theme.dividerColor, width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
+                      foregroundColor: context.colors.onSurfaceVariant,
                     ),
-                    icon: Icon(Icons.add_rounded),
+                    icon: const Icon(Icons.add_rounded),
                     label: Text('Add New Address',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant)),
+                        style: context.text.bodyMedium
+                            ?.copyWith(color: context.colors.onSurfaceVariant)),
                   ),
                 ],
               ),
@@ -386,7 +250,7 @@ class PaymentMethodsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,10 +261,10 @@ class PaymentMethodsScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () => context.pop(),
-                    icon: Icon(Icons.chevron_left_rounded, size: 24),
+                    icon: const Icon(Icons.chevron_left_rounded, size: 24),
                     style: IconButton.styleFrom(
-                      backgroundColor: Theme.of(context).dividerColor,
-                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                      backgroundColor: context.theme.dividerColor,
+                      foregroundColor: context.colors.onSurface,
                       minimumSize: const Size(40, 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -408,8 +272,7 @@ class PaymentMethodsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Payment Methods',
-                      style: Theme.of(context).textTheme.headlineLarge),
+                  Text('Payment Methods', style: context.text.headlineLarge),
                 ],
               ),
             ),
@@ -417,21 +280,20 @@ class PaymentMethodsScreen extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 children: [
-                  // Card
-                  _PaymentCard(
+                  const _PaymentCard(
                     icon: '💳',
                     label: 'Visa ending in 4289',
                     sub: 'Expires 09/27',
                     isDefault: true,
                   ),
                   const SizedBox(height: 10),
-                  _PaymentCard(
+                  const _PaymentCard(
                     icon: '🍎',
                     label: 'Apple Pay',
                     sub: 'Express checkout',
                   ),
                   const SizedBox(height: 10),
-                  _PaymentCard(
+                  const _PaymentCard(
                     icon: '🅿️',
                     label: 'PayPal',
                     sub: 'sophie@email.com',
@@ -442,19 +304,16 @@ class PaymentMethodsScreen extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.all(16),
                       side: BorderSide(
-                          color: Theme.of(context).dividerColor, width: 2),
+                          color: context.theme.dividerColor, width: 2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
+                      foregroundColor: context.colors.onSurfaceVariant,
                     ),
-                    icon: Icon(Icons.add_rounded),
+                    icon: const Icon(Icons.add_rounded),
                     label: Text('Add Payment Method',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant)),
+                        style: context.text.bodyMedium
+                            ?.copyWith(color: context.colors.onSurfaceVariant)),
                   ),
                 ],
               ),
@@ -472,24 +331,26 @@ class _PaymentCard extends StatelessWidget {
   final String sub;
   final bool isDefault;
 
-  const _PaymentCard(
-      {required this.icon,
-      required this.label,
-      required this.sub,
-      this.isDefault = false});
+  const _PaymentCard({
+    required this.icon,
+    required this.label,
+    required this.sub,
+    this.isDefault = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      color: Theme.of(context).cardColor,
+      color: context.theme.cardColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Theme.of(context).dividerColor, width: 1.5),
+        side: BorderSide(color: context.theme.dividerColor, width: 1.5),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: ServiceIcon(
           icon: icon,
           size: 48,
@@ -499,24 +360,20 @@ class _PaymentCard extends StatelessWidget {
         title: Row(
           children: [
             Text(label,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
+                style: context.text.bodyLarge
                     ?.copyWith(fontWeight: FontWeight.w500)),
             if (isDefault) ...[
               const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary
-                      .withValues(alpha: 0.12),
+                  color: context.colors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: Text('Default',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
+                    style: context.text.bodySmall?.copyWith(
+                        color: context.colors.primary,
                         fontWeight: FontWeight.w500)),
               ),
             ],
@@ -525,13 +382,10 @@ class _PaymentCard extends StatelessWidget {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(sub,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(fontSize: 12)),
+              style: context.text.bodySmall?.copyWith(fontSize: 12)),
         ),
         trailing: Icon(Icons.more_vert_rounded,
-            color: Theme.of(context).colorScheme.outline, size: 20),
+            color: context.colors.outline, size: 20),
       ),
     );
   }
@@ -552,95 +406,94 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return LayoutBuilder(builder: (context, constraints) {
       final isWide = constraints.maxWidth > 500;
       final maxWidth = isWide ? 500.0 : double.infinity;
-        return Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth),
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-              child: Scaffold(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                body: SafeArea(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-                        child: Row(
-                          children: [
-                            const BakeryBackButton(),
-                            const SizedBox(width: 12),
-                            Text('Notifications',
-                                style: Theme.of(context).textTheme.headlineLarge),
-                          ],
-                        ),
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Scaffold(
+              backgroundColor: context.theme.scaffoldBackgroundColor,
+              body: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                      child: Row(
+                        children: [
+                          const BakeryBackButton(),
+                          const SizedBox(width: 12),
+                          Text('Notifications',
+                              style: context.text.headlineLarge),
+                        ],
                       ),
-                      Expanded(
-                        child: ListView(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                          children: [
-                            _SectionLabel('TODAY'),
-                            const SizedBox(height: 8),
-                            _buildNotificationCard(
-                              context,
-                              icon: Icons.shopping_bag_rounded,
-                              iconColor: Theme.of(context).colorScheme.primary,
-                              title: 'Order Ready for Pickup',
-                              message:
-                                  'Your order #BAK-1942 is freshly baked and ready to be picked up at the store.',
-                              time: '10m ago',
-                              isUnread: true,
-                            ),
-                            const SizedBox(height: 12),
-                            _buildNotificationCard(
-                              context,
-                              icon: Icons.cake_rounded,
-                              iconColor: Theme.of(context).colorScheme.tertiary,
-                              title: 'New Seasonal Item',
-                              message:
-                                  'Our signature Strawberry Shortcake is back for a limited time! 🍓',
-                              time: '2h ago',
-                              isUnread: true,
-                            ),
-                            const SizedBox(height: 24),
-                            _SectionLabel('THIS WEEK'),
-                            const SizedBox(height: 8),
-                            _buildNotificationCard(
-                              context,
-                              icon: Icons.stars_rounded,
-                              iconColor: Colors.amber.shade700,
-                              title: 'Points Earned!',
-                              message:
-                                  'You earned 50 loyalty points from your last order. You now have 320 points.',
-                              time: '1d ago',
-                              isUnread: false,
-                            ),
-                            const SizedBox(height: 12),
-                            _buildNotificationCard(
-                              context,
-                              icon: Icons.local_offer_rounded,
-                              iconColor: Theme.of(context).colorScheme.secondary,
-                              title: 'Weekend Promo',
-                              message:
-                                  'Get 20% off all whole cakes this weekend. Use code SWEET20 at checkout.',
-                              time: '3d ago',
-                              isUnread: false,
-                            ),
-                          ],
-                        ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 8),
+                        children: [
+                          const _SectionLabel('TODAY'),
+                          const SizedBox(height: 8),
+                          _buildNotificationCard(
+                            context,
+                            icon: Icons.shopping_bag_rounded,
+                            iconColor: context.colors.primary,
+                            title: 'Order Ready for Pickup',
+                            message:
+                                'Your order #BAK-1942 is freshly baked and ready to be picked up at the store.',
+                            time: '10m ago',
+                            isUnread: true,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildNotificationCard(
+                            context,
+                            icon: Icons.cake_rounded,
+                            iconColor: context.colors.tertiary,
+                            title: 'New Seasonal Item',
+                            message:
+                                'Our signature Strawberry Shortcake is back for a limited time! 🍓',
+                            time: '2h ago',
+                            isUnread: true,
+                          ),
+                          const SizedBox(height: 24),
+                          const _SectionLabel('THIS WEEK'),
+                          const SizedBox(height: 8),
+                          _buildNotificationCard(
+                            context,
+                            icon: Icons.stars_rounded,
+                            iconColor: Colors.amber.shade700,
+                            title: 'Points Earned!',
+                            message:
+                                'You earned 50 loyalty points from your last order. You now have 320 points.',
+                            time: '1d ago',
+                            isUnread: false,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildNotificationCard(
+                            context,
+                            icon: Icons.local_offer_rounded,
+                            iconColor: context.colors.secondary,
+                            title: 'Weekend Promo',
+                            message:
+                                'Get 20% off all whole cakes this weekend. Use code SWEET20 at checkout.',
+                            time: '3d ago',
+                            isUnread: false,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildNotificationCard(
@@ -655,19 +508,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: context.theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isUnread
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-              : Theme.of(context).dividerColor,
+              ? context.colors.primary.withValues(alpha: 0.3)
+              : context.theme.dividerColor,
           width: isUnread ? 1.5 : 1,
         ),
         boxShadow: [
           if (isUnread)
             BoxShadow(
-              color:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+              color: context.colors.primary.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -695,29 +547,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     Expanded(
                       child: Text(
                         title,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight:
-                                  isUnread ? FontWeight.w700 : FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                        style: context.text.bodyLarge?.copyWith(
+                          fontWeight:
+                              isUnread ? FontWeight.w700 : FontWeight.w600,
+                          color: context.colors.onSurface,
+                        ),
                       ),
                     ),
                     Text(
                       time,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(fontSize: 11),
+                      style: context.text.bodySmall?.copyWith(fontSize: 11),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   message,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        height: 1.4,
-                      ),
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.onSurfaceVariant,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
@@ -729,7 +578,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               height: 8,
               margin: const EdgeInsets.only(top: 6),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: context.colors.primary,
                 shape: BoxShape.circle,
               ),
             ),
@@ -756,7 +605,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -767,8 +616,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   const BakeryBackButton(),
                   const SizedBox(width: 12),
-                  Text('Settings',
-                      style: Theme.of(context).textTheme.headlineLarge),
+                  Text('Settings', style: context.text.headlineLarge),
                 ],
               ),
             ),
@@ -776,31 +624,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
                 children: [
-                  _SectionLabel('APPEARANCE'),
+                  const _SectionLabel('APPEARANCE'),
                   const SizedBox(height: 8),
                   _ToggleCard(children: [
-                    _buildToggle('🌙', 'Dark Mode', 'Coming soon', _darkMode,
-                        (v) => setState(() => _darkMode = v),
-                        disabled: true),
-                    _buildToggle('📱', 'Haptic Feedback', null, _haptics,
-                        (v) => setState(() => _haptics = v),
+                    _buildToggle(
+                      context,
+                      '🌙',
+                      'Dark Mode',
+                      'Coming soon',
+                      _darkMode,
+                      (v) => setState(() => _darkMode = v),
+                      disabled: true,
+                    ),
+                    _buildToggle(
+                      context,
+                      '📱',
+                      'Haptic Feedback',
+                      null,
+                      _haptics,
+                      (v) => setState(() => _haptics = v),
+                      showDivider: false,
+                    ),
+                  ]),
+                  const SizedBox(height: 16),
+                  const _SectionLabel('DATA'),
+                  const SizedBox(height: 8),
+                  _ToggleCard(children: [
+                    _buildLinkRow(context, '🗑️', 'Clear Cache', '2.3 MB'),
+                    _buildLinkRow(context, '📊', 'Data & Privacy', null,
                         showDivider: false),
                   ]),
                   const SizedBox(height: 16),
-                  _SectionLabel('DATA'),
+                  const _SectionLabel('ABOUT'),
                   const SizedBox(height: 8),
                   _ToggleCard(children: [
-                    _buildLinkRow('🗑️', 'Clear Cache', '2.3 MB'),
-                    _buildLinkRow('📊', 'Data & Privacy', null,
-                        showDivider: false),
-                  ]),
-                  const SizedBox(height: 16),
-                  _SectionLabel('ABOUT'),
-                  const SizedBox(height: 8),
-                  _ToggleCard(children: [
-                    _buildLinkRow('✨', 'Version', '2.1.0'),
-                    _buildLinkRow('📋', 'Terms of Service', null),
-                    _buildLinkRow('🔒', 'Privacy Policy', null,
+                    _buildLinkRow(context, '✨', 'Version', '2.1.0'),
+                    _buildLinkRow(context, '📋', 'Terms of Service', null),
+                    _buildLinkRow(context, '🔒', 'Privacy Policy', null,
                         showDivider: false),
                   ]),
                 ],
@@ -812,9 +672,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildToggle(String icon, String label, String? sub, bool value,
-      ValueChanged<bool> onChanged,
-      {bool showDivider = true, bool disabled = false}) {
+  Widget _buildToggle(
+    BuildContext context,
+    String icon,
+    String label,
+    String? sub,
+    bool value,
+    ValueChanged<bool> onChanged, {
+    bool showDivider = true,
+    bool disabled = false,
+  }) {
     return _ToggleRow(
       icon: icon,
       label: label,
@@ -826,27 +693,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildLinkRow(String icon, String label, String? valueText,
-      {bool showDivider = true}) {
+  Widget _buildLinkRow(
+    BuildContext context,
+    String icon,
+    String label,
+    String? valueText, {
+    bool showDivider = true,
+  }) {
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.symmetric(vertical: 2),
-          leading: ServiceIcon(
-            icon: icon,
-          ),
-          title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+          leading: ServiceIcon(icon: icon),
+          title: Text(label, style: context.text.bodyLarge),
           trailing: valueText != null
               ? Text(valueText,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontSize: 13))
+                  style: context.text.bodySmall?.copyWith(fontSize: 13))
               : Icon(Icons.chevron_right_rounded,
-                  color: Theme.of(context).colorScheme.outline, size: 20),
+                  color: context.colors.outline, size: 20),
           onTap: () {},
         ),
-        if (showDivider) Divider(height: 0),
+        if (showDivider) const Divider(height: 0),
       ],
     );
   }
@@ -860,7 +727,7 @@ class AddNewAddressScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -870,8 +737,7 @@ class AddNewAddressScreen extends StatelessWidget {
                 children: [
                   const BakeryBackButton(),
                   const SizedBox(width: 12),
-                  Text('New Address',
-                      style: Theme.of(context).textTheme.headlineLarge),
+                  Text('New Address', style: context.text.headlineLarge),
                 ],
               ),
             ),
@@ -885,7 +751,7 @@ class AddNewAddressScreen extends StatelessWidget {
                     Container(
                       height: 180,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).dividerColor,
+                        color: context.theme.dividerColor,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       alignment: Alignment.center,
@@ -895,7 +761,7 @@ class AddNewAddressScreen extends StatelessWidget {
                           const Text('🗺️', style: TextStyle(fontSize: 40)),
                           const SizedBox(height: 8),
                           Text('Tap to set location',
-                              style: Theme.of(context).textTheme.bodySmall),
+                              style: context.text.bodySmall),
                         ],
                       ),
                     ),
@@ -920,19 +786,14 @@ class AddNewAddressScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: context.colors.onSurface,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             alignment: Alignment.center,
                             child: Text('🏠 Delivery',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onTertiary,
-                                        fontSize: 13)),
+                                style: context.text.labelMedium?.copyWith(
+                                    color: context.colors.onTertiary,
+                                    fontSize: 13)),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -940,19 +801,14 @@ class AddNewAddressScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).dividerColor,
+                              color: context.theme.dividerColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             alignment: Alignment.center,
                             child: Text('🏪 Pickup',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                        fontSize: 13)),
+                                style: context.text.labelMedium?.copyWith(
+                                    color: context.colors.onSurfaceVariant,
+                                    fontSize: 13)),
                           ),
                         ),
                       ],
@@ -975,23 +831,19 @@ class AddNewAddressScreen extends StatelessWidget {
   Widget _buildLbl(BuildContext context, String t) => Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(t,
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
+          style: context.text.labelSmall
               ?.copyWith(fontSize: 11, letterSpacing: 0.5)));
 
   Widget _buildInp(BuildContext context, {required String hint}) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: context.theme.cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Theme.of(context).dividerColor, width: 1.5),
+          border: Border.all(color: context.theme.dividerColor, width: 1.5),
         ),
         child: Text(hint,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Theme.of(context).colorScheme.outline)),
+            style:
+                context.text.bodyMedium?.copyWith(color: context.colors.outline)),
       );
 }
 
@@ -1005,10 +857,8 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text,
-        style: Theme.of(context)
-            .textTheme
-            .labelSmall
-            ?.copyWith(letterSpacing: 1, fontSize: 11));
+        style:
+            context.text.labelSmall?.copyWith(letterSpacing: 1, fontSize: 11));
   }
 }
 
@@ -1022,9 +872,9 @@ class _ToggleCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: context.theme.cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(color: context.theme.dividerColor),
       ),
       child: Column(children: children),
     );
@@ -1058,30 +908,27 @@ class _ToggleRow extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 2),
           value: value,
           onChanged: disabled ? null : onChanged,
-          activeThumbColor: Theme.of(context).cardColor,
-          activeTrackColor: Theme.of(context).colorScheme.primary,
-          inactiveThumbColor: Theme.of(context).cardColor,
-          inactiveTrackColor: Theme.of(context).dividerColor,
-          title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
+          activeThumbColor: context.theme.cardColor,
+          activeTrackColor: context.colors.primary,
+          inactiveThumbColor: context.theme.cardColor,
+          inactiveTrackColor: context.theme.dividerColor,
+          title: Text(label, style: context.text.bodyLarge),
           subtitle: sub != null
               ? Text(sub!,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(fontSize: 12))
+                  style: context.text.bodySmall?.copyWith(fontSize: 12))
               : null,
           secondary: Container(
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: Theme.of(context).dividerColor,
+              color: context.theme.dividerColor,
               borderRadius: BorderRadius.circular(14),
             ),
             alignment: Alignment.center,
             child: Text(icon, style: const TextStyle(fontSize: 18)),
           ),
         ),
-        if (showDivider) Divider(height: 0),
+        if (showDivider) const Divider(height: 0),
       ],
     );
   }

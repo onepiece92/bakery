@@ -9,39 +9,39 @@ abstract final class AppTextStyles {
   static TextStyle get displayLarge => GoogleFonts.plusJakartaSans(
         fontSize: 32,
         fontWeight: FontWeight.w800,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
         letterSpacing: -0.5,
       );
 
   static TextStyle get displayMedium => GoogleFonts.plusJakartaSans(
         fontSize: 26,
         fontWeight: FontWeight.w700,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
         letterSpacing: -0.5,
       );
 
   static TextStyle get headlineLarge => GoogleFonts.plusJakartaSans(
         fontSize: 22,
         fontWeight: FontWeight.w700,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
       );
 
   static TextStyle get headlineMedium => GoogleFonts.plusJakartaSans(
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
       );
 
   static TextStyle get headlineSmall => GoogleFonts.plusJakartaSans(
         fontSize: 17,
         fontWeight: FontWeight.w600,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
       );
 
   static TextStyle get titleLarge => GoogleFonts.plusJakartaSans(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
         letterSpacing: 0.5,
       );
 
@@ -89,19 +89,19 @@ abstract final class AppTextStyles {
   static TextStyle get price => GoogleFonts.plusJakartaSans(
         fontSize: 18,
         fontWeight: FontWeight.w700,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
       );
 
   static TextStyle get priceLarge => GoogleFonts.plusJakartaSans(
         fontSize: 24,
         fontWeight: FontWeight.w700,
-        color: AppColors.darkBrown,
+        color: AppColors.backgroundDark,
       );
 
   static TextStyle get buttonPrimary => GoogleFonts.plusJakartaSans(
         fontSize: 16,
-        fontWeight: FontWeight.w700,
-        color: AppColors.primaryRed,
+        fontWeight: FontWeight.w600,
+        color: AppColors.white,
         letterSpacing: 0.5,
       );
 

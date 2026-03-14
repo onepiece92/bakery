@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/components/bakery_back_button.dart';
 import 'package:bakery_flutter/components/reorder_card.dart';
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/models/order.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,6 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
   }
 
   void _buildCardControllers(int count) {
-    // Dispose old controllers if any
     for (final c in _cardCtrls) {
       c.dispose();
     }
@@ -85,14 +85,14 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
         final maxWidth = isWide ? 500.0 : double.infinity;
         return Center(
           child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: maxWidth),
+            constraints: BoxConstraints(maxWidth: maxWidth),
             child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(2),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
               child: Scaffold(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                backgroundColor: context.theme.scaffoldBackgroundColor,
                 appBar: AppBar(
                   scrolledUnderElevation: 0,
                   elevation: 0,
@@ -111,13 +111,13 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                             children: [
                               Icon(Icons.receipt_long_outlined,
                                   size: 48,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  color: context.colors.onSurfaceVariant),
                               const SizedBox(height: 12),
                               Text('No orders yet',
-                                  style: Theme.of(context).textTheme.headlineSmall),
+                                  style: context.text.headlineSmall),
                               const SizedBox(height: 6),
                               Text('Your order history will appear here',
-                                  style: Theme.of(context).textTheme.bodySmall),
+                                  style: context.text.bodySmall),
                             ],
                           ),
                         )
@@ -127,7 +127,8 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                           child: SlideTransition(
                             position: _pageSlide,
                             child: ListView(
-                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                              padding:
+                                  const EdgeInsets.fromLTRB(24, 0, 24, 40),
                               children: [
                                 // ── Summary card ─────────────────────────────
                                 Container(
@@ -138,33 +139,31 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        Theme.of(context).colorScheme.primary,
-                                        Theme.of(context).colorScheme.onSurfaceVariant,
+                                        context.colors.primary,
+                                        context.colors.onSurfaceVariant,
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(22),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Order History',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelSmall
+                                        style: context.text.labelSmall
                                             ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              letterSpacing: 1.5,
-                                              fontSize: 11,
-                                            ),
+                                          color: context.colors.tertiary,
+                                          letterSpacing: 1.5,
+                                          fontSize: 11,
+                                        ),
                                       ),
                                       const SizedBox(height: 10),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: [
                                           Column(
                                             crossAxisAlignment:
@@ -172,54 +171,43 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                             children: [
                                               Text(
                                                 '${orders.length}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .displayLarge
+                                                style: context.text.displayLarge
                                                     ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onPrimary,
-                                                      fontSize: 32,
-                                                    ),
+                                                  color: context.colors.onPrimary,
+                                                  fontSize: 32,
+                                                ),
                                               ),
                                               Text(
                                                 'orders placed',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
+                                                style: context.text.bodySmall
                                                     ?.copyWith(
-                                                      color: Colors.white
-                                                          .withValues(alpha: 0.5),
-                                                      fontSize: 13,
-                                                    ),
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.5),
+                                                  fontSize: 13,
+                                                ),
                                               ),
                                             ],
                                           ),
                                           Column(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
                                             children: [
                                               Text(
                                                 '\$${totalSpent.toStringAsFixed(2)}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .displayLarge
+                                                style: context.text.displayLarge
                                                     ?.copyWith(
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onPrimary,
-                                                      fontSize: 24,
-                                                    ),
+                                                  color: context.colors.onPrimary,
+                                                  fontSize: 24,
+                                                ),
                                               ),
                                               Text(
                                                 'total spent',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall
+                                                style: context.text.bodySmall
                                                     ?.copyWith(
-                                                      color: Colors.white
-                                                          .withValues(alpha: 0.5),
-                                                      fontSize: 13,
-                                                    ),
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.5),
+                                                  fontSize: 13,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -228,25 +216,26 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                     ],
                                   ),
                                 ),
-              
+
                                 // ── Order cards ──────────────────────────────
                                 ...orders.asMap().entries.map((entry) {
                                   final i = entry.key;
                                   final order = entry.value;
-              
+
                                   // Guard against controller list mismatch
                                   if (i >= _cardCtrls.length) {
                                     return Padding(
-                                      padding: const EdgeInsets.only(bottom: 12),
+                                      padding:
+                                          const EdgeInsets.only(bottom: 12),
                                       child: OrderCard(
                                         order: order,
                                         featured: false,
-                                        onReorder: () =>
-                                            debugPrint('🔁 Reorder Clicked: ${order.id}'),
+                                        onReorder: () => debugPrint(
+                                            '🔁 Reorder Clicked: ${order.id}'),
                                       ),
                                     );
                                   }
-              
+
                                   final ctrl = _cardCtrls[i];
                                   return FadeTransition(
                                     opacity: CurvedAnimation(
@@ -256,9 +245,11 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                         begin: const Offset(0, 0.08),
                                         end: Offset.zero,
                                       ).animate(CurvedAnimation(
-                                          parent: ctrl, curve: Curves.easeOut)),
+                                          parent: ctrl,
+                                          curve: Curves.easeOut)),
                                       child: Padding(
-                                        padding: const EdgeInsets.only(bottom: 12),
+                                        padding:
+                                            const EdgeInsets.only(bottom: 12),
                                         child: OrderCard(
                                           order: order,
                                           featured: false,
@@ -278,7 +269,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
             ),
           ),
         );
-      }
+      },
     );
   }
 }

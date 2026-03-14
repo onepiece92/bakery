@@ -4,6 +4,7 @@ import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/services/hive_services/order_hive_services.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
@@ -15,7 +16,6 @@ import '../../providers/favourites_provider.dart';
 import '../../components/empty_cart_view.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_decorations.dart';
-import '../../theme/app_text_styles.dart';
 import 'package:go_router/go_router.dart';
 
 class CartScreen extends StatefulWidget {
@@ -102,16 +102,16 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
-            border: Border(
+              border: Border(
                 top: BorderSide(color: Colors.grey.shade300),
                 left: BorderSide(color: Colors.grey.shade300),
                 right: BorderSide(color: Colors.grey.shade300),
-                bottom: BorderSide.none, // removes bottom border
+                bottom: BorderSide.none,
               ),
             ),
             child: Scaffold(
               resizeToAvoidBottomInset: false,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: context.theme.scaffoldBackgroundColor,
               appBar: AppBar(
                 scrolledUnderElevation: 0,
                 elevation: 0,
@@ -127,7 +127,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                         padding: const EdgeInsets.only(right: 24),
                         child: Text(
                           '${cart.totalCount} item${cart.totalCount != 1 ? 's' : ''}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: context.text.bodySmall,
                         ),
                       ),
                     ),
@@ -142,8 +142,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                           child: cart.items.isEmpty
                               ? const EmptyCartView()
                               : ListView(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(24, 0, 24, 150),
+                                  padding: const EdgeInsets.fromLTRB(
+                                      24, 0, 24, 150),
                                   children: [
                                     ...cart.items.map((item) {
                                       final key = item.cartItemId;
@@ -151,13 +151,13 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                           _expandedNoteKeys.contains(key);
                                       final hasNote = item.note != null &&
                                           item.note!.isNotEmpty;
-        
+
                                       return Padding(
                                         padding:
                                             const EdgeInsets.only(bottom: 14),
                                         child: AnimatedSize(
-                                          duration:
-                                              const Duration(milliseconds: 250),
+                                          duration: const Duration(
+                                              milliseconds: 250),
                                           curve: Curves.easeInOut,
                                           child: Column(
                                             crossAxisAlignment:
@@ -168,20 +168,20 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 onTap: () => context.push(
                                                     '/home/product',
                                                     extra: item.product),
-                                                onQuickAdd: () =>
-                                                    cart.addProduct(item.product),
+                                                onQuickAdd: () => cart
+                                                    .addProduct(item.product),
                                                 isFavourite: favProv
-                                                    .isFavourite(item.product.id),
-                                                onToggleFavourite: () => favProv
-                                                    .toggle(item.product.id),
-                                                // Pass cartItemId so AddCounter updates
-                                                // this exact entry (variant-safe)
+                                                    .isFavourite(
+                                                        item.product.id),
+                                                onToggleFavourite: () =>
+                                                    favProv.toggle(
+                                                        item.product.id),
                                                 cartItemId: item.cartItemId,
                                                 cartItemQty: item.quantity,
                                               ),
-        
-                                              if (item
-                                                  .selectedAddons.isNotEmpty) ...[
+
+                                              if (item.selectedAddons
+                                                  .isNotEmpty) ...[
                                                 const SizedBox(height: 6),
                                                 Wrap(
                                                   spacing: 6,
@@ -199,9 +199,10 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                             .withValues(
                                                                 alpha: 0.06),
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                                AppDecorations
-                                                                    .radiusCard),
+                                                            BorderRadius
+                                                                .circular(
+                                                                    AppDecorations
+                                                                        .radiusCard),
                                                         border: Border.all(
                                                           color: AppColors
                                                               .terracotta
@@ -215,51 +216,53 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                         children: [
                                                           Text(
                                                             '+ ${addon.name}',
-                                                            style: AppTextStyles
-                                                                .bodySmall
-                                                                .copyWith(
+                                                            style: context
+                                                                .text.bodySmall
+                                                                ?.copyWith(
                                                               color: AppColors
                                                                   .terracotta,
                                                               fontWeight:
-                                                                  FontWeight.w500,
+                                                                  FontWeight
+                                                                      .w500,
                                                             ),
                                                           ),
                                                           const SizedBox(
                                                               width: 4),
                                                           Text(
                                                             '\$${addon.price.toStringAsFixed(2)}',
-                                                            style: AppTextStyles
-                                                                .bodySmall
-                                                                .copyWith(
+                                                            style: context
+                                                                .text.bodySmall
+                                                                ?.copyWith(
                                                               color: AppColors
                                                                   .terracotta
                                                                   .withValues(
-                                                                      alpha: 0.7),
+                                                                      alpha:
+                                                                          0.7),
                                                             ),
                                                           ),
                                                           const SizedBox(
                                                               width: 6),
                                                           GestureDetector(
                                                             onTap: () {
-                                                              final updatedAddons =
-                                                                  item
-                                                                      .selectedAddons
-                                                                      .where((a) =>
-                                                                          a.id !=
-                                                                          addon
-                                                                              .id)
-                                                                      .toList();
+                                                              final updatedAddons = item
+                                                                  .selectedAddons
+                                                                  .where((a) =>
+                                                                      a.id !=
+                                                                      addon.id)
+                                                                  .toList();
                                                               cart.updateAddons(
                                                                   item.cartItemId,
                                                                   updatedAddons);
                                                             },
                                                             child: Icon(
-                                                              Icons.close_rounded,
+                                                              Icons
+                                                                  .close_rounded,
                                                               size: 14,
                                                               color: AppColors
                                                                   .terracotta
                                                                   .withValues(
-                                                                      alpha: 0.7),
+                                                                      alpha:
+                                                                          0.7),
                                                             ),
                                                           ),
                                                         ],
@@ -268,12 +271,13 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                   }).toList(),
                                                 ),
                                               ],
-        
+
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     left: 4, top: 6),
                                                 child: GestureDetector(
-                                                  onTap: () => _toggleNote(item),
+                                                  onTap: () =>
+                                                      _toggleNote(item),
                                                   child: Row(
                                                     mainAxisSize:
                                                         MainAxisSize.min,
@@ -297,7 +301,9 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                             : (hasNote
                                                                 ? 'Edit note'
                                                                 : 'Add note'),
-                                                        style: TextStyle(
+                                                        style: context
+                                                            .appTheme.caption
+                                                            .copyWith(
                                                           fontSize: 12,
                                                           color: AppColors
                                                               .terracotta,
@@ -309,8 +315,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                   ),
                                                 ),
                                               ),
-        
-                                              // ── Expanded note field ───────────────
+
+                                              // ── Expanded note field ──────────────
                                               if (isExpanded) ...[
                                                 const SizedBox(height: 8),
                                                 TextField(
@@ -322,30 +328,30 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                   textCapitalization:
                                                       TextCapitalization
                                                           .sentences,
-                                                  style: AppTextStyles.bodyMedium
-                                                      .copyWith(
+                                                  style: context.text.bodyMedium
+                                                      ?.copyWith(
                                                           color: AppColors
-                                                              .darkBrown),
+                                                              .backgroundDark),
                                                   decoration: InputDecoration(
                                                     hintText:
                                                         'e.g. No nuts, extra frosting, gift message...',
-                                                    hintStyle: AppTextStyles
-                                                        .bodySmall
-                                                        .copyWith(
+                                                    hintStyle: context
+                                                        .text.bodySmall
+                                                        ?.copyWith(
                                                             color: AppColors
                                                                 .textLight),
                                                     filled: true,
-                                                    fillColor: Theme.of(context)
-                                                        .colorScheme
+                                                    fillColor: context
+                                                        .colors
                                                         .surfaceContainerLow
                                                         .withValues(alpha: 0.4),
                                                     contentPadding:
-                                                        const EdgeInsets.all(10),
+                                                        const EdgeInsets.all(
+                                                            10),
                                                     isDense: true,
-                                                    counterStyle: TextStyle(
-                                                        fontSize: 10,
-                                                        color:
-                                                            AppColors.textLight),
+                                                    counterStyle: context
+                                                        .appTheme.caption
+                                                        .copyWith(fontSize: 10),
                                                     border: OutlineInputBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
@@ -353,7 +359,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                                   .radiusCard),
                                                       borderSide: BorderSide(
                                                           color: AppColors
-                                                              .softBrown
+                                                              .backgroundDark
                                                               .withValues(
                                                                   alpha: 0.2)),
                                                     ),
@@ -365,7 +371,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                                   .radiusCard),
                                                       borderSide: BorderSide(
                                                           color: AppColors
-                                                              .softBrown
+                                                              .backgroundDark
                                                               .withValues(
                                                                   alpha: 0.2)),
                                                     ),
@@ -394,8 +400,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                   ),
                                                 ),
                                               ],
-        
-                                              // ── Saved note display ────────────────
+
+                                              // ── Saved note display ───────────────
                                               if (!isExpanded && hasNote) ...[
                                                 const SizedBox(height: 6),
                                                 Container(
@@ -419,8 +425,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                   ),
                                                   child: Text(
                                                     item.note!,
-                                                    style: AppTextStyles.bodySmall
-                                                        .copyWith(
+                                                    style: context.text.bodySmall
+                                                        ?.copyWith(
                                                             color: AppColors
                                                                 .terracotta),
                                                     maxLines: 2,
@@ -434,19 +440,18 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                         ),
                                       );
                                     }),
-        
-                                    // ── Price summary ─────────────────────────────
+
+                                    // ── Price summary ────────────────────────────
                                     Card(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerLow
+                                      color: context
+                                          .colors.surfaceContainerLow
                                           .withValues(alpha: 0.5),
                                       elevation: 0,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(
                                             AppDecorations.radiusCard),
                                         side: BorderSide(
-                                          color: AppColors.darkBrown
+                                          color: AppColors.backgroundDark
                                               .withValues(alpha: 0.05),
                                         ),
                                       ),
@@ -459,27 +464,30 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 value: cart.subtotal),
                                             const SizedBox(height: 10),
                                             Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  vertical: 12),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 12),
                                               child: Divider(
                                                   height: 1,
-                                                  color: AppColors.softBrown
+                                                  color: AppColors.backgroundDark
                                                       .withValues(alpha: 0.1)),
                                             ),
                                             Row(
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text('Total',
-                                                    style: AppTextStyles
-                                                        .headlineMedium),
+                                                    style: context
+                                                        .text.headlineMedium),
                                                 Text(
-                                                    '\$${cart.total.toStringAsFixed(2)}',
-                                                    style: AppTextStyles
-                                                        .priceLarge
-                                                        .copyWith(
-                                                      color: AppColors.terracotta,
-                                                    )),
+                                                  '\$${cart.total.toStringAsFixed(2)}',
+                                                  style: context
+                                                      .appTheme.priceLarge
+                                                      .copyWith(
+                                                    color: AppColors.terracotta,
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ],
@@ -491,8 +499,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                         ),
                       ],
                     ),
-        
-                    // ── Checkout button ───────────────────────────────────────────
+
+                    // ── Checkout button ──────────────────────────────────────────
                     if (cart.items.isNotEmpty && !_isKeyboardOpen)
                       Positioned(
                         bottom: 0,
@@ -507,14 +515,14 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                 ? null
                                 : () async {
                                     _flushNotes(cart);
-        
+
                                     if (cart.items.isEmpty) return;
-        
+
                                     final orderProv =
                                         context.read<OrderProvider>();
-        
-                                    // Build food items from cart
-                                    final foodItems = cart.items.map((item) {
+
+                                    final foodItems =
+                                        cart.items.map((item) {
                                       return FoodItemRequest(
                                         product: item.product.id,
                                         quantity: item.quantity,
@@ -526,23 +534,21 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                             .toList(),
                                       );
                                     }).toList();
-        
-                                    // Send food request via TableRequestProvider
+
                                     await tableReq.requestFood(
                                       businessId: LocalStorageService.instance
                                               .getBusinessId() ??
                                           '',
                                       foodItems: foodItems,
                                     );
-        
+
                                     if (!mounted) return;
-        
+
                                     final success = tableReq
                                             .lastSuccessResponse?['success'] ==
                                         true;
-        
+
                                     if (success) {
-                                      // Save to Hive only on successful order
                                       final orderId =
                                           'order_${DateTime.now().millisecondsSinceEpoch}';
                                       await orderProv.placeOrder(
@@ -550,7 +556,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                         subtotal: cart.subtotal,
                                         isBusinessOrder: isBusiness,
                                       );
-        
+
                                       debugPrint('Order saved: $orderId');
                                       final saved =
                                           HiveOrderService.getOrder(orderId);
@@ -571,7 +577,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                               '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
                                           if (item.note != null &&
                                               item.note!.isNotEmpty) {
-                                            debugPrint('    Note: ${item.note}');
+                                            debugPrint(
+                                                '    Note: ${item.note}');
                                           }
                                           if (item.selectedVariant != null) {
                                             debugPrint(
@@ -588,14 +595,15 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                         debugPrint(
                                             ' ORDER NOT FOUND IN HIVE — something went wrong');
                                       }
-        
+
                                       if (isBusiness) {
                                         debugPrint('===== CART ITEMS =====');
                                         for (final item in cart.items) {
                                           final p = item.product;
                                           debugPrint('---------------------');
                                           debugPrint('ID            : ${p.id}');
-                                          debugPrint('Name          : ${p.name}');
+                                          debugPrint(
+                                              'Name          : ${p.name}');
                                           debugPrint(
                                               'Description   : ${p.description}');
                                           debugPrint(
@@ -672,7 +680,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                         debugPrint(
                                             'Total      : \$${cart.total.toStringAsFixed(2)}');
                                         debugPrint('=====================');
-        
+
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
@@ -687,7 +695,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                       } else {
                                         context.push('/cart/checkout');
                                       }
-        
+
                                       cart.clear();
                                     } else {
                                       debugPrint(
@@ -726,12 +734,17 @@ class _PriceSummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style:
-                AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight)),
-        Text('\$${value.toStringAsFixed(2)}',
-            style: AppTextStyles.bodyLarge.copyWith(
-                fontWeight: FontWeight.w600, color: AppColors.darkBrown)),
+        Text(
+          label,
+          style: context.text.bodyMedium?.copyWith(color: AppColors.textLight),
+        ),
+        Text(
+          '\$${value.toStringAsFixed(2)}',
+          style: context.text.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.backgroundDark,
+          ),
+        ),
       ],
     );
   }

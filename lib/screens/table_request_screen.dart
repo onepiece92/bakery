@@ -224,7 +224,7 @@ class TableRequestScreen extends StatelessWidget {
               Text(
                 'Total: ${response['grandTotal']}',
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: AppColors.darkBrown,
+                  color: AppColors.backgroundDark,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -235,7 +235,7 @@ class TableRequestScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkBrown,
+                  backgroundColor: AppColors.backgroundDark,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -778,7 +778,7 @@ class _FoodOrderSheetState extends State<_FoodOrderSheet> {
             child: ElevatedButton(
               onPressed: _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.darkBrown,
+                backgroundColor: AppColors.backgroundDark,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -850,7 +850,7 @@ class _ServiceCard extends StatelessWidget {
                         style: AppTextStyles.headlineSmall.copyWith(
                           color: isCoolingDown
                               ? Colors.grey.shade400
-                              : AppColors.darkBrown,
+                              : AppColors.backgroundDark,
                         ),
                       ),
                       if (subtitle != null) ...[
@@ -898,7 +898,7 @@ class _ServiceCard extends StatelessWidget {
                   style: AppTextStyles.titleLarge.copyWith(
                     color: isCoolingDown
                         ? Colors.grey.shade400
-                        : AppColors.darkBrown,
+                        : AppColors.backgroundDark,
                   ),
                 ),
               ],

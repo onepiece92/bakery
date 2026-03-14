@@ -39,95 +39,97 @@ class GridProductCard extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Image area ──────────────────────────────────────────────────
-            Stack(
-              children: [
-                Container(
-                  height: 100,
-                  width: double.infinity,
-                  decoration: AppDecorations.productImage,
-                  alignment: Alignment.center,
-                  child: Image.network(
-                    product.image,
-                    width: 90,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.broken_image_rounded,
-                      size: 36,
-                      color: AppColors.softBrown,
-                    ),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      );
-                    },
-                  ),
-                ),
-
-                // Favourite button
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Consumer<FavouritesProvider>(
-                    builder: (context, favProv, _) {
-                      final isFav = favProv.isFavourite(product.id);
-                      return GestureDetector(
-                        onTap: () => favProv.toggle(product.id),
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: AppColors.white.withValues(alpha: 0.85),
-                            borderRadius:
-                                BorderRadius.circular(AppDecorations.radiusXS),
-                          ),
-                          alignment: Alignment.center,
-                          child: Icon(
-                            isFav
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: AppColors.primaryRed,
-                            size: 15,
-                          ),
+            // ── Image fills all remaining space after bottom section ──────
+            Expanded(
+              child: Stack(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Image.network(
+                      product.image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(
+                        child: Icon(
+                          Icons.broken_image_rounded,
+                          size: 36,
+                          color: AppColors.primaryRed,
                         ),
-                      );
-                    },
+                      ),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+
+                  // Favourite button
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Consumer<FavouritesProvider>(
+                      builder: (context, favProv, _) {
+                        final isFav = favProv.isFavourite(product.id);
+                        return GestureDetector(
+                          onTap: () => favProv.toggle(product.id),
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: AppColors.white.withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(
+                                  AppDecorations.radiusXS),
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              isFav
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              color: AppColors.primaryRed,
+                              size: 15,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
 
-            // ── Info + counter ───────────────────────────────────────────────
+            // ── Bottom section — shrinks to content, no forced height ─────
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     product.name.toTitleCase(),
                     style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.darkBrown,
+                        color: AppColors.backgroundDark,
                         fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
-                  const SizedBox(height: 2),
-                  Text(product.description.toTitleCase(),
-                      style: AppTextStyles.labelSmall),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           '\$${product.displayPrice.toStringAsFixed(2)}',
                           style: AppTextStyles.price,
-                          overflow: TextOverflow.ellipsis,
+                          overflow: TextOverflow
+                              .ellipsis, // shrinks with ... if needed
+                          maxLines: 1,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      // ── Add / counter button ─────────────────────────────
+                      const SizedBox(width: 8),
                       _GridAddCounter(
                         qty: qty,
                         productId: product.id,
@@ -147,10 +149,6 @@ class GridProductCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-/// Compact "+" for the grid card.
-/// If [hasVariants] is true, tapping "+" always navigates to the detail screen
-/// instead of directly adding to cart.
 class _GridAddCounter extends StatelessWidget {
   final int qty;
   final String productId;
@@ -169,65 +167,83 @@ class _GridAddCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasItems = qty > 0;
-
-    // If variants exist, always navigate — never expand the counter
     final VoidCallback addAction = hasVariants ? onNavigate : onAdd;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeInOut,
-      height: 28,
-      width: (!hasVariants && hasItems) ? 80 : 28,
-      decoration: BoxDecoration(
-        color: AppColors.primaryRed,
-        borderRadius: BorderRadius.circular(AppDecorations.radiusS),
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: (!hasVariants && hasItems)
-          ? Row(
-              children: [
-                // − decrement
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => context
-                        .read<CartProvider>()
-                        .updateById(productId, qty - 1),
-                    child: Icon(Icons.remove_rounded,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                        size: 12),
-                  ),
-                ),
-                // Animated count
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 180),
-                  transitionBuilder: (child, anim) =>
-                      ScaleTransition(scale: anim, child: child),
-                  child: Text(
-                    '$qty',
-                    key: ValueKey(qty),
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final expandedWidth = screenWidth > 400 ? 80.0 : 52.0;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeInOut,
+          height: 28,
+          width: (!hasVariants && hasItems) ? expandedWidth : 28,
+          decoration: BoxDecoration(
+            color: AppColors.primaryRed,
+            borderRadius: BorderRadius.circular(AppDecorations.radiusS),
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: (!hasVariants && hasItems)
+              ? Row(
+                  children: [
+                    // − decrement
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => context
+                            .read<CartProvider>()
+                            .updateById(productId, qty - 1),
+                        child: Container(
+                          color: Colors.transparent,
+                          alignment: Alignment.center,
+                          child: Icon(Icons.remove_rounded,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              size: 12),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                // + increment
-                Expanded(
-                  child: GestureDetector(
-                    onTap: onAdd,
+                    // Animated count
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      transitionBuilder: (child, anim) =>
+                          ScaleTransition(scale: anim, child: child),
+                      child: Text(
+                        '$qty',
+                        key: ValueKey(qty),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    // + increment
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: onAdd,
+                        child: Container(
+                          color: Colors.transparent,
+                          alignment: Alignment.center,
+                          child: Icon(Icons.add_rounded,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              size: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : GestureDetector(
+                  onTap: addAction,
+                  child: Container(
+                    color: Colors.transparent,
+                    alignment: Alignment.center,
                     child: Icon(Icons.add_rounded,
                         color: Theme.of(context).colorScheme.onSecondary,
-                        size: 12),
+                        size: 16),
                   ),
                 ),
-              ],
-            )
-          : GestureDetector(
-              onTap: addAction,
-              child: Icon(Icons.add_rounded,
-                  color: Theme.of(context).colorScheme.onSecondary, size: 16),
-            ),
+        );
+      },
     );
   }
 }

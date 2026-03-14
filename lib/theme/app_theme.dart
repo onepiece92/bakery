@@ -10,15 +10,14 @@ final class AppTheme {
   static ThemeData get light => ThemeData(
         useMaterial3: true,
         colorScheme: const ColorScheme.light(
-          primary: AppColors
-              .darkBrown, 
-          onPrimary: AppColors.primaryRed, 
+          primary: AppColors.primaryRed,
+          onPrimary: AppColors.white,
           secondary: AppColors.caramel,
           onSecondary: AppColors.white,
-          surface: AppColors.warmWhite, 
-          onSurface: AppColors.text, 
+          surface: AppColors.warmWhite,
+          onSurface: AppColors.text,
           error: AppColors.terracotta,
-       
+          onError: AppColors.white,
         ),
         scaffoldBackgroundColor: AppColors.backgroundLight,
         textTheme: GoogleFonts.dmSansTextTheme().copyWith(
@@ -38,13 +37,13 @@ final class AppTheme {
           backgroundColor: AppColors.warmWhite,
           elevation: 0,
           centerTitle: false,
-          iconTheme: const IconThemeData(color: AppColors.darkBrown),
+          iconTheme: const IconThemeData(color: AppColors.primaryRed),
           titleTextStyle: AppTextStyles.headlineLarge,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.darkBrown,
-            foregroundColor: AppColors.primaryRed,
+            backgroundColor: AppColors.primaryRed,
+            foregroundColor: AppColors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDecorations.radiusL),
             ),
@@ -54,8 +53,9 @@ final class AppTheme {
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.darkBrown,
-            side: const BorderSide(color: AppColors.darkBrown, width: 1.5),
+            // Outlined: brand red border + red text on white.
+            foregroundColor: AppColors.primaryRed,
+            side: const BorderSide(color: AppColors.primaryRed, width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppDecorations.radiusM),
             ),
@@ -73,15 +73,15 @@ final class AppTheme {
             ),
           ).copyWith(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
+              // Selected state → deeper opacity of primaryRed.
               if (states.contains(WidgetState.selected)) {
-                return AppColors.darkBrown;
+                return AppColors.primaryRed.withValues(alpha: 0.80);
               }
+              // Default → primary brand red.
               return AppColors.primaryRed;
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) {
-                return AppColors.white;
-              }
+              // White label in both states.
               return AppColors.white;
             }),
           ),
@@ -89,20 +89,25 @@ final class AppTheme {
         iconButtonTheme: IconButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
+              // Selected → primary red background.
               if (states.contains(WidgetState.selected)) {
-                return AppColors.darkBrown;
+                return AppColors.primaryRed;
               }
+              // Default → Tailwind gray-100 (from HTML quantity track bg).
               return AppColors.beige;
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.selected)) {
-                return AppColors.primaryRed;
+                // Icon on primary red bg → white.
+                return AppColors.white;
               }
-              return AppColors.softBrown;
+              // Icon on gray bg → primary red.
+              return AppColors.primaryRed;
             }),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppDecorations.radiusML)),
+                borderRadius: BorderRadius.circular(AppDecorations.radiusML),
+              ),
             ),
             minimumSize: const WidgetStatePropertyAll(Size(48, 48)),
             padding: const WidgetStatePropertyAll(EdgeInsets.zero),
@@ -111,6 +116,7 @@ final class AppTheme {
         segmentedButtonTheme: SegmentedButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
+              // Selected segment → primary brand red.
               if (states.contains(WidgetState.selected)) {
                 return AppColors.primaryRed;
               }
@@ -118,13 +124,16 @@ final class AppTheme {
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.selected)) {
-                return AppColors.warmWhite;
+                // Label on brand red → white.
+                return AppColors.white;
               }
+              // Unselected → primary red text on white.
               return AppColors.primaryRed;
             }),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppDecorations.radiusS)),
+                borderRadius: BorderRadius.circular(AppDecorations.radiusS),
+              ),
             ),
             side: const WidgetStatePropertyAll(BorderSide.none),
           ),
@@ -134,7 +143,7 @@ final class AppTheme {
           fillColor: AppColors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),
-            borderSide: const BorderSide(color: AppColors.beige, width: 1.5),
+            borderSide: const BorderSide(color: AppColors.lightGold, width: 1.5),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),
@@ -149,9 +158,9 @@ final class AppTheme {
           hintStyle:
               AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight),
         ),
-        dividerColor: AppColors.beige,
+        dividerColor: AppColors.lightGold,
         dividerTheme: const DividerThemeData(
-          color: AppColors.beige,
+          color: AppColors.lightGold,
           thickness: 1,
           space: 0,
         ),
@@ -159,10 +168,11 @@ final class AppTheme {
           color: AppColors.white,
           elevation: 0,
           margin: EdgeInsets.zero,
-          shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(AppDecorations.radiusCard)),
-            side: BorderSide(color: AppColors.beige),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(AppDecorations.radiusCard),
+            ),
+            side: BorderSide(color: AppColors.lightGold),
           ),
         ),
         chipTheme: ChipThemeData(
@@ -176,56 +186,92 @@ final class AppTheme {
         ),
         bottomSheetTheme: const BottomSheetThemeData(
           backgroundColor: AppColors.white,
-          shape: const RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(
-                top: Radius.circular(AppDecorations.radiusCard)),
+              top: Radius.circular(AppDecorations.radiusCard),
+            ),
           ),
         ),
-        extensions: const <ThemeExtension<dynamic>>[
+        extensions: <ThemeExtension<dynamic>>[
           AppThemeExtension(
             productImageGradient: AppColors.productImageGradient,
             primaryGradient: AppColors.primaryGradient,
             heroGradient: AppColors.heroGradient,
+            price: AppTextStyles.price,
+            priceLarge: AppTextStyles.priceLarge,
+            buttonPrimary: AppTextStyles.buttonPrimary,
+            navLabel: AppTextStyles.navLabel,
+            caption: AppTextStyles.caption,
           ),
         ],
       );
 }
 
-/// Custom theme extension for properties not supported by default ThemeData.
+
 class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
+  // ── Gradients ──────────────────────────────────────────────
   final Gradient productImageGradient;
   final Gradient primaryGradient;
   final Gradient heroGradient;
+
+  // ── Custom text styles ─────────────────────────────────────
+  final TextStyle price;
+  final TextStyle priceLarge;
+  final TextStyle buttonPrimary;
+  final TextStyle navLabel;
+  final TextStyle caption;
 
   const AppThemeExtension({
     required this.productImageGradient,
     required this.primaryGradient,
     required this.heroGradient,
+    required this.price,
+    required this.priceLarge,
+    required this.buttonPrimary,
+    required this.navLabel,
+    required this.caption,
   });
 
   @override
-  ThemeExtension<AppThemeExtension> copyWith({
+  AppThemeExtension copyWith({
     Gradient? productImageGradient,
     Gradient? primaryGradient,
     Gradient? heroGradient,
+    TextStyle? price,
+    TextStyle? priceLarge,
+    TextStyle? buttonPrimary,
+    TextStyle? navLabel,
+    TextStyle? caption,
   }) {
     return AppThemeExtension(
       productImageGradient: productImageGradient ?? this.productImageGradient,
       primaryGradient: primaryGradient ?? this.primaryGradient,
       heroGradient: heroGradient ?? this.heroGradient,
+      price: price ?? this.price,
+      priceLarge: priceLarge ?? this.priceLarge,
+      buttonPrimary: buttonPrimary ?? this.buttonPrimary,
+      navLabel: navLabel ?? this.navLabel,
+      caption: caption ?? this.caption,
     );
   }
 
   @override
-  ThemeExtension<AppThemeExtension> lerp(
-      covariant ThemeExtension<AppThemeExtension>? other, double t) {
-    if (other is! AppThemeExtension) return this;
+  AppThemeExtension lerp(
+    covariant AppThemeExtension? other,
+    double t,
+  ) {
+    if (other == null) return this;
     return AppThemeExtension(
       productImageGradient:
           Gradient.lerp(productImageGradient, other.productImageGradient, t)!,
       primaryGradient:
           Gradient.lerp(primaryGradient, other.primaryGradient, t)!,
       heroGradient: Gradient.lerp(heroGradient, other.heroGradient, t)!,
+      price: TextStyle.lerp(price, other.price, t)!,
+      priceLarge: TextStyle.lerp(priceLarge, other.priceLarge, t)!,
+      buttonPrimary: TextStyle.lerp(buttonPrimary, other.buttonPrimary, t)!,
+      navLabel: TextStyle.lerp(navLabel, other.navLabel, t)!,
+      caption: TextStyle.lerp(caption, other.caption, t)!,
     );
   }
 }

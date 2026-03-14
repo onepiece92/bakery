@@ -18,10 +18,9 @@ class EmptyCartView extends StatelessWidget {
             child: Lottie.asset(
               'assets/animations/empty_cart.json',
               width: 250,
-              repeat: false,
+              repeat: true,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
-                // Fallback icon if Lottie fails or asset is missing
                 return const Icon(Icons.shopping_basket_outlined,
                     size: 100, color: Colors.grey);
               },

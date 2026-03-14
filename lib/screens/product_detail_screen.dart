@@ -1,7 +1,7 @@
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../theme/app_theme.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favourites_provider.dart';
@@ -25,6 +25,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   final Set<String> _selectedAddonIds = {};
 
   final TextEditingController _instructionsCtrl = TextEditingController();
+
   VariantItem? get _matchedVariant {
     final variants = widget.product.variants;
     if (variants == null) return null;
@@ -110,7 +111,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: context.theme.scaffoldBackgroundColor,
               body: Stack(
                 children: [
                   CustomScrollView(
@@ -121,8 +122,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         scrolledUnderElevation: 0,
                         elevation: 0,
                         pinned: true,
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
+                        backgroundColor: context.theme.scaffoldBackgroundColor,
                         leading: const Padding(
                           padding: EdgeInsets.only(left: 8.0),
                           child: BakeryBackButton(),
@@ -135,10 +135,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               width: 40,
                               alignment: Alignment.center,
                               child: Icon(
-                                isFav ? Icons.favorite : Icons.favorite_border,
+                                isFav
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 color: isFav
                                     ? Colors.redAccent
-                                    : Theme.of(context).colorScheme.primary,
+                                    : context.colors.primary,
                                 size: 22,
                               ),
                             ),
@@ -149,25 +151,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .scaffoldBackgroundColor
+                              color: context.theme.scaffoldBackgroundColor
                                   .withValues(alpha: 0.85),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             alignment: Alignment.center,
-                            child: Icon(Icons.share_outlined,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                                size: 18),
+                            child: Icon(
+                              Icons.share_outlined,
+                              color: context.colors.onSurfaceVariant,
+                              size: 18,
+                            ),
                           ),
                         ],
                         flexibleSpace: FlexibleSpaceBar(
                           background: Container(
                             decoration: BoxDecoration(
-                              gradient: Theme.of(context)
-                                  .extension<AppThemeExtension>()
-                                  ?.heroGradient,
+                              gradient: context.appTheme.heroGradient,
                             ),
                             child: Stack(
                               alignment: Alignment.center,
@@ -175,13 +174,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 Image.network(
                                   widget.product.image,
                                   width: double.infinity,
-                                  // height: 100,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(
                                     Icons.broken_image_rounded,
                                     size: 40,
-                                    // color: AppColors.softBrown,
                                   ),
                                   loadingBuilder:
                                       (context, child, loadingProgress) {
@@ -192,34 +189,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     );
                                   },
                                 ),
-                                // Gallery dots
-                                // Positioned(
-                                //   bottom: 18,
-                                //   child: Row(
-                                //     mainAxisSize: MainAxisSize.min,
-                                //     children: List.generate(3, (i) {
-                                //       return GestureDetector(
-                                //         onTap: () => setState(() => _activeImage = i),
-                                //         child: AnimatedContainer(
-                                //           duration: const Duration(milliseconds: 300),
-                                //           margin:
-                                //               const EdgeInsets.symmetric(horizontal: 3),
-                                //           width: _activeImage == i ? 20 : 7,
-                                //           height: 7,
-                                //           decoration: BoxDecoration(
-                                //             color: _activeImage == i
-                                //                 ? Theme.of(context).colorScheme.surface
-                                //                 : Theme.of(context)
-                                //                     .colorScheme
-                                //                     .surface
-                                //                     .withValues(alpha: 0.45),
-                                //             borderRadius: BorderRadius.circular(4),
-                                //           ),
-                                //         ),
-                                //       );
-                                //     }),
-                                //   ),
-                                // ),
                               ],
                             ),
                           ),
@@ -229,83 +198,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       // ── Content ───────────────────────────────────────
                       SliverToBoxAdapter(
                         child: Container(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 140),
+                          padding:
+                              const EdgeInsets.fromLTRB(24, 24, 24, 140),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).scaffoldBackgroundColor,
+                            color: context.theme.scaffoldBackgroundColor,
                             borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(28)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Name + category
-                              Text(widget.product.name.toTitleCase(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displayMedium),
+                              // Name
+                              Text(
+                                widget.product.name.toTitleCase(),
+                                style: context.text.displayMedium,
+                              ),
                               const SizedBox(height: 6),
-                              // Text(widget.product.categories,
-                              //     style: Theme.of(context).textTheme.bodySmall),
-                              // const SizedBox(height: 12),
 
                               // Description
                               Text(
                                 widget.product.description.toTitleCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        color: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.color,
-                                        height: 1.6),
+                                style: context.text.bodyMedium?.copyWith(
+                                  color: context.text.bodySmall?.color,
+                                  height: 1.6,
+                                ),
                               ),
                               const SizedBox(height: 6),
-
-                              // Tags
-                              // if (widget.product.tags.isNotEmpty) ...[
-                              //   Wrap(
-                              //     spacing: 8,
-                              //     runSpacing: 6,
-                              //     children: widget.product.tags.map((tag) {
-                              //       final isGood = tag.contains('Gluten') ||
-                              //           tag.contains('Vegan') ||
-                              //           tag.contains('Organic');
-                              //       return Container(
-                              //         padding: const EdgeInsets.symmetric(
-                              //             horizontal: 12, vertical: 5),
-                              //         decoration: BoxDecoration(
-                              //           color: isGood
-                              //               ? Theme.of(context)
-                              //                   .colorScheme
-                              //                   .secondaryContainer
-                              //               : Theme.of(context)
-                              //                   .colorScheme
-                              //                   .errorContainer,
-                              //           borderRadius: BorderRadius.circular(10),
-                              //         ),
-                              //         child: Text(
-                              //           tag,
-                              //           style: Theme.of(context)
-                              //               .textTheme
-                              //               .labelSmall
-                              //               ?.copyWith(
-                              //                 color: isGood
-                              //                     ? Theme.of(context)
-                              //                         .colorScheme
-                              //                         .onSecondaryContainer
-                              //                     : Theme.of(context)
-                              //                         .colorScheme
-                              //                         .onErrorContainer,
-                              //                 fontSize: 12,
-                              //               ),
-                              //         ),
-                              //       );
-                              //     }).toList(),
-                              //   ),
-                              //   const SizedBox(height: 24),
-                              // ],
 
                               // ── Variants ─────────────────────────────
                               if (variants != null &&
@@ -318,13 +236,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       _SectionHeader(title: option.title),
                                       const SizedBox(height: 12),
                                       ...option.values.map((value) {
-                                        final isActive = _selectedOptionValues[
-                                                option.title] ==
-                                            value;
-                                        final matchingItem =
-                                            variants.variantItems.firstWhere(
-                                          (item) =>
-                                              item.optionValues.contains(value),
+                                        final isActive =
+                                            _selectedOptionValues[
+                                                    option.title] ==
+                                                value;
+                                        final matchingItem = variants
+                                            .variantItems
+                                            .firstWhere(
+                                          (item) => item.optionValues
+                                              .contains(value),
                                           orElse: () =>
                                               variants.variantItems.first,
                                         );
@@ -346,7 +266,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                               // ── Addons ────────────────────────────────
                               if (addons.isNotEmpty) ...[
-                                _SectionHeader(title: 'Add-ons'),
+                                const _SectionHeader(title: 'Add-ons'),
                                 const SizedBox(height: 12),
                                 ...addons.map((addon) {
                                   final isActive =
@@ -366,56 +286,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 }),
                                 const SizedBox(height: 24),
                               ],
-
-                              // ── Special Instructions ──────────────────
-                              // Text(
-                              //   'Special Instructions',
-                              //   style: Theme.of(context)
-                              //       .textTheme
-                              //       .titleMedium
-                              //       ?.copyWith(
-                              //         fontWeight: FontWeight.w700,
-                              //         fontSize: 18,
-                              //         color: Theme.of(context).colorScheme.onSurface,
-                              //       ),
-                              // ),
-                              // const SizedBox(height: 16),
-                              // TextField(
-                              //   controller: _instructionsCtrl,
-                              //   maxLines: 4,
-                              //   style: Theme.of(context).textTheme.bodyLarge,
-                              //   decoration: InputDecoration(
-                              //     hintText: 'E.g. No onions, sauce on the side...',
-                              //     hintStyle:
-                              //         Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              //               color: Theme.of(context)
-                              //                   .colorScheme
-                              //                   .onSurfaceVariant
-                              //                   .withValues(alpha: 0.6),
-                              //             ),
-                              //     filled: true,
-                              //     fillColor: Theme.of(context).cardColor,
-                              //     contentPadding: const EdgeInsets.all(20),
-                              //     border: OutlineInputBorder(
-                              //       borderRadius: BorderRadius.circular(24),
-                              //       borderSide: BorderSide(
-                              //           color: Theme.of(context).dividerColor),
-                              //     ),
-                              //     enabledBorder: OutlineInputBorder(
-                              //       borderRadius: BorderRadius.circular(24),
-                              //       borderSide: BorderSide(
-                              //           color: Theme.of(context).dividerColor),
-                              //     ),
-                              //     focusedBorder: OutlineInputBorder(
-                              //       borderRadius: BorderRadius.circular(24),
-                              //       borderSide: BorderSide(
-                              //           color: Theme.of(context)
-                              //               .colorScheme
-                              //               .primary
-                              //               .withValues(alpha: 0.5)),
-                              //     ),
-                              //   ),
-                              // ),
                             ],
                           ),
                         ),
@@ -466,7 +336,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Please select at least 1 item')),
+                              content:
+                                  Text('Please select at least 1 item')),
                         );
                       }
                     },
@@ -491,11 +362,11 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            fontSize: 18,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+      style: context.text.titleMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+        fontSize: 18,
+        color: context.colors.onSurface,
+      ),
     );
   }
 }
@@ -522,12 +393,12 @@ class _OptionItem extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: context.theme.cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isActive
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).dividerColor,
+                ? context.colors.primary
+                : context.theme.dividerColor,
             width: isActive ? 1.5 : 1,
           ),
         ),
@@ -540,8 +411,8 @@ class _OptionItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isActive
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).unselectedWidgetColor,
+                      ? context.colors.primary
+                      : context.theme.unselectedWidgetColor,
                   width: isActive ? 6 : 1.5,
                 ),
               ),
@@ -550,9 +421,10 @@ class _OptionItem extends StatelessWidget {
             Expanded(
               child: Text(
                 name.toTitleCase(),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                    ),
+                style: context.text.bodyLarge?.copyWith(
+                  fontWeight:
+                      isActive ? FontWeight.w600 : FontWeight.w400,
+                ),
               ),
             ),
             Text(
@@ -561,12 +433,13 @@ class _OptionItem extends StatelessWidget {
                   : price > 0
                       ? price.toStringAsFixed(2)
                       : price.abs().toStringAsFixed(2),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: isActive
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                  ),
+              style: context.text.bodyMedium?.copyWith(
+                color: isActive
+                    ? context.colors.primary
+                    : context.colors.onSurfaceVariant,
+                fontWeight:
+                    isActive ? FontWeight.w600 : FontWeight.w500,
+              ),
             ),
           ],
         ),

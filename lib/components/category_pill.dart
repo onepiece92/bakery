@@ -56,9 +56,9 @@ class CategoryPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         backgroundColor: Colors.white,
         // backgroundColor: theme.cardColor,
-        selectedColor: colorScheme.onPrimary,
+        selectedColor: colorScheme.primary,
         side: BorderSide(
-          color: active ? colorScheme.onPrimary : Colors.transparent,
+          color: active ? colorScheme.primary : Colors.transparent,
           // color: active ? colorScheme.onPrimary : theme.dividerColor,
           width: 1,
         ),

@@ -52,7 +52,7 @@ class _LoyaltyCardState extends State<LoyaltyCard>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.darkBrown, AppColors.softBrown],
+          colors: [AppColors.primaryRed, AppColors.primaryRed],
         ),
         borderRadius: BorderRadius.circular(22),
       ),

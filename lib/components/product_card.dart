@@ -14,14 +14,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onQuickAdd;
   final bool isFavourite;
   final VoidCallback onToggleFavourite;
-
-  /// When set (cart page), AddCounter uses this ID to update the exact
-  /// cart entry — works for both normal and variant products.
-  /// When null (all other screens), original behaviour is preserved.
   final String? cartItemId;
-
-  /// The quantity of this specific cart entry (cart page only).
-  /// When null, qty is derived by summing all items with the same product.id.
   final int? cartItemQty;
 
   const ProductCard({
@@ -37,8 +30,6 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // On cart page use the exact item qty — avoids summing across variants.
-    // On other screens sum all entries for this product (original behaviour).
     final qty = cartItemQty ??
         context.select<CartProvider, int>((cart) => cart.items
             .where((i) => i.product.id == product.id)
@@ -50,136 +41,127 @@ class ProductCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         clipBehavior: Clip.hardEdge,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                children: [
-                  // Product image
-                  Stack(
-                    children: [
-                      Container(
-                        width: 90,
-                        height: 90,
-                        decoration: AppDecorations.productImage,
-                        alignment: Alignment.center,
-                        child: Image.network(
-                          product.image,
-                          width: double.infinity,
-                          height: 100,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                            Icons.broken_image_rounded,
-                            size: 40,
-                            color: AppColors.softBrown,
-                          ),
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Product image
+              Image.network(
+                product.image,
+                height: 100,
+                width: 90,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const SizedBox(
+                  height: 100,
+                  width: 90,
+                  child: Icon(
+                    Icons.broken_image_rounded,
+                    size: 40,
+                    color: AppColors.backgroundDark,
                   ),
-                  const SizedBox(width: 16),
-                  // Text column
-                  Expanded(
-                    child: SizedBox(
-                      height: 90,
-                      child: Column(
+                ),
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const SizedBox(
+                    height: 100,
+                    width: 90,
+                    child: Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+              // Text column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Name + favourite
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0, top: 6),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Name + favourite
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  product.name.toTitleCase(),
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.darkBrown,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              Consumer<FavouritesProvider>(
-                                builder: (context, favProv, _) {
-                                  final isFav = favProv.isFavourite(product.id);
-                                  return GestureDetector(
-                                    onTap: () => favProv.toggle(product.id),
-                                    child: AnimatedSwitcher(
-                                      duration:
-                                          const Duration(milliseconds: 200),
-                                      child: Icon(
-                                        isFav
-                                            ? Icons.favorite_rounded
-                                            : Icons.favorite_border_rounded,
-                                        color: AppColors.primaryRed,
-                                        size: 16,
-                                        key: ValueKey(isFav),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          Text(product.description.toTitleCase(),
-                              style: AppTextStyles.labelSmall),
-                          // Price
                           Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                '\$${product.displayPrice.toStringAsFixed(2)}',
-                                style: AppTextStyles.price,
-                                overflow: TextOverflow.ellipsis,
+                            child: Text(
+                              product.name.toTitleCase(),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.backgroundDark,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
+                          ),
+                          Consumer<FavouritesProvider>(
+                            builder: (context, favProv, _) {
+                              final isFav = favProv.isFavourite(product.id);
+                              return GestureDetector(
+                                onTap: () => favProv.toggle(product.id),
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  child: Icon(
+                                    isFav
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_rounded,
+                                    color: AppColors.primaryRed,
+                                    size: 16,
+                                    key: ValueKey(isFav),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+
+                    // Description only if present
+                    product.description.isNotEmpty
+                        ? Text(
+                            product.description.toTitleCase(),
+                            style: AppTextStyles.labelSmall,
+                          )
+                        : Text(
+                            "No Description",
+                            style: AppTextStyles.labelSmall,
+                          ),
+
+                    // Price + Add button always pinned to bottom
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0, bottom: 6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '\$${product.displayPrice.toStringAsFixed(2)}',
+                            style: AppTextStyles.price,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          AddCounter(
+                            qty: qty,
+                            productId: product.id,
+                            hasVariants: hasVariants,
+                            onAdd: onQuickAdd,
+                            onNavigate: onTap,
+                            cartItemId: cartItemId,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            // ── AddCounter pinned to the bottom-right corner ──────────────
-            Positioned(
-              right: 14,
-              bottom: 14,
-              child: AddCounter(
-                qty: qty,
-                productId: product.id,
-                hasVariants: hasVariants,
-                onAdd: onQuickAdd,
-                onNavigate: onTap,
-                cartItemId: cartItemId,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-/// Compact "+" that expands to "−  N  +" once qty > 0.
-///
-/// Cart page (cartItemId != null):
-///   - Expands for ALL products including variants
-///   - +/− target the exact cart entry via cartItemId
-///
-/// All other screens (cartItemId == null):
-///   - Original behaviour — variants navigate to detail on "+"
 class AddCounter extends StatelessWidget {
   final int qty;
   final String productId;
@@ -202,13 +184,9 @@ class AddCounter extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasItems = qty > 0;
     final isCartPage = cartItemId != null;
-
-    // Cart page: always add directly.
-    // Other screens: variants navigate to detail.
     final VoidCallback addAction =
         (!isCartPage && hasVariants) ? onNavigate : onAdd;
 
-    // Expand when cart page has items OR non-cart non-variant has items.
     final bool showExpanded = hasItems && (isCartPage || !hasVariants);
 
     return AnimatedContainer(
