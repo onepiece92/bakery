@@ -86,296 +86,338 @@ class _HomeScreenState extends State<HomeScreen>
     final bool showRecent = _searchQuery.isEmpty && _selectedCategory == 'all';
     final recentOrders = context.watch<OrderProvider>().recentOrders;
 
-    return FadeTransition(
-      opacity: _fadeAnim,
-      child: Column(
-        children: [
-          // ── Header ──────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: Row(
-              children: [
-                Expanded(
-                    child: Text(
-                  businessName ?? "Foxys Corner".toTitleCase(),
-                  style: Theme.of(context).textTheme.displayMedium,
-                )),
-                const SizedBox(width: 12),
-                IconButton(
-                  onPressed: () => context.push('/profile/notifications'),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Theme.of(context).dividerColor,
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onSurfaceVariant,
-                    minimumSize: const Size(44, 44),
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth > 500;
+      final maxWidth = isWide ? 500.0 : double.infinity;
+
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1),
+              border: Border(
+                top: BorderSide(color: Colors.grey.shade300),
+                left: BorderSide(color: Colors.grey.shade300),
+                right: BorderSide(color: Colors.grey.shade300),
+                bottom: BorderSide.none, // removes bottom border
+              ),
+            ),
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: Column(
+                children: [
+                  // ── Header ──────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: Text(
+                          businessName ?? "Foxys Corner".toTitleCase(),
+                          style: Theme.of(context).textTheme.displayMedium,
+                        )),
+                        const SizedBox(width: 12),
+                        IconButton(
+                          onPressed: () =>
+                              context.push('/profile/notifications'),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Theme.of(context).dividerColor,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            minimumSize: const Size(44, 44),
+                          ),
+                          icon: const Icon(Icons.notifications_outlined,
+                              size: 22),
+                        ),
+                      ],
+                    ),
                   ),
-                  icon: const Icon(Icons.notifications_outlined, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
-          // ── Search ───────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: _SearchBar(
-              controller: _searchCtrl,
-              onChanged: (v) => setState(() => _searchQuery = v),
-              onClear: () {
-                _searchCtrl.clear();
-                setState(() => _searchQuery = '');
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Category Pills ───────────────────────────────────────────────
-          SizedBox(
-            height: 60,
-            child: Consumer<CategoryProvider>(
-              builder: (context, categoryProvider, _) {
-                if (categoryProvider.isLoading) {
-                  return const Center(
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  );
-                }
-
-                if (categoryProvider.error != null) {
-                  return Center(
-                    child: Text(
-                      'Failed to load categories',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  );
-                }
-
-                return ListView(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  padding: const EdgeInsets.symmetric(horizontal: 22),
-                  children: [
-                    CategoryPill(
-                      label: 'All',
-                      icon: '✦',
-                      active: _selectedCategory == 'all',
-                      onTap: () {
-                        setState(() => _selectedCategory = 'all');
-                        _scrollToTop();
-                        context.read<NavProvider>().triggerCategoryChange();
+                  // ── Search ───────────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: _SearchBar(
+                      controller: _searchCtrl,
+                      onChanged: (v) => setState(() => _searchQuery = v),
+                      onClear: () {
+                        _searchCtrl.clear();
+                        setState(() => _searchQuery = '');
                       },
                     ),
-                    const SizedBox(width: 10),
-                    ...categoryProvider.categories.map((c) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: CategoryPill(
-                          label: c.name,
-                          icon: '',
-                          active: _selectedCategory == c.id,
-                          onTap: () {
-                            setState(() => _selectedCategory = c.id);
-                            _scrollToTop();
-                            context.read<NavProvider>().triggerCategoryChange();
-                          },
-                        ),
-                      );
-                    }),
-                  ],
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 8),
 
-          // ── Scrollable content ───────────────────────────────────
-          Expanded(
-            child: ListView(
-              controller: _scrollController,
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
-              children: [
-                Consumer<ProductProvider>(
-                  builder: (context, provider, _) {
-                    if (provider.isLoading) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 48),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    if (provider.error != null) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 48),
-                        child: Center(
-                          child: Text('Error: ${provider.error}',
-                              style: Theme.of(context).textTheme.bodySmall),
-                        ),
-                      );
-                    }
-
-                    final items = provider.filteredProducts(
-                      category: _selectedCategory,
-                      searchQuery: _searchQuery,
-                      sortBy: _sortBy,
-                    );
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (showRecent) ...[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Recent Orders',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall),
-                              GestureDetector(
-                                onTap: () =>
-                                    context.push('/home/recent_orders'),
-                                child: Text('View all →',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .tertiary,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13)),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          if (recentOrders.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Text(
-                                'No orders yet',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            )
-                          else
-                            SizedBox(
-                              height: 140,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: recentOrders.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(width: 12),
-                                itemBuilder: (_, i) => GestureDetector(
-                                  onTap: () =>
-                                      context.push('/home/recent_orders'),
-                                  child: SizedBox(
-                                    width: 200,
-                                    child: OrderCard(
-                                      order: recentOrders[i],
-                                      featured: i == 0,
-                                      onReorder: () {
-                                        debugPrint(
-                                            'Reorder Clicked: ${recentOrders[i].id}');
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
+                  // ── Category Pills ───────────────────────────────────────────────
+                  SizedBox(
+                    height: 60,
+                    child: Consumer<CategoryProvider>(
+                      builder: (context, categoryProvider, _) {
+                        if (categoryProvider.isLoading) {
+                          return const Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                          const SizedBox(height: 24),
-                        ],
-                        if (_searchQuery.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
+                          );
+                        }
+
+                        if (categoryProvider.error != null) {
+                          return Center(
                             child: Text(
-                              '${items.length} result${items.length != 1 ? 's' : ''}',
+                              'Failed to load categories',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
-                          ),
-                        SectionHeader(
-                          title: 'Fresh Today',
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _SortButton(
-                                sortBy: _sortBy,
-                                onChanged: (v) => setState(() => _sortBy = v),
-                              ),
-                              const SizedBox(width: 8),
-                              _ViewToggle(
-                                isGrid: viewMode.isGrid,
-                                onToggle: (v) =>
-                                    context.read<ViewModeProvider>().setGrid(v),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        if (items.isEmpty)
-                          _EmptyState(
-                            onClear: () => setState(() {
-                              _searchQuery = '';
-                              _searchCtrl.clear();
-                              _sortBy = 'default';
-                              _selectedCategory = 'all';
-                            }),
-                          )
-                        else if (viewMode.isGrid)
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.8,
+                          );
+                        }
+
+                        return ListView(
+                          scrollDirection: Axis.horizontal,
+                          clipBehavior: Clip.hardEdge,
+                          padding: const EdgeInsets.symmetric(horizontal: 22),
+                          children: [
+                            CategoryPill(
+                              label: 'All',
+                              icon: '✦',
+                              active: _selectedCategory == 'all',
+                              onTap: () {
+                                setState(() => _selectedCategory = 'all');
+                                _scrollToTop();
+                                context
+                                    .read<NavProvider>()
+                                    .triggerCategoryChange();
+                              },
                             ),
-                            itemCount: items.length,
-                            itemBuilder: (_, i) {
-                              final p = items[i];
-                              return GridProductCard(
-                                product: p,
-                                onTap: () =>
-                                    context.push('/home/product', extra: p),
-                                onQuickAdd: () => _quickAdd(p),
-                                isFavourite: favProv.isFavourite(p.id),
-                                onToggleFavourite: () => favProv.toggle(p.id),
+                            const SizedBox(width: 10),
+                            ...categoryProvider.categories.map((c) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: CategoryPill(
+                                  label: c.name,
+                                  icon: '',
+                                  active: _selectedCategory == c.id,
+                                  onTap: () {
+                                    setState(() => _selectedCategory = c.id);
+                                    _scrollToTop();
+                                    context
+                                        .read<NavProvider>()
+                                        .triggerCategoryChange();
+                                  },
+                                ),
                               );
-                            },
-                          )
-                        else
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: items.length,
-                            separatorBuilder: (_, __) =>
+                            }),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ── Scrollable content ───────────────────────────────────
+                  Expanded(
+                    child: ListView(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
+                      children: [
+                        Consumer<ProductProvider>(
+                          builder: (context, provider, _) {
+                            if (provider.isLoading) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 48),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              );
+                            }
+
+                            if (provider.error != null) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 48),
+                                child: Center(
+                                  child: Text('Error: ${provider.error}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall),
+                                ),
+                              );
+                            }
+
+                            final items = provider.filteredProducts(
+                              category: _selectedCategory,
+                              searchQuery: _searchQuery,
+                              sortBy: _sortBy,
+                            );
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (showRecent) ...[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Recent Orders',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall),
+                                      GestureDetector(
+                                        onTap: () =>
+                                            context.push('/home/recent_orders'),
+                                        child: Text('View all →',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .tertiary,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 13)),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  if (recentOrders.isEmpty)
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 16),
+                                      child: Text(
+                                        'No orders yet',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                    )
+                                  else
+                                    SizedBox(
+                                      height: 140,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        itemCount: recentOrders.length,
+                                        separatorBuilder: (_, __) =>
+                                            const SizedBox(width: 12),
+                                        itemBuilder: (_, i) => GestureDetector(
+                                          onTap: () => context
+                                              .push('/home/recent_orders'),
+                                          child: SizedBox(
+                                            width: 200,
+                                            child: OrderCard(
+                                              order: recentOrders[i],
+                                              featured: i == 0,
+                                              onReorder: () {
+                                                debugPrint(
+                                                    'Reorder Clicked: ${recentOrders[i].id}');
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  const SizedBox(height: 24),
+                                ],
+                                if (_searchQuery.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: Text(
+                                      '${items.length} result${items.length != 1 ? 's' : ''}',
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ),
+                                SectionHeader(
+                                  title: 'Fresh Today',
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _SortButton(
+                                        sortBy: _sortBy,
+                                        onChanged: (v) =>
+                                            setState(() => _sortBy = v),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _ViewToggle(
+                                        isGrid: viewMode.isGrid,
+                                        onToggle: (v) => context
+                                            .read<ViewModeProvider>()
+                                            .setGrid(v),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 const SizedBox(height: 14),
-                            itemBuilder: (_, i) {
-                              final p = items[i];
-                              return ProductCard(
-                                product: p,
-                                onTap: () =>
-                                    context.push('/home/product', extra: p),
-                                onQuickAdd: () => _quickAdd(p),
-                                isFavourite: favProv.isFavourite(p.id),
-                                onToggleFavourite: () => favProv.toggle(p.id),
-                              );
-                            },
-                          ),
+                                if (items.isEmpty)
+                                  _EmptyState(
+                                    onClear: () => setState(() {
+                                      _searchQuery = '';
+                                      _searchCtrl.clear();
+                                      _sortBy = 'default';
+                                      _selectedCategory = 'all';
+                                    }),
+                                  )
+                                else if (viewMode.isGrid)
+                                  GridView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 12,
+                                      childAspectRatio: 0.8,
+                                    ),
+                                    itemCount: items.length,
+                                    itemBuilder: (_, i) {
+                                      final p = items[i];
+                                      return GridProductCard(
+                                        product: p,
+                                        onTap: () => context
+                                            .push('/home/product', extra: p),
+                                        onQuickAdd: () => _quickAdd(p),
+                                        isFavourite: favProv.isFavourite(p.id),
+                                        onToggleFavourite: () =>
+                                            favProv.toggle(p.id),
+                                      );
+                                    },
+                                  )
+                                else
+                                  ListView.separated(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: items.length,
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(height: 14),
+                                    itemBuilder: (_, i) {
+                                      final p = items[i];
+                                      return ProductCard(
+                                        product: p,
+                                        onTap: () => context
+                                            .push('/home/product', extra: p),
+                                        onQuickAdd: () => _quickAdd(p),
+                                        isFavourite: favProv.isFavourite(p.id),
+                                        onToggleFavourite: () =>
+                                            favProv.toggle(p.id),
+                                      );
+                                    },
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
-                    );
-                  },
-                ),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
   }
 }
 

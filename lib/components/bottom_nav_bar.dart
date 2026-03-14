@@ -2,11 +2,9 @@ import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
-import '../theme/app_decorations.dart';
 import '../theme/app_text_styles.dart';
 import '../providers/cart_provider.dart';
 
-/// App-level bottom navigation bar with 4 tabs.
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -23,13 +21,17 @@ class AppBottomNavBar extends StatelessWidget {
     final isBusinessSession =
         LocalStorageService.instance.getIsBusinessSession();
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.warmWhite,
-        boxShadow: AppDecorations.sheetShadow,
-      ),
-      child: SafeArea(
-        top: false,
+    return SafeArea(
+      top: false,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border(
+            left: BorderSide(color: Colors.grey.shade300),
+            right: BorderSide(color: Colors.grey.shade300),
+            bottom: BorderSide(color: Colors.grey.shade300),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(

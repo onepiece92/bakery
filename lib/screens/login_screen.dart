@@ -46,125 +46,147 @@ Future<void> _onLogin() async {
     final isLoading    = provider.isLoading;
     final errorMessage = provider.errorMessage;
 
-    return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: true),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 56),
-              Image.asset('assets/images/lemon_drizzle_cake.png', height: 150),
-              const SizedBox(height: 16),
-              Text("Login to your account", style: textTheme.headlineLarge),
-              const SizedBox(height: 6),
-              Text("Welcome back!", style: textTheme.bodyMedium),
-              const SizedBox(height: 40),
-
-              // ── Error Banner ───────────────────────────────────────────────
-              if (errorMessage != null) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red.withOpacity(0.4)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          errorMessage,
-                          style: textTheme.bodySmall?.copyWith(color: Colors.redAccent),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-
-              // ── Form ───────────────────────────────────────────────────────
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(hintText: "Enter your email"),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your email';
-                        if (!value.contains('@')) return 'Please enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(hintText: "Password"),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Please enter your password';
-                        if (value.length < 6) return 'Password must be at least 6 characters';
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 500;
+        final maxWidth = isWide ? 500.0 : double.infinity;
+        return  Center(
+          child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                     border: Border(
+                top: BorderSide(color: Colors.grey.shade300),
+                left: BorderSide(color: Colors.grey.shade300),
+                right: BorderSide(color: Colors.grey.shade300),
+                bottom: BorderSide.none, // removes bottom border
               ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  "Forgot Your Password?",
-                  style: textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // ── Login Button ───────────────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : _onLogin,
-                  child: isLoading
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colorScheme.surface,
+                    ),
+              child: Scaffold(
+                appBar: AppBar(automaticallyImplyLeading: true),
+                body: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 56),
+                        Image.asset('assets/images/lemon_drizzle_cake.png', height: 150),
+                        const SizedBox(height: 16),
+                        Text("Login to your account", style: textTheme.headlineLarge),
+                        const SizedBox(height: 6),
+                        Text("Welcome back!", style: textTheme.bodyMedium),
+                        const SizedBox(height: 40),
+              
+                        // ── Error Banner ───────────────────────────────────────────────
+                        if (errorMessage != null) ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.red.withOpacity(0.4)),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    errorMessage,
+                                    style: textTheme.bodySmall?.copyWith(color: Colors.redAccent),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        )
-                      : Text(
-                          "Login",
-                          style: textTheme.labelLarge!.copyWith(color: colorScheme.surface),
+                          const SizedBox(height: 20),
+                        ],
+              
+                        // ── Form ───────────────────────────────────────────────────────
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: const InputDecoration(hintText: "Enter your email"),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) return 'Please enter your email';
+                                  if (!value.contains('@')) return 'Please enter a valid email';
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(hintText: "Password"),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) return 'Please enter your password';
+                                  if (value.length < 6) return 'Password must be at least 6 characters';
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            "Forgot Your Password?",
+                            style: textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+              
+                        // ── Login Button ───────────────────────────────────────────────
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : _onLogin,
+                            child: isLoading
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: colorScheme.surface,
+                                    ),
+                                  )
+                                : Text(
+                                    "Login",
+                                    style: textTheme.labelLarge!.copyWith(color: colorScheme.surface),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+              
+                        // ── Create Account ─────────────────────────────────────────────
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: isLoading ? null : () => context.push('/signup'),
+                            child: Text("Create New Account", style: textTheme.labelLarge),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // ── Create Account ─────────────────────────────────────────────
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: isLoading ? null : () => context.push('/signup'),
-                  child: Text("Create New Account", style: textTheme.labelLarge),
-                ),
-              ),
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 }

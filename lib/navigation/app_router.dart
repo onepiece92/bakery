@@ -39,38 +39,56 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
         if (sessionType == 'qr') return null;
         return null;
       },
-      errorBuilder: (context, state) => Scaffold(
-        appBar: AppBar(title: const Text('Page Not Found')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Lottie.asset(
-                  'assets/animations/error_404.json',
-                  width: 250,
-                  fit: BoxFit.contain,
+      errorBuilder: (context, state) => LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 500;
+        final maxWidth = isWide ? 500.0 : double.infinity;
+          return Center(
+            child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+              child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                child: Scaffold(
+                  appBar: AppBar(title: const Text('Page Not Found')),
+                  body:  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Lottie.asset(
+                            'assets/animations/error_404.json',
+                            width: 250,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Something went wrong',
+                            style: Theme.of(context).textTheme.headlineMedium),
+                        const SizedBox(height: 8),
+                        Text("We couldn't find the page you're looking for.",
+                            style: Theme.of(context).textTheme.bodyMedium),
+                        const SizedBox(height: 24),
+                        OutlinedButton(
+                          onPressed: () {
+                            while (context.canPop()) {
+                              context.pop();
+                            }
+                            context.go('/home');
+                          },
+                          child: const Text('Return to Home'),
+                        ),
+                      ],
+                    ),
+                  )
+                   
                 ),
               ),
-              const SizedBox(height: 16),
-              Text('Something went wrong',
-                  style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 8),
-              Text("We couldn't find the page you're looking for.",
-                  style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 24),
-              OutlinedButton(
-                onPressed: () {
-                  while (context.canPop()) {
-                    context.pop();
-                  }
-                  context.go('/home');
-                },
-                child: const Text('Return to Home'),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
       routes: [
         GoRoute(

@@ -17,26 +17,37 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     void onNavTap(int index) {
       HapticFeedback.selectionClick();
       if (index == 0 && index == navigationShell.currentIndex) {
         context.read<NavProvider>().triggerHomeTap();
       }
-    navigationShell.goBranch(
+      navigationShell.goBranch(
         index,
         initialLocation: index == navigationShell.currentIndex,
       );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.warmWhite,
+      
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,
-        child: navigationShell,
-      ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: navigationShell.currentIndex,
-        onTap: onNavTap,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Column(
+              children: [
+                Expanded(child: navigationShell),
+                AppBottomNavBar(
+                  currentIndex: navigationShell.currentIndex,
+                  onTap: onNavTap,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

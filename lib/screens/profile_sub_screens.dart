@@ -20,151 +20,171 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: Row(
-                children: [
-                  const BakeryBackButton(),
-                  const SizedBox(width: 12),
-                  Text('Edit Profile',
-                      style: Theme.of(context).textTheme.headlineLarge),
-                ],
-              ),
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth > 500;
+      final maxWidth = isWide ? 500.0 : double.infinity;
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              border: Border.all(color: Colors.grey.shade300),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+            child: Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              body: SafeArea(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Avatar
-                    Center(
-                      child: Column(
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                      child: Row(
                         children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [
-                                Theme.of(context).colorScheme.secondary,
-                                Theme.of(context).colorScheme.tertiary
-                              ]),
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text('S',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displayLarge
-                                    ?.copyWith(
-                                        color: Colors.white, fontSize: 32)),
-                          ),
-                          const SizedBox(height: 8),
-                          Text('Change photo',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      fontWeight: FontWeight.w500)),
+                          const BakeryBackButton(),
+                          const SizedBox(width: 12),
+                          Text('Edit Profile',
+                              style: Theme.of(context).textTheme.headlineLarge),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    _FieldLabel('FULL NAME'),
-                    _FieldInput(hint: 'Sophie Martin'),
-                    const SizedBox(height: 14),
-                    _FieldLabel('EMAIL'),
-                    _FieldInput(hint: 'sophie.martin@email.com'),
-                    const SizedBox(height: 14),
-                    _FieldLabel('PHONE'),
-                    _FieldInput(hint: '+44 7700 900 123'),
-                    const SizedBox(height: 14),
-                    _FieldLabel('BIRTHDAY'),
-                    _FieldInput(
-                        hint: 'March 14, 1990',
-                        suffixIcon: Icons.calendar_today_outlined),
-                    const SizedBox(height: 14),
-                    _FieldLabel('BIO'),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: Theme.of(context).dividerColor, width: 1.5),
-                      ),
-                      child: TextField(
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Pastry enthusiast and weekend baker...',
-                          hintStyle: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                  color: Theme.of(context).colorScheme.outline),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.zero,
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Avatar
+                            Center(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(colors: [
+                                        Theme.of(context).colorScheme.secondary,
+                                        Theme.of(context).colorScheme.tertiary
+                                      ]),
+                                      borderRadius: BorderRadius.circular(28),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text('S',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .displayLarge
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 32)),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text('Change photo',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
+                                              fontWeight: FontWeight.w500)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _FieldLabel('FULL NAME'),
+                            _FieldInput(hint: 'Sophie Martin'),
+                            const SizedBox(height: 14),
+                            _FieldLabel('EMAIL'),
+                            _FieldInput(hint: 'sophie.martin@email.com'),
+                            const SizedBox(height: 14),
+                            _FieldLabel('PHONE'),
+                            _FieldInput(hint: '+44 7700 900 123'),
+                            const SizedBox(height: 14),
+                            _FieldLabel('BIRTHDAY'),
+                            _FieldInput(
+                                hint: 'March 14, 1990',
+                                suffixIcon: Icons.calendar_today_outlined),
+                            const SizedBox(height: 14),
+                            _FieldLabel('BIO'),
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                    color: Theme.of(context).dividerColor,
+                                    width: 1.5),
+                              ),
+                              child: TextField(
+                                maxLines: 3,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      'Pastry enthusiast and weekend baker...',
+                                  hintStyle: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .outline),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            _FieldLabel('DIETARY PREFERENCE'),
+                            const SizedBox(height: 8),
+                            // Wrap(
+                            //   spacing: 8,
+                            //   runSpacing: 8,
+                            //   children: BakeryData.dietaryPreferenceOptions.map((d) {
+                            //     final active = d == _selectedDiet;
+                            //     return ChoiceChip(
+                            //       label: Text(d),
+                            //       selected: active,
+                            //       onSelected: (selected) {
+                            //         if (selected) setState(() => _selectedDiet = d);
+                            //       },
+                            //       backgroundColor: Theme.of(context).dividerColor,
+                            //       selectedColor:
+                            //           Theme.of(context).colorScheme.onSurface,
+                            //       showCheckmark: false,
+                            //       side: BorderSide.none,
+                            //       shape: RoundedRectangleBorder(
+                            //         borderRadius: BorderRadius.circular(10),
+                            //       ),
+                            //       labelStyle: Theme.of(context)
+                            //           .textTheme
+                            //           .labelMedium
+                            //           ?.copyWith(
+                            //             color: active
+                            //                 ? Theme.of(context).colorScheme.onTertiary
+                            //                 : Theme.of(context)
+                            //                     .colorScheme
+                            //                     .onSurfaceVariant,
+                            //             fontSize: 13,
+                            //           ),
+                            //     );
+                            //   }).toList(),
+                            // ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    _FieldLabel('DIETARY PREFERENCE'),
-                    const SizedBox(height: 8),
-                    // Wrap(
-                    //   spacing: 8,
-                    //   runSpacing: 8,
-                    //   children: BakeryData.dietaryPreferenceOptions.map((d) {
-                    //     final active = d == _selectedDiet;
-                    //     return ChoiceChip(
-                    //       label: Text(d),
-                    //       selected: active,
-                    //       onSelected: (selected) {
-                    //         if (selected) setState(() => _selectedDiet = d);
-                    //       },
-                    //       backgroundColor: Theme.of(context).dividerColor,
-                    //       selectedColor:
-                    //           Theme.of(context).colorScheme.onSurface,
-                    //       showCheckmark: false,
-                    //       side: BorderSide.none,
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(10),
-                    //       ),
-                    //       labelStyle: Theme.of(context)
-                    //           .textTheme
-                    //           .labelMedium
-                    //           ?.copyWith(
-                    //             color: active
-                    //                 ? Theme.of(context).colorScheme.onTertiary
-                    //                 : Theme.of(context)
-                    //                     .colorScheme
-                    //                     .onSurfaceVariant,
-                    //             fontSize: 13,
-                    //           ),
-                    //     );
-                    //   }).toList(),
-                    // ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      child: PrimaryButton(
+                          label: 'Save Changes', onTap: () => context.pop()),
+                    ),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: PrimaryButton(
-                  label: 'Save Changes', onTap: () => context.pop()),
-            ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -529,81 +549,97 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-              child: Row(
-                children: [
-                  const BakeryBackButton(),
-                  const SizedBox(width: 12),
-                  Text('Notifications',
-                      style: Theme.of(context).textTheme.headlineLarge),
-                ],
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth > 500;
+      final maxWidth = isWide ? 500.0 : double.infinity;
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+              child: Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                body: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                        child: Row(
+                          children: [
+                            const BakeryBackButton(),
+                            const SizedBox(width: 12),
+                            Text('Notifications',
+                                style: Theme.of(context).textTheme.headlineLarge),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          children: [
+                            _SectionLabel('TODAY'),
+                            const SizedBox(height: 8),
+                            _buildNotificationCard(
+                              context,
+                              icon: Icons.shopping_bag_rounded,
+                              iconColor: Theme.of(context).colorScheme.primary,
+                              title: 'Order Ready for Pickup',
+                              message:
+                                  'Your order #BAK-1942 is freshly baked and ready to be picked up at the store.',
+                              time: '10m ago',
+                              isUnread: true,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildNotificationCard(
+                              context,
+                              icon: Icons.cake_rounded,
+                              iconColor: Theme.of(context).colorScheme.tertiary,
+                              title: 'New Seasonal Item',
+                              message:
+                                  'Our signature Strawberry Shortcake is back for a limited time! 🍓',
+                              time: '2h ago',
+                              isUnread: true,
+                            ),
+                            const SizedBox(height: 24),
+                            _SectionLabel('THIS WEEK'),
+                            const SizedBox(height: 8),
+                            _buildNotificationCard(
+                              context,
+                              icon: Icons.stars_rounded,
+                              iconColor: Colors.amber.shade700,
+                              title: 'Points Earned!',
+                              message:
+                                  'You earned 50 loyalty points from your last order. You now have 320 points.',
+                              time: '1d ago',
+                              isUnread: false,
+                            ),
+                            const SizedBox(height: 12),
+                            _buildNotificationCard(
+                              context,
+                              icon: Icons.local_offer_rounded,
+                              iconColor: Theme.of(context).colorScheme.secondary,
+                              title: 'Weekend Promo',
+                              message:
+                                  'Get 20% off all whole cakes this weekend. Use code SWEET20 at checkout.',
+                              time: '3d ago',
+                              isUnread: false,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            Expanded(
-              child: ListView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                children: [
-                  _SectionLabel('TODAY'),
-                  const SizedBox(height: 8),
-                  _buildNotificationCard(
-                    context,
-                    icon: Icons.shopping_bag_rounded,
-                    iconColor: Theme.of(context).colorScheme.primary,
-                    title: 'Order Ready for Pickup',
-                    message:
-                        'Your order #BAK-1942 is freshly baked and ready to be picked up at the store.',
-                    time: '10m ago',
-                    isUnread: true,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildNotificationCard(
-                    context,
-                    icon: Icons.cake_rounded,
-                    iconColor: Theme.of(context).colorScheme.tertiary,
-                    title: 'New Seasonal Item',
-                    message:
-                        'Our signature Strawberry Shortcake is back for a limited time! 🍓',
-                    time: '2h ago',
-                    isUnread: true,
-                  ),
-                  const SizedBox(height: 24),
-                  _SectionLabel('THIS WEEK'),
-                  const SizedBox(height: 8),
-                  _buildNotificationCard(
-                    context,
-                    icon: Icons.stars_rounded,
-                    iconColor: Colors.amber.shade700,
-                    title: 'Points Earned!',
-                    message:
-                        'You earned 50 loyalty points from your last order. You now have 320 points.',
-                    time: '1d ago',
-                    isUnread: false,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildNotificationCard(
-                    context,
-                    icon: Icons.local_offer_rounded,
-                    iconColor: Theme.of(context).colorScheme.secondary,
-                    title: 'Weekend Promo',
-                    message:
-                        'Get 20% off all whole cakes this weekend. Use code SWEET20 at checkout.',
-                    time: '3d ago',
-                    isUnread: false,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 

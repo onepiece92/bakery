@@ -25,61 +25,83 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
     final products = context.watch<ProductProvider>().products;
     final favs = products.where((p) => favProv.isFavourite(p.id)).toList();
 
-    return Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        appBar: AppBar(
-          leading: const Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: BakeryBackButton(),
-          ),
-        ),
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('My Favourites',
-                        style: Theme.of(context).textTheme.displayMedium),
-                    const SizedBox(height: 4),
-                    Text(
-                        '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
-                        style: Theme.of(context).textTheme.bodySmall),
-                  ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 500;
+        final maxWidth = isWide ? 500.0 : double.infinity;
+        return Center(
+          child: ConstrainedBox(
+             constraints: BoxConstraints(maxWidth: maxWidth),
+            child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                border: Border(
+                top: BorderSide(color: Colors.grey.shade300),
+                left: BorderSide(color: Colors.grey.shade300),
+                right: BorderSide(color: Colors.grey.shade300),
+                bottom: BorderSide.none, // removes bottom border
+              ),
                 ),
-              ),
-              Expanded(
-                child: favs.isEmpty
-                    ? _EmptyFavourites()
-                    : GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 80),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.8,
+              child: Scaffold(
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  appBar: AppBar(
+                    leading: const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: BakeryBackButton(),
+                    ),
+                  ),
+                  body: SafeArea(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('My Favourites',
+                                  style: Theme.of(context).textTheme.displayMedium),
+                              const SizedBox(height: 4),
+                              Text(
+                                  '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
+                                  style: Theme.of(context).textTheme.bodySmall),
+                            ],
+                          ),
                         ),
-                        itemCount: favs.length,
-                        itemBuilder: (_, i) {
-                          final p = favs[i];
-                          return GridProductCard(
-                            product: p,
-                            onTap: () =>
-                                context.push('/favourites/product', extra: p),
-                            onQuickAdd: () => cart.addProduct(p),
-                            isFavourite: favProv.isFavourite(p.id),
-                            onToggleFavourite: () => favProv.toggle(p.id),
-                          );
-                        },
-                      ),
-              ),
-            ],
+                        Expanded(
+                          child: favs.isEmpty
+                              ? _EmptyFavourites()
+                              : GridView.builder(
+                                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 80),
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: 0.8,
+                                  ),
+                                  itemCount: favs.length,
+                                  itemBuilder: (_, i) {
+                                    final p = favs[i];
+                                    return GridProductCard(
+                                      product: p,
+                                      onTap: () =>
+                                          context.push('/favourites/product', extra: p),
+                                      onQuickAdd: () => cart.addProduct(p),
+                                      isFavourite: favProv.isFavourite(p.id),
+                                      onToggleFavourite: () => favProv.toggle(p.id),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ),
           ),
-        ));
+        );
+      }
+    );
   }
 }
 
