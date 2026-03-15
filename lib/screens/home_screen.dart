@@ -10,11 +10,12 @@ import 'package:bakery_flutter/providers/product_provider.dart';
 import 'package:bakery_flutter/providers/category_provider.dart';
 import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/providers/view_provider.dart';
+import 'package:bakery_flutter/screens/shimmer/homepage_shimmer.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
+import 'package:bakery_flutter/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
-
 import '../../providers/cart_provider.dart';
 import '../../providers/favourites_provider.dart';
 import '../../components/category_pill.dart';
@@ -44,14 +45,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.wait([
-        Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
-        Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
-      ]);
-      Provider.of<FavouritesProvider>(context, listen: false).loadFavourites();
-      Provider.of<OrderProvider>(context, listen: false).loadOrders();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
@@ -60,6 +54,18 @@ class _HomeScreenState extends State<HomeScreen>
         _animCtrl.forward();
       }
     });
+  }
+
+  Future<void> _refresh() async {
+    await Future.wait([
+      Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
+      Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
+    ]);
+    if (!mounted) return;
+    await Provider.of<FavouritesProvider>(context, listen: false)
+        .loadFavourites();
+    if (!mounted) return;
+    Provider.of<OrderProvider>(context, listen: false).loadOrders();
   }
 
   @override
@@ -91,6 +97,10 @@ class _HomeScreenState extends State<HomeScreen>
     final businessName = LocalStorageService.instance.getBusinessName();
     final bool showRecent = _searchQuery.isEmpty && _selectedCategory == 'all';
     final recentOrders = context.watch<OrderProvider>().recentOrders;
+    final productProvider = context.watch<ProductProvider>();
+    final categoryProvider = context.watch<CategoryProvider>();
+    final isInitialLoad =
+        productProvider.isLoading || categoryProvider.isLoading;
 
     return LayoutBuilder(builder: (context, constraints) {
       final isWide = constraints.maxWidth > 500;
@@ -115,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen>
                 scrolledUnderElevation: 0,
                 title: Text(
                   businessName ?? "Foxys Corner".toTitleCase(),
-                  style: context.text.displayMedium,
+                  style:AppTextStyles.disPlayMediumWhite,
                 ),
                 actions: [
                   IconButton(
@@ -146,371 +156,351 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(width: 8),
                 ],
               ),
-              body: FadeTransition(
-                opacity: _fadeAnim,
-                child: Column(
-                  children: [
-                    // Padding(
-                    //   padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                    //   child: Row(
-                    //     children: [
-                    //       Expanded(
-                    //         child: Text(
-                    //           businessName ?? "Foxys Corner".toTitleCase(),
-                    //           style: context.text.displayMedium,
-                    //         ),
-                    //       ),
-                    //       const SizedBox(width: 12),
-                    //       IconButton(
-                    //         onPressed: () =>
-                    //             context.push('/profile/notifications'),
-                    //         style: IconButton.styleFrom(
-                    //           backgroundColor: context.theme.dividerColor,
-                    //           foregroundColor: context.colors.onSurfaceVariant,
-                    //           minimumSize: const Size(44, 44),
-                    //         ),
-                    //         icon: const Icon(Icons.notifications_outlined,
-                    //             size: 22),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 14),
-
-                    // ── Search ───────────────────────────────────────────────
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: _SearchBar(
-                        controller: _searchCtrl,
-                        onChanged: (v) => setState(() => _searchQuery = v),
-                        onClear: () {
-                          _searchCtrl.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // ── Category Pills ───────────────────────────────────────────────
-                    SizedBox(
-                      height: 60,
-                      child: Consumer<CategoryProvider>(
-                        builder: (context, categoryProvider, _) {
-                          if (categoryProvider.isLoading) {
-                            return const Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
-                              ),
-                            );
-                          }
-
-                          if (categoryProvider.error != null) {
-                            return Center(
-                              child: Text(
-                                'Failed to load categories',
-                                style: context.text.bodySmall,
-                              ),
-                            );
-                          }
-
-                          return ListView(
-                            scrollDirection: Axis.horizontal,
-                            clipBehavior: Clip.hardEdge,
-                            padding: const EdgeInsets.symmetric(horizontal: 22),
-                            children: [
-                              CategoryPill(
-                                label: 'All',
-                                icon: '✦',
-                                active: _selectedCategory == 'all',
-                                onTap: () {
-                                  setState(() => _selectedCategory = 'all');
-                                  _scrollToTop();
-                                  context
-                                      .read<NavProvider>()
-                                      .triggerCategoryChange();
+              resizeToAvoidBottomInset: false,
+              body: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                behavior: HitTestBehavior.translucent,
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: isInitialLoad
+                      ? Padding(
+                        padding: const EdgeInsets.only(top:8.0),
+                        child: HomeScreenShimmer(isGrid: viewMode.isGrid),
+                      )
+                      : Column(
+                          children: [
+                            SizedBox(height: 15,),
+                            // ── Search ───────────────────────────────────────
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24),
+                              child: _SearchBar(
+                                controller: _searchCtrl,
+                                onChanged: (v) =>
+                                    setState(() => _searchQuery = v),
+                                onClear: () {
+                                  _searchCtrl.clear();
+                                  setState(() => _searchQuery = '');
                                 },
                               ),
-                              const SizedBox(width: 10),
-                              ...categoryProvider.categories.map((c) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: CategoryPill(
-                                    label: c.name,
-                                    icon: '',
-                                    active: _selectedCategory == c.id,
-                                    onTap: () {
-                                      setState(() => _selectedCategory = c.id);
-                                      _scrollToTop();
-                                      context
-                                          .read<NavProvider>()
-                                          .triggerCategoryChange();
-                                    },
-                                  ),
-                                );
-                              }),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    // const SizedBox(height: 16),
+                            ),
+                            const SizedBox(height: 8),
 
-                    Expanded(
-                      child: ListView(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-                        children: [
-                          Consumer<ProductProvider>(
-                            builder: (context, provider, _) {
-                              if (provider.isLoading) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 48),
-                                  child: Center(
-                                      child: CircularProgressIndicator()),
-                                );
-                              }
-
-                              if (provider.error != null) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 48),
-                                  child: Center(
-                                    child: Text(
-                                      'Error: ${provider.error}',
-                                      style: context.text.bodySmall,
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              final items = provider.filteredProducts(
-                                category: _selectedCategory,
-                                searchQuery: _searchQuery,
-                                sortBy: _sortBy,
-                              );
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (showRecent && !recentOrders.isEmpty) ...[
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                            // ── Category Pills ────────────────────────────────
+                            SizedBox(
+                              height: 60,
+                              child: categoryProvider.error != null
+                                  ? Center(
+                                      child: Text(
+                                        'Failed to load categories',
+                                        style: context.text.bodySmall,
+                                      ),
+                                    )
+                                  : ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      clipBehavior: Clip.hardEdge,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 22),
                                       children: [
-                                        Text(
-                                          'Recent Orders',
-                                          style: context.text.headlineSmall,
+                                        CategoryPill(
+                                          label: 'All',
+                                          icon: '✦',
+                                          active: _selectedCategory == 'all',
+                                          onTap: () {
+                                            setState(() =>
+                                                _selectedCategory = 'all');
+                                            _scrollToTop();
+                                            context
+                                                .read<NavProvider>()
+                                                .triggerCategoryChange();
+                                          },
                                         ),
-                                        GestureDetector(
-                                          onTap: () => context
-                                              .push('/home/recent_orders'),
-                                          child: Text(
-                                            'View all →',
-                                            style: context.text.bodySmall
-                                                ?.copyWith(
-                                              color: context.colors.tertiary,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 13,
+                                        const SizedBox(width: 10),
+                                        ...categoryProvider.categories.map((c) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 10),
+                                            child: CategoryPill(
+                                              label: c.name,
+                                              icon: '',
+                                              active: _selectedCategory == c.id,
+                                              onTap: () {
+                                                setState(() =>
+                                                    _selectedCategory = c.id);
+                                                _scrollToTop();
+                                                context
+                                                    .read<NavProvider>()
+                                                    .triggerCategoryChange();
+                                              },
                                             ),
-                                          ),
-                                        ),
+                                          );
+                                        }),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
-                                    if (recentOrders.isEmpty)
+                            ),
+
+                            // ── RefreshIndicator wraps only the ListView ──────
+                            Expanded(
+                              child: RefreshIndicator(
+                                onRefresh: _refresh,
+                                child: ListView(
+                                  controller: _scrollController,
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                                  children: [
+                                    if (productProvider.error != null)
                                       Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: Text(
-                                          'No orders yet',
-                                          style: context.text.bodySmall,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 48),
+                                        child: Center(
+                                          child: Text(
+                                            'Error: ${productProvider.error}',
+                                            style: context.text.bodySmall,
+                                          ),
                                         ),
                                       )
                                     else
-                                      SizedBox(
-                                        height: 140,
-                                        child: ListView.separated(
-                                          scrollDirection: Axis.horizontal,
-                                          physics:
-                                              const BouncingScrollPhysics(),
-                                          itemCount: recentOrders.length,
-                                          separatorBuilder: (_, __) =>
-                                              const SizedBox(width: 12),
-                                          itemBuilder: (_, i) =>
-                                              GestureDetector(
-                                            onTap: () => context
-                                                .push('/home/recent_orders'),
-                                            child: SizedBox(
-                                              width: 200,
-                                              child: OrderCard(
-                                                order: recentOrders[i],
-                                                // featured: i == 0,
-                                                onReorder: () async {
-                                                  await ConfirmOrderDialog.show(
-                                                    context,
-                                                    order: recentOrders[i],
-                                                    onConfirm: () async {
-                                                      final provider = context.read<
-                                                          TableRequestProvider>();
-                                                      final businessId =
-                                                          LocalStorageService
-                                                              .instance
-                                                              .getBusinessId();
-                                                      final order =
-                                                          recentOrders[i];
+                                      Builder(builder: (context) {
+                                        final items =
+                                            productProvider.filteredProducts(
+                                          category: _selectedCategory,
+                                          searchQuery: _searchQuery,
+                                          sortBy: _sortBy,
+                                        );
 
-                                                      final foodItems = order
-                                                          .items
-                                                          .map((item) {
-                                                        return FoodItemRequest(
-                                                          product:
-                                                              item.productId,
-                                                          quantity: item.qty,
-                                                          variant:
-                                                              item.variant?.id,
-                                                          addons: item.addons
-                                                              .map((a) =>
-                                                                  FoodAddonRequest(
-                                                                      addonId:
-                                                                          a.id,
-                                                                      quantity:
-                                                                          1))
-                                                              .toList(),
-                                                        );
-                                                      }).toList();
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (showRecent &&
+                                                recentOrders.isNotEmpty) ...[
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Recent Orders',
+                                                    style: context
+                                                        .text.headlineSmall,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () => context.push(
+                                                        '/home/recent_orders'),
+                                                    child: Text(
+                                                      'View all →',
+                                                      style: context
+                                                          .text.bodySmall
+                                                          ?.copyWith(
+                                                        color: context
+                                                            .colors.tertiary,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: 13,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 12),
+                                              SizedBox(
+                                                height: 140,
+                                                child: ListView.separated(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  physics:
+                                                      const BouncingScrollPhysics(),
+                                                  itemCount:
+                                                      recentOrders.length,
+                                                  separatorBuilder: (_, __) =>
+                                                      const SizedBox(width: 12),
+                                                  itemBuilder: (_, i) =>
+                                                      GestureDetector(
+                                                    onTap: () => context.push(
+                                                        '/home/recent_orders'),
+                                                    child: SizedBox(
+                                                      width: 200,
+                                                      child: OrderCard(
+                                                        order: recentOrders[i],
+                                                        onReorder: () async {
+                                                          await ConfirmOrderDialog
+                                                              .show(
+                                                            context,
+                                                            order:
+                                                                recentOrders[i],
+                                                            onConfirm:
+                                                                () async {
+                                                              final provider =
+                                                                  context.read<
+                                                                      TableRequestProvider>();
+                                                              final businessId =
+                                                                  LocalStorageService
+                                                                      .instance
+                                                                      .getBusinessId();
+                                                              final order =
+                                                                  recentOrders[
+                                                                      i];
 
-                                                      await provider
-                                                          .requestFood(
-                                                        businessId:
-                                                            businessId ?? "",
-                                                        foodItems: foodItems,
-                                                      );
+                                                              final foodItems =
+                                                                  order.items.map(
+                                                                      (item) {
+                                                                return FoodItemRequest(
+                                                                  product: item
+                                                                      .productId,
+                                                                  quantity:
+                                                                      item.qty,
+                                                                  variant: item
+                                                                      .variant
+                                                                      ?.id,
+                                                                  addons: item
+                                                                      .addons
+                                                                      .map((a) =>
+                                                                          FoodAddonRequest(
+                                                                            addonId:
+                                                                                a.id,
+                                                                            quantity:
+                                                                                1,
+                                                                          ))
+                                                                      .toList(),
+                                                                );
+                                                              }).toList();
 
-                                                      if (context.mounted &&
-                                                          provider.message !=
-                                                              null) {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          SnackBar(
-                                                              content: Text(
-                                                                  provider
-                                                                      .message!)),
-                                                        );
-                                                        provider.clearMessage();
-                                                      }
-                                                    },
+                                                              await provider
+                                                                  .requestFood(
+                                                                businessId:
+                                                                    businessId ??
+                                                                        "",
+                                                                foodItems:
+                                                                    foodItems,
+                                                              );
+
+                                                              if (context
+                                                                      .mounted &&
+                                                                  provider.message !=
+                                                                      null) {
+                                                                ScaffoldMessenger.of(
+                                                                        context)
+                                                                    .showSnackBar(
+                                                                  SnackBar(
+                                                                      content: Text(
+                                                                          provider
+                                                                              .message!)),
+                                                                );
+                                                                provider
+                                                                    .clearMessage();
+                                                              }
+                                                            },
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 24),
+                                            ],
+                                            if (_searchQuery.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 12),
+                                                child: Text(
+                                                  '${items.length} result${items.length != 1 ? 's' : ''}',
+                                                  style: context.text.bodySmall,
+                                                ),
+                                              ),
+                                            SectionHeader(
+                                              title: 'Featured Products',
+                                              trailing: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const SizedBox(width: 8),
+                                                  SizedBox(
+                                                    width: 120,
+                                                    child: _ViewToggle(
+                                                      isGrid: viewMode.isGrid,
+                                                      onToggle: (v) => context
+                                                          .read<
+                                                              ViewModeProvider>()
+                                                          .setGrid(v),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 14),
+                                            if (items.isEmpty)
+                                              _EmptyState(
+                                                onClear: () => setState(() {
+                                                  _searchQuery = '';
+                                                  _searchCtrl.clear();
+                                                  _sortBy = 'default';
+                                                  _selectedCategory = 'all';
+                                                }),
+                                              )
+                                            else if (viewMode.isGrid)
+                                              GridView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 2,
+                                                  crossAxisSpacing: 12,
+                                                  mainAxisSpacing: 12,
+                                                  childAspectRatio: 0.8,
+                                                ),
+                                                itemCount: items.length,
+                                                itemBuilder: (_, i) {
+                                                  final p = items[i];
+                                                  return GridProductCard(
+                                                    product: p,
+                                                    onTap: () => context.push(
+                                                        '/home/product',
+                                                        extra: p),
+                                                    onQuickAdd: () =>
+                                                        _quickAdd(p),
+                                                    isFavourite: favProv
+                                                        .isFavourite(p.id),
+                                                    onToggleFavourite: () =>
+                                                        favProv.toggle(p.id),
+                                                  );
+                                                },
+                                              )
+                                            else
+                                              ListView.separated(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                itemCount: items.length,
+                                                separatorBuilder: (_, __) =>
+                                                    const SizedBox(height: 14),
+                                                itemBuilder: (_, i) {
+                                                  final p = items[i];
+                                                  return ProductCard(
+                                                    product: p,
+                                                    onTap: () => context.push(
+                                                        '/home/product',
+                                                        extra: p),
+                                                    onQuickAdd: () =>
+                                                        _quickAdd(p),
+                                                    isFavourite: favProv
+                                                        .isFavourite(p.id),
+                                                    onToggleFavourite: () =>
+                                                        favProv.toggle(p.id),
                                                   );
                                                 },
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    const SizedBox(height: 24),
-                                  ],
-                                  if (_searchQuery.isNotEmpty)
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 12),
-                                      child: Text(
-                                        '${items.length} result${items.length != 1 ? 's' : ''}',
-                                        style: context.text.bodySmall,
-                                      ),
-                                    ),
-                                  SectionHeader(
-                                    title: 'Featured Products',
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // _SortButton(
-                                        //   sortBy: _sortBy,
-                                        //   onChanged: (v) =>
-                                        //       setState(() => _sortBy = v),
-                                        // ),
-                                        const SizedBox(width: 8),
-                                        SizedBox(
-                                          width: 120,
-                                          child: _ViewToggle(
-                                            isGrid: viewMode.isGrid,
-                                            onToggle: (v) => context
-                                                .read<ViewModeProvider>()
-                                                .setGrid(v),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  if (items.isEmpty)
-                                    _EmptyState(
-                                      onClear: () => setState(() {
-                                        _searchQuery = '';
-                                        _searchCtrl.clear();
-                                        _sortBy = 'default';
-                                        _selectedCategory = 'all';
+                                          ],
+                                        );
                                       }),
-                                    )
-                                  else if (viewMode.isGrid)
-                                    GridView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      gridDelegate:
-                                          const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        crossAxisSpacing: 12,
-                                        mainAxisSpacing: 12,
-                                        childAspectRatio: 0.8,
-                                      ),
-                                      itemCount: items.length,
-                                      itemBuilder: (_, i) {
-                                        final p = items[i];
-                                        return GridProductCard(
-                                          product: p,
-                                          onTap: () => context
-                                              .push('/home/product', extra: p),
-                                          onQuickAdd: () => _quickAdd(p),
-                                          isFavourite:
-                                              favProv.isFavourite(p.id),
-                                          onToggleFavourite: () =>
-                                              favProv.toggle(p.id),
-                                        );
-                                      },
-                                    )
-                                  else
-                                    ListView.separated(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: items.length,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(height: 14),
-                                      itemBuilder: (_, i) {
-                                        final p = items[i];
-                                        return ProductCard(
-                                          product: p,
-                                          onTap: () => context
-                                              .push('/home/product', extra: p),
-                                          onQuickAdd: () => _quickAdd(p),
-                                          isFavourite:
-                                              favProv.isFavourite(p.id),
-                                          onToggleFavourite: () =>
-                                              favProv.toggle(p.id),
-                                        );
-                                      },
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ),

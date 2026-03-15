@@ -31,107 +31,105 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             child: Scaffold(
               backgroundColor: context.theme.scaffoldBackgroundColor,
-              body: SafeArea(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                      child: Row(
+              body: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    child: Row(
+                      children: [
+                        const BakeryBackButton(),
+                        const SizedBox(width: 12),
+                        Text('Edit Profile',
+                            style: context.text.headlineLarge),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const BakeryBackButton(),
-                          const SizedBox(width: 12),
-                          Text('Edit Profile',
-                              style: context.text.headlineLarge),
+                          // Avatar
+                          Center(
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(colors: [
+                                      context.colors.secondary,
+                                      context.colors.tertiary,
+                                    ]),
+                                    borderRadius: BorderRadius.circular(28),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text('S',
+                                      style: context.text.displayLarge
+                                          ?.copyWith(
+                                              color: Colors.white,
+                                              fontSize: 32)),
+                                ),
+                                const SizedBox(height: 8),
+                                Text('Change photo',
+                                    style: context.text.bodySmall?.copyWith(
+                                        color: context.colors.tertiary,
+                                        fontWeight: FontWeight.w500)),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          _FieldLabel('FULL NAME'),
+                          _FieldInput(hint: 'Sophie Martin'),
+                          const SizedBox(height: 14),
+                          _FieldLabel('EMAIL'),
+                          _FieldInput(hint: 'sophie.martin@email.com'),
+                          const SizedBox(height: 14),
+                          _FieldLabel('PHONE'),
+                          _FieldInput(hint: '+44 7700 900 123'),
+                          const SizedBox(height: 14),
+                          _FieldLabel('BIRTHDAY'),
+                          _FieldInput(
+                              hint: 'March 14, 1990',
+                              suffixIcon: Icons.calendar_today_outlined),
+                          const SizedBox(height: 14),
+                          _FieldLabel('BIO'),
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: context.theme.cardColor,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                  color: context.theme.dividerColor,
+                                  width: 1.5),
+                            ),
+                            child: TextField(
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                hintText:
+                                    'Pastry enthusiast and weekend baker...',
+                                hintStyle: context.text.bodyMedium
+                                    ?.copyWith(color: context.colors.outline),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          _FieldLabel('DIETARY PREFERENCE'),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Avatar
-                            Center(
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(colors: [
-                                        context.colors.secondary,
-                                        context.colors.tertiary,
-                                      ]),
-                                      borderRadius: BorderRadius.circular(28),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text('S',
-                                        style: context.text.displayLarge
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontSize: 32)),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text('Change photo',
-                                      style: context.text.bodySmall?.copyWith(
-                                          color: context.colors.tertiary,
-                                          fontWeight: FontWeight.w500)),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            _FieldLabel('FULL NAME'),
-                            _FieldInput(hint: 'Sophie Martin'),
-                            const SizedBox(height: 14),
-                            _FieldLabel('EMAIL'),
-                            _FieldInput(hint: 'sophie.martin@email.com'),
-                            const SizedBox(height: 14),
-                            _FieldLabel('PHONE'),
-                            _FieldInput(hint: '+44 7700 900 123'),
-                            const SizedBox(height: 14),
-                            _FieldLabel('BIRTHDAY'),
-                            _FieldInput(
-                                hint: 'March 14, 1990',
-                                suffixIcon: Icons.calendar_today_outlined),
-                            const SizedBox(height: 14),
-                            _FieldLabel('BIO'),
-                            Container(
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: context.theme.cardColor,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                    color: context.theme.dividerColor,
-                                    width: 1.5),
-                              ),
-                              child: TextField(
-                                maxLines: 3,
-                                decoration: InputDecoration(
-                                  hintText:
-                                      'Pastry enthusiast and weekend baker...',
-                                  hintStyle: context.text.bodyMedium
-                                      ?.copyWith(color: context.colors.outline),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            _FieldLabel('DIETARY PREFERENCE'),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                      child: PrimaryButton(
-                          label: 'Save Changes', onTap: () => context.pop()),
-                    ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: PrimaryButton(
+                        label: 'Save Changes', onTap: () => context.pop()),
+                  ),
+                ],
               ),
             ),
           ),
@@ -655,68 +653,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-              child: Row(
-                children: [
-                  const BakeryBackButton(),
-                  const SizedBox(width: 12),
-                  Text('Settings', style: context.text.headlineLarge),
-                ],
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+            child: Row(
+              children: [
+                const BakeryBackButton(),
+                const SizedBox(width: 12),
+                Text('Settings', style: context.text.headlineLarge),
+              ],
             ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-                children: [
-                  const _SectionLabel('APPEARANCE'),
-                  const SizedBox(height: 8),
-                  _ToggleCard(children: [
-                    _buildToggle(
-                      context,
-                      '🌙',
-                      'Dark Mode',
-                      'Coming soon',
-                      _darkMode,
-                      (v) => setState(() => _darkMode = v),
-                      disabled: true,
-                    ),
-                    _buildToggle(
-                      context,
-                      '📱',
-                      'Haptic Feedback',
-                      null,
-                      _haptics,
-                      (v) => setState(() => _haptics = v),
-                      showDivider: false,
-                    ),
-                  ]),
-                  const SizedBox(height: 16),
-                  const _SectionLabel('DATA'),
-                  const SizedBox(height: 8),
-                  _ToggleCard(children: [
-                    _buildLinkRow(context, '🗑️', 'Clear Cache', '2.3 MB'),
-                    _buildLinkRow(context, '📊', 'Data & Privacy', null,
-                        showDivider: false),
-                  ]),
-                  const SizedBox(height: 16),
-                  const _SectionLabel('ABOUT'),
-                  const SizedBox(height: 8),
-                  _ToggleCard(children: [
-                    _buildLinkRow(context, '✨', 'Version', '2.1.0'),
-                    _buildLinkRow(context, '📋', 'Terms of Service', null),
-                    _buildLinkRow(context, '🔒', 'Privacy Policy', null,
-                        showDivider: false),
-                  ]),
-                ],
-              ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+              children: [
+                const _SectionLabel('APPEARANCE'),
+                const SizedBox(height: 8),
+                _ToggleCard(children: [
+                  _buildToggle(
+                    context,
+                    '🌙',
+                    'Dark Mode',
+                    'Coming soon',
+                    _darkMode,
+                    (v) => setState(() => _darkMode = v),
+                    disabled: true,
+                  ),
+                  _buildToggle(
+                    context,
+                    '📱',
+                    'Haptic Feedback',
+                    null,
+                    _haptics,
+                    (v) => setState(() => _haptics = v),
+                    showDivider: false,
+                  ),
+                ]),
+                const SizedBox(height: 16),
+                const _SectionLabel('DATA'),
+                const SizedBox(height: 8),
+                _ToggleCard(children: [
+                  _buildLinkRow(context, '🗑️', 'Clear Cache', '2.3 MB'),
+                  _buildLinkRow(context, '📊', 'Data & Privacy', null,
+                      showDivider: false),
+                ]),
+                const SizedBox(height: 16),
+                const _SectionLabel('ABOUT'),
+                const SizedBox(height: 8),
+                _ToggleCard(children: [
+                  _buildLinkRow(context, '✨', 'Version', '2.1.0'),
+                  _buildLinkRow(context, '📋', 'Terms of Service', null),
+                  _buildLinkRow(context, '🔒', 'Privacy Policy', null,
+                      showDivider: false),
+                ]),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -777,102 +773,100 @@ class AddNewAddressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: Row(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+            child: Row(
+              children: [
+                const BakeryBackButton(),
+                const SizedBox(width: 12),
+                Text('New Address', style: context.text.headlineLarge),
+              ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const BakeryBackButton(),
-                  const SizedBox(width: 12),
-                  Text('New Address', style: context.text.headlineLarge),
+                  // Map placeholder
+                  Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: context.theme.dividerColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('🗺️', style: TextStyle(fontSize: 40)),
+                        const SizedBox(height: 8),
+                        Text('Tap to set location',
+                            style: context.text.bodySmall),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildLbl(context, 'LABEL'),
+                  _buildInp(context, hint: 'e.g. Home, Office'),
+                  const SizedBox(height: 14),
+                  _buildLbl(context, 'STREET ADDRESS'),
+                  _buildInp(context, hint: '123 Baker Street'),
+                  const SizedBox(height: 14),
+                  _buildLbl(context, 'CITY'),
+                  _buildInp(context, hint: 'London'),
+                  const SizedBox(height: 14),
+                  _buildLbl(context, 'POSTCODE'),
+                  _buildInp(context, hint: 'W1F 0TH'),
+                  const SizedBox(height: 20),
+                  _buildLbl(context, 'ADDRESS TYPE'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: context.colors.onSurface,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text('🏠 Delivery',
+                              style: context.text.labelMedium?.copyWith(
+                                  color: context.colors.onTertiary,
+                                  fontSize: 13)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: context.theme.dividerColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text('🏪 Pickup',
+                              style: context.text.labelMedium?.copyWith(
+                                  color: context.colors.onSurfaceVariant,
+                                  fontSize: 13)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 120),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Map placeholder
-                    Container(
-                      height: 180,
-                      decoration: BoxDecoration(
-                        color: context.theme.dividerColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('🗺️', style: TextStyle(fontSize: 40)),
-                          const SizedBox(height: 8),
-                          Text('Tap to set location',
-                              style: context.text.bodySmall),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildLbl(context, 'LABEL'),
-                    _buildInp(context, hint: 'e.g. Home, Office'),
-                    const SizedBox(height: 14),
-                    _buildLbl(context, 'STREET ADDRESS'),
-                    _buildInp(context, hint: '123 Baker Street'),
-                    const SizedBox(height: 14),
-                    _buildLbl(context, 'CITY'),
-                    _buildInp(context, hint: 'London'),
-                    const SizedBox(height: 14),
-                    _buildLbl(context, 'POSTCODE'),
-                    _buildInp(context, hint: 'W1F 0TH'),
-                    const SizedBox(height: 20),
-                    _buildLbl(context, 'ADDRESS TYPE'),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: context.colors.onSurface,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text('🏠 Delivery',
-                                style: context.text.labelMedium?.copyWith(
-                                    color: context.colors.onTertiary,
-                                    fontSize: 13)),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: context.theme.dividerColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text('🏪 Pickup',
-                                style: context.text.labelMedium?.copyWith(
-                                    color: context.colors.onSurfaceVariant,
-                                    fontSize: 13)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: PrimaryButton(
-                  label: 'Save Address', onTap: () => context.pop()),
-            ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            child: PrimaryButton(
+                label: 'Save Address', onTap: () => context.pop()),
+          ),
+        ],
       ),
     );
   }

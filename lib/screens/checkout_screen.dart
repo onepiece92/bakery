@@ -90,74 +90,72 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
           title: const Text('Checkout'),
         ),
-        body: SafeArea(
-          child: cart.items.isEmpty
-              ? const EmptyCartView()
-              : Stack(
-                  children: [
-                    Column(
-                      children: [
-                        if (!_isBusinessSession)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-                            child: Row(
-                              children: [
-                                _StepIndicator(
-                                    label: step1Label, step: 1, current: _step),
-                                const SizedBox(width: 6),
-                                _StepIndicator(
-                                    label: 'Payment & Confirm',
-                                    step: 2,
-                                    current: _step),
-                              ],
-                            ),
-                          ),
-
-                        // Step content
-                        Expanded(
-                          child: SingleChildScrollView(
-                            padding: const EdgeInsets.fromLTRB(24, 0, 24, 140),
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-    
-                              child: (_isBusinessSession && _step == 1)
-                                  ? _Step1(addr: addr, key: const ValueKey(1))
-                                  : _Step2(
-                                      cart: cart,
-                                      addr: addr,
-                                      methods: _paymentMethods,
-                                      selected: _selectedPayment,
-                                      onSelect: (i) =>
-                                          setState(() => _selectedPayment = i),
-                                      key: const ValueKey(2),
-                                    ),
-                            ),
+        body: cart.items.isEmpty
+            ? const EmptyCartView()
+            : Stack(
+                children: [
+                  Column(
+                    children: [
+                      if (!_isBusinessSession)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                          child: Row(
+                            children: [
+                              _StepIndicator(
+                                  label: step1Label, step: 1, current: _step),
+                              const SizedBox(width: 6),
+                              _StepIndicator(
+                                  label: 'Payment & Confirm',
+                                  step: 2,
+                                  current: _step),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-
-                    // CTA Button
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: PrimaryButton(
-                        label: (_isBusinessSession && _step < 2)
-                            ? 'Continue'
-                            : 'Place Order — \$${cart.total.toStringAsFixed(2)}',
-                        onTap: () {
-                          if (_isBusinessSession && _step < 2) {
-                            setState(() => _step++);
-                          } else {
-                            context.go('/cart/checkout/success');
-                          }
-                        },
+        
+                      // Step content
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 140),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+            
+                            child: (_isBusinessSession && _step == 1)
+                                ? _Step1(addr: addr, key: const ValueKey(1))
+                                : _Step2(
+                                    cart: cart,
+                                    addr: addr,
+                                    methods: _paymentMethods,
+                                    selected: _selectedPayment,
+                                    onSelect: (i) =>
+                                        setState(() => _selectedPayment = i),
+                                    key: const ValueKey(2),
+                                  ),
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
+        
+                  // CTA Button
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: PrimaryButton(
+                      label: (_isBusinessSession && _step < 2)
+                          ? 'Continue'
+                          : 'Place Order — \$${cart.total.toStringAsFixed(2)}',
+                      onTap: () {
+                        if (_isBusinessSession && _step < 2) {
+                          setState(() => _step++);
+                        } else {
+                          context.go('/cart/checkout/success');
+                        }
+                      },
                     ),
-                  ],
-                ),
-        ),
+                  ),
+                ],
+              ),
       ),
     );
   }

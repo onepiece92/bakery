@@ -19,6 +19,12 @@ abstract final class AppTextStyles {
         color: AppColors.backgroundDark,
         letterSpacing: -0.5,
       );
+  static TextStyle get disPlayMediumWhite => GoogleFonts.plusJakartaSans(
+        fontSize: 26,
+        fontWeight: FontWeight.w700,
+        color: AppColors.backgroundLight,
+        letterSpacing: -0.5,
+      );
 
   static TextStyle get headlineLarge => GoogleFonts.plusJakartaSans(
         fontSize: 22,
@@ -42,6 +48,18 @@ abstract final class AppTextStyles {
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: AppColors.backgroundDark,
+        letterSpacing: 0.5,
+      );
+  static TextStyle get bodySmallWhite => GoogleFonts.plusJakartaSans(
+        fontSize: 13,
+        fontWeight: FontWeight.w400,
+        color: AppColors.white,
+        height: 1.5,
+      );
+  static TextStyle get titleLargeWhite => GoogleFonts.plusJakartaSans(
+   fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: AppColors.white,
         letterSpacing: 0.5,
       );
 

@@ -56,7 +56,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                             const SizedBox(height: 4),
                             Text(
                                 '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
-                                style: Theme.of(context).textTheme.bodySmall),
+                                style: Theme.of(context).textTheme.titleSmall),
                       ],
                     ),
                     // leading: const Padding(
@@ -81,6 +81,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       //     ],
                       //   ),
                       // ),
+                      SizedBox(height: 15,),
                       Expanded(
                         child: favs.isEmpty
                             ? EmptyFavourites()

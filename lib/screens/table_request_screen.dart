@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/components/reorder_card.dart';
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/models/order.dart';
 import 'package:bakery_flutter/models/services_model.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
@@ -251,24 +252,6 @@ class TableRequestScreen extends StatelessWidget {
     );
   }
 
-  void _showFoodOrderSheet(
-    BuildContext context,
-    String businessId,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _FoodOrderSheet(
-        onSubmit: (foodItems) {
-          Navigator.pop(context);
-          _handleRequestFood(context, businessId, foodItems);
-        },
-      ),
-    );
-  }
 
   void _showSnack(BuildContext context, String message) {
     final isError = message.toLowerCase().contains('error') ||
@@ -310,13 +293,20 @@ class TableRequestScreen extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border(
+                left: BorderSide(color: Colors.grey.shade300),
+                right: BorderSide(color: Colors.grey.shade300),
+                bottom: BorderSide.none,
+              ),
                 ),
                 child: Scaffold(
                   appBar: AppBar(
                     scrolledUnderElevation: 0,
                     elevation: 0,
-                    title: const Text('Services'),
+                    title: Text(
+               "Services",
+                  style: context.text.displayMedium,
+                ),
                     actions: [
                       if (isCoolingDown)
                         Center(

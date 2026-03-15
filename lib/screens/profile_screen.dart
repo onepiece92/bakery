@@ -30,9 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Consumer<ProfileProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
-          return const SafeArea(
-            child: Center(child: CircularProgressIndicator()),
-          );
+          return Center(child: CircularProgressIndicator());
         }
 
         final storage = LocalStorageService.instance;

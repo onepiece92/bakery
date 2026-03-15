@@ -21,65 +21,62 @@ class AppBottomNavBar extends StatelessWidget {
     final isBusinessSession =
         LocalStorageService.instance.getIsBusinessSession();
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          border: Border(
-            left: BorderSide(color: Colors.grey.shade300),
-            right: BorderSide(color: Colors.grey.shade300),
-            bottom: BorderSide(color: Colors.grey.shade300),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(
+          left: BorderSide(color: Colors.grey.shade300),
+          right: BorderSide(color: Colors.grey.shade300),
+          bottom: BorderSide(color: Colors.grey.shade300),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _NavItem(
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home_rounded,
+              label: 'Home',
+              index: 0,
+              currentIndex: currentIndex,
+              onTap: onTap,
+            ),
+            _NavItem(
+              icon: Icons.favorite_border_rounded,
+              activeIcon: Icons.favorite_rounded,
+              label: 'Favourites',
+              index: 1,
+              currentIndex: currentIndex,
+              onTap: onTap,
+              // activeColor: AppColors.terracotta,
+            ),
+            _NavItemCart(
+              index: 2,
+              currentIndex: currentIndex,
+              onTap: onTap,
+              badge: cartCount,
+            ),
+            if (isBusinessSession)
               _NavItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home_rounded,
-                label: 'Home',
-                index: 0,
+                icon: Icons.miscellaneous_services_outlined,
+                activeIcon: Icons.miscellaneous_services_rounded,
+                label: 'Services',
+                index: 3,
                 currentIndex: currentIndex,
                 onTap: onTap,
-              ),
+              )
+            else
               _NavItem(
-                icon: Icons.favorite_border_rounded,
-                activeIcon: Icons.favorite_rounded,
-                label: 'Favourites',
-                index: 1,
+                icon: Icons.person_outline_rounded,
+                activeIcon: Icons.person_rounded,
+                label: 'Profile',
+                index: 3,
                 currentIndex: currentIndex,
                 onTap: onTap,
-                // activeColor: AppColors.terracotta,
               ),
-              _NavItemCart(
-                index: 2,
-                currentIndex: currentIndex,
-                onTap: onTap,
-                badge: cartCount,
-              ),
-              if (isBusinessSession)
-                _NavItem(
-                  icon: Icons.miscellaneous_services_outlined,
-                  activeIcon: Icons.miscellaneous_services_rounded,
-                  label: 'Services',
-                  index: 3,
-                  currentIndex: currentIndex,
-                  onTap: onTap,
-                )
-              else
-                _NavItem(
-                  icon: Icons.person_outline_rounded,
-                  activeIcon: Icons.person_rounded,
-                  label: 'Profile',
-                  index: 3,
-                  currentIndex: currentIndex,
-                  onTap: onTap,
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );

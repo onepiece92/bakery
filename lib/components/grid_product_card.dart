@@ -103,7 +103,6 @@ class GridProductCard extends StatelessWidget {
               ),
             ),
 
-            // ── Bottom section — shrinks to content, no forced height ─────
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
               child: Column(

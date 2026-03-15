@@ -25,53 +25,51 @@ class SignupPromptScreen extends StatelessWidget {
               ),
             ),
             child: Scaffold(
-              body: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('👤', style: TextStyle(fontSize: 64)),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Create an Account',
-                        style: context.text.headlineLarge,
-                        textAlign: TextAlign.center,
+              body: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('👤', style: TextStyle(fontSize: 64)),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Create an Account',
+                      style: context.text.headlineLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Sign up to track orders, save favourites\nand manage your account.',
+                      style: context.text.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => context.push('/signup'),
+                        child: const Text('Create Account'),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Sign up to track orders, save favourites\nand manage your account.',
-                        style: context.text.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => context.push('/signup'),
-                          child: const Text('Create Account'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Already have an account? ',
-                              style: context.text.bodyMedium),
-                          GestureDetector(
-                            onTap: () => context.go('/profile/login'),
-                            child: Text(
-                              'Login',
-                              style: context.text.bodyMedium?.copyWith(
-                                color: context.colors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Already have an account? ',
+                            style: context.text.bodyMedium),
+                        GestureDetector(
+                          onTap: () => context.go('/profile/login'),
+                          child: Text(
+                            'Login',
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.colors.primary,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),

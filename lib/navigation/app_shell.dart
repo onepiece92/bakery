@@ -33,20 +33,17 @@ class AppShell extends StatelessWidget {
       resizeToAvoidBottomInset: false,
        
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        bottom: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Column(
-              children: [
-                Expanded(child: navigationShell),
-                AppBottomNavBar(
-                  currentIndex: navigationShell.currentIndex,
-                  onTap: onNavTap,
-                ),
-              ],
-            ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: Column(
+            children: [
+              Expanded(child: navigationShell),
+              AppBottomNavBar(
+                currentIndex: navigationShell.currentIndex,
+                onTap: onNavTap,
+              ),
+            ],
           ),
         ),
       ),

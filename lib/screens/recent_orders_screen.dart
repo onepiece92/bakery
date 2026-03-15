@@ -142,130 +142,151 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                   ),
                   title: const Text('Recent Orders'),
                 ),
-                body: SafeArea(
-                  child: orders.isEmpty
-                      // ── Empty state ──────────────────────────────────────
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                body: orders.isEmpty
+                    // ── Empty state ──────────────────────────────────────
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.receipt_long_outlined,
+                                size: 48,
+                                color: context.colors.onSurfaceVariant),
+                            const SizedBox(height: 12),
+                            Text('No orders yet',
+                                style: context.text.headlineSmall),
+                            const SizedBox(height: 6),
+                            Text('Your order history will appear here',
+                                style: context.text.bodySmall),
+                          ],
+                        ),
+                      )
+                    // ── Orders list ──────────────────────────────────────
+                    : FadeTransition(
+                        opacity: _pageFade,
+                        child: SlideTransition(
+                          position: _pageSlide,
+                          child: ListView(
+                            padding: const EdgeInsets.fromLTRB(24, 14, 24, 40),
                             children: [
-                              Icon(Icons.receipt_long_outlined,
-                                  size: 48,
-                                  color: context.colors.onSurfaceVariant),
-                              const SizedBox(height: 12),
-                              Text('No orders yet',
-                                  style: context.text.headlineSmall),
-                              const SizedBox(height: 6),
-                              Text('Your order history will appear here',
-                                  style: context.text.bodySmall),
-                            ],
-                          ),
-                        )
-                      // ── Orders list ──────────────────────────────────────
-                      : FadeTransition(
-                          opacity: _pageFade,
-                          child: SlideTransition(
-                            position: _pageSlide,
-                            child: ListView(
-                              padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-                              children: [
-                                // ── Summary card ─────────────────────────────
-                                Container(
-                                  padding: const EdgeInsets.all(24),
-                                  margin: const EdgeInsets.only(bottom: 24),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        context.colors.primary,
-                                        context.colors.onSurfaceVariant,
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(22),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Order History',
-                                        style:
-                                            context.text.labelSmall?.copyWith(
-                                          color: context.colors.tertiary,
-                                          letterSpacing: 1.5,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                '${orders.length}',
-                                                style: context.text.displayLarge
-                                                    ?.copyWith(
-                                                  color:
-                                                      context.colors.onPrimary,
-                                                  fontSize: 32,
-                                                ),
-                                              ),
-                                              Text(
-                                                'orders placed',
-                                                style: context.text.bodySmall
-                                                    ?.copyWith(
-                                                  color: Colors.white
-                                                      .withValues(alpha: 0.5),
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                '\$${totalSpent.toStringAsFixed(2)}',
-                                                style: context.text.displayLarge
-                                                    ?.copyWith(
-                                                  color:
-                                                      context.colors.onPrimary,
-                                                  fontSize: 24,
-                                                ),
-                                              ),
-                                              Text(
-                                                'total spent',
-                                                style: context.text.bodySmall
-                                                    ?.copyWith(
-                                                  color: Colors.white
-                                                      .withValues(alpha: 0.5),
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                              // ── Summary card ─────────────────────────────
+                              Container(
+                                padding: const EdgeInsets.all(24),
+                                margin: const EdgeInsets.only(bottom: 24),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      context.colors.primary,
+                                      context.colors.onSurfaceVariant,
                                     ],
                                   ),
+                                  borderRadius: BorderRadius.circular(22),
                                 ),
-
-                                // ── Order cards ──────────────────────────────
-                                ...orders.asMap().entries.map((entry) {
-                                  final i = entry.key;
-                                  final order = entry.value;
-
-                                  // Guard against controller list mismatch
-                                  if (i >= _cardCtrls.length) {
-                                    return Padding(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Order History',
+                                      style:
+                                          context.text.labelSmall?.copyWith(
+                                        color: context.colors.tertiary,
+                                        letterSpacing: 1.5,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${orders.length}',
+                                              style: context.text.displayLarge
+                                                  ?.copyWith(
+                                                color:
+                                                    context.colors.onPrimary,
+                                                fontSize: 32,
+                                              ),
+                                            ),
+                                            Text(
+                                              'orders placed',
+                                              style: context.text.bodySmall
+                                                  ?.copyWith(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.5),
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              '\$${totalSpent.toStringAsFixed(2)}',
+                                              style: context.text.displayLarge
+                                                  ?.copyWith(
+                                                color:
+                                                    context.colors.onPrimary,
+                                                fontSize: 24,
+                                              ),
+                                            ),
+                                            Text(
+                                              'total spent',
+                                              style: context.text.bodySmall
+                                                  ?.copyWith(
+                                                color: Colors.white
+                                                    .withValues(alpha: 0.5),
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                
+                              // ── Order cards ──────────────────────────────
+                              ...orders.asMap().entries.map((entry) {
+                                final i = entry.key;
+                                final order = entry.value;
+                
+                                // Guard against controller list mismatch
+                                if (i >= _cardCtrls.length) {
+                                  return Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 12),
+                                    child: OrderCard(
+                                      order: order,
+                                      featured: false,
+                                      onReorder: () =>
+                                          _handleReorder(context, order),
+                                    ),
+                                  );
+                                }
+                
+                                final ctrl = _cardCtrls[i];
+                                return FadeTransition(
+                                  opacity: CurvedAnimation(
+                                      parent: ctrl, curve: Curves.easeOut),
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0, 0.08),
+                                      end: Offset.zero,
+                                    ).animate(CurvedAnimation(
+                                        parent: ctrl, curve: Curves.easeOut)),
+                                    child: Padding(
                                       padding:
                                           const EdgeInsets.only(bottom: 12),
                                       child: OrderCard(
@@ -274,37 +295,14 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                         onReorder: () =>
                                             _handleReorder(context, order),
                                       ),
-                                    );
-                                  }
-
-                                  final ctrl = _cardCtrls[i];
-                                  return FadeTransition(
-                                    opacity: CurvedAnimation(
-                                        parent: ctrl, curve: Curves.easeOut),
-                                    child: SlideTransition(
-                                      position: Tween<Offset>(
-                                        begin: const Offset(0, 0.08),
-                                        end: Offset.zero,
-                                      ).animate(CurvedAnimation(
-                                          parent: ctrl, curve: Curves.easeOut)),
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 12),
-                                        child: OrderCard(
-                                          order: order,
-                                          featured: false,
-                                          onReorder: () =>
-                                              _handleReorder(context, order),
-                                        ),
-                                      ),
                                     ),
-                                  );
-                                }),
-                              ],
-                            ),
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
                         ),
-                ),
+                      ),
               ),
             ),
           ),
