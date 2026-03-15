@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/providers/customerlogin_provider.dart';
+import 'package:bakery_flutter/providers/qrlogin_provider.dart';
 import 'package:bakery_flutter/screens/login_screen.dart';
 import 'package:bakery_flutter/screens/qrscan_screen.dart';
 import 'package:bakery_flutter/screens/signupprompt_screen.dart';
@@ -31,18 +32,30 @@ final GlobalKey<NavigatorState> _cartNavigatorKey =
 final GlobalKey<NavigatorState> _profileNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'profile');
 
-GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
+GoRouter createRouter(
+  CustomerLoginProvider loginProvider,
+  QRLoginProvider qrLoginProvider,      
+) =>
+    GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/',
-      refreshListenable: loginProvider,
+      refreshListenable: Listenable.merge([loginProvider, qrLoginProvider]),
       redirect: (context, state) {
         final sessionType = LocalStorageService.instance.getSessionType();
-        if (sessionType == 'qr') return null;
+        final isLoggedIn  = loginProvider.isLoggedIn;
+        final hasQrSession = qrLoginProvider.data != null;
+        final location    = state.matchedLocation;
+        if (sessionType == 'qr' || hasQrSession) return null;
+        if (isLoggedIn) return null;
+        const protected = ['/cart', '/favourites'];
+        // final isProtected = protected.any((r) => location.startsWith(r));
+        // if (isProtected) return '/profile';
+
         return null;
       },
       errorBuilder: (context, state) =>
           LayoutBuilder(builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 500;
+        final isWide   = constraints.maxWidth > 500;
         final maxWidth = isWide ? 500.0 : double.infinity;
         return Center(
           child: ConstrainedBox(
@@ -53,37 +66,38 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
                 border: Border.all(color: Colors.grey.shade300),
               ),
               child: Scaffold(
-                  appBar: AppBar(title: const Text('Page Not Found')),
-                  body: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Lottie.asset(
-                            'assets/animations/error_404.json',
-                            width: 250,
-                            fit: BoxFit.contain,
-                          ),
+                appBar: AppBar(title: const Text('Page Not Found')),
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Lottie.asset(
+                          'assets/animations/error_404.json',
+                          width: 250,
+                          fit: BoxFit.contain,
                         ),
-                        const SizedBox(height: 16),
-                        Text('Something went wrong',
-                            style: Theme.of(context).textTheme.headlineMedium),
-                        const SizedBox(height: 8),
-                        Text("We couldn't find the page you're looking for.",
-                            style: Theme.of(context).textTheme.bodyMedium),
-                        const SizedBox(height: 24),
-                        OutlinedButton(
-                          onPressed: () {
-                            while (context.canPop()) {
-                              context.pop();
-                            }
-                            context.go('/home');
-                          },
-                          child: const Text('Return to Home'),
-                        ),
-                      ],
-                    ),
-                  )),
+                      ),
+                      const SizedBox(height: 16),
+                      Text('Something went wrong',
+                          style: Theme.of(context).textTheme.headlineMedium),
+                      const SizedBox(height: 8),
+                      Text("We couldn't find the page you're looking for.",
+                          style: Theme.of(context).textTheme.bodyMedium),
+                      const SizedBox(height: 24),
+                      OutlinedButton(
+                        onPressed: () {
+                          while (context.canPop()) {
+                            context.pop();
+                          }
+                          context.go('/home');
+                        },
+                        child: const Text('Return to Home'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         );
@@ -93,16 +107,18 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
           path: '/',
           parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
-            final uri = Uri.base;
+            final uri         = Uri.base;
             final tableNumber = uri.queryParameters['tableNumber'];
-            final businessId = uri.queryParameters['businessId'];
+            final businessId  = uri.queryParameters['businessId'];
             debugPrint('====================================');
             debugPrint('ROUTE: /');
             debugPrint('tableId(url)   : $tableNumber');
             debugPrint('businessId(url): $businessId');
             debugPrint('====================================');
             return TableWelcomeScreen(
-              tableId: tableNumber,
+              // tableId:    "Table",
+              // businessId: "698c89dd6f97647ce9de2194",
+              tableId:    tableNumber,
               businessId: businessId,
             );
           },
@@ -132,8 +148,7 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
                     ),
                     GoRoute(
                       path: 'scan',
-                      parentNavigatorKey:
-                          _rootNavigatorKey, 
+                      parentNavigatorKey: _rootNavigatorKey,
                       builder: (context, state) => const QrScannerPage(),
                     ),
                   ],
@@ -192,14 +207,17 @@ GoRouter createRouter(CustomerLoginProvider loginProvider) => GoRouter(
                 GoRoute(
                   path: '/profile',
                   builder: (context, state) {
+                    // 👇 listen to BOTH providers for reactive UI rebuilds
                     return ListenableBuilder(
-                      listenable: loginProvider,
+                      listenable:
+                          Listenable.merge([loginProvider, qrLoginProvider]),
                       builder: (context, _) {
                         final sessionType =
                             LocalStorageService.instance.getSessionType();
-                        final isLoggedIn = loginProvider.isLoggedIn;
+                        final isLoggedIn   = loginProvider.isLoggedIn;
+                        final hasQrSession = qrLoginProvider.data != null;
 
-                        if (sessionType == 'qr') {
+                        if (sessionType == 'qr' || hasQrSession) {
                           return const TableRequestScreen();
                         }
                         if (!isLoggedIn) return const SignupPromptScreen();

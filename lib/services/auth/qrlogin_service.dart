@@ -20,11 +20,11 @@ class QrLoginService {
         'auth/qr-login',
         data: {
           'businessId': businessId,
-          'name':       tableName,
+          'name': tableName,
         },
         fromJson: (json) => QrLoginModel.fromJson(json),
       );
-
+      debugPrint("-----------------------------------------------");
       if (!response.success || response.data == null) {
         debugPrint('QrLoginService → FAILED: ${response.message}');
         throw Exception(response.message ?? 'QR login failed');
@@ -32,7 +32,6 @@ class QrLoginService {
 
       debugPrint('QrLoginService → SUCCESS');
       return response.data!;
-
     } catch (e) {
       debugPrint('QrLoginService → ERROR: $e');
       rethrow;

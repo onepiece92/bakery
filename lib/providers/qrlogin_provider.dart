@@ -4,13 +4,14 @@ import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
 
 class QRLoginProvider extends ChangeNotifier {
-  bool _isLoading       = false;
+  final QrLoginService _qrLoginService = QrLoginService.instance;
+  bool _isLoading = false;
   String? _errorMessage;
   QrLoginModel? _data;
 
-  bool get isLoading          => _isLoading;
-  String? get errorMessage    => _errorMessage;
-  QrLoginModel? get data      => _data;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  QrLoginModel? get data => _data;
 
   Future<void> login({
     required String businessId,
@@ -22,20 +23,19 @@ class QRLoginProvider extends ChangeNotifier {
     debugPrint('tableName  : $tableName');
     debugPrint('====================================');
 
-    _isLoading    = true;
+    _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final data = await QrLoginService.instance.qrLogin(
+      final data = await _qrLoginService.qrLogin(
         businessId: businessId,
-        tableName:  tableName,
+        tableName: tableName,
       );
-
-      // Check if session already expired
       if (data.isExpired) {
-        debugPrint('QRLoginProvider → session already expired at ${data.expiresAt}');
-        _isLoading    = false;
+        debugPrint(
+            'QRLoginProvider → session already expired at ${data.expiresAt}');
+        _isLoading = false;
         _errorMessage = 'QR code has expired. Please scan a new one.';
         notifyListeners();
         return;
@@ -66,12 +66,11 @@ class QRLoginProvider extends ChangeNotifier {
 
       debugPrint('QRLoginProvider → all saved to LocalStorage');
 
-      _data      = data;
+      _data = data;
       _isLoading = false;
-
     } catch (e) {
       debugPrint('QRLoginProvider → ERROR: $e');
-      _isLoading    = false;
+      _isLoading = false;
       _errorMessage = 'Invalid QR code. Please scan the table QR again.';
     }
 
@@ -80,9 +79,9 @@ class QRLoginProvider extends ChangeNotifier {
 
   void reset() {
     debugPrint('QRLoginProvider → reset');
-    _isLoading    = false;
+    _isLoading = false;
     _errorMessage = null;
-    _data         = null;
+    _data = null;
     notifyListeners();
   }
 }

@@ -55,7 +55,11 @@ class _HomeScreenState extends State<HomeScreen>
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
-    _animCtrl.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_animCtrl.isCompleted) {
+        _animCtrl.forward();
+      }
+    });
   }
 
   @override

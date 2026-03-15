@@ -161,6 +161,7 @@ class ApiService {
         path,
         queryParameters: queryParameters,
       );
+
       return _handleResponse(response, fromJson);
     } on DioException catch (e) {
       return _handleError(e);
@@ -184,6 +185,9 @@ class ApiService {
         queryParameters: queryParameters,
         options: headers != null ? Options(headers: headers) : null,
       );
+      debugPrint(
+          "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++===");
+      debugPrint(response.toString());
       return _handleResponse(response, fromJson);
     } on DioException catch (e) {
       return _handleError(e);
@@ -411,7 +415,6 @@ class _AuthInterceptor extends Interceptor {
           await _apiService.handleLogout();
         }
       } else {
-
         debugPrint('Business/Guest session → no refresh → logout directly');
         _isRefreshing = false;
         await _apiService.handleLogout();

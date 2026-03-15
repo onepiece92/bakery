@@ -56,9 +56,9 @@ class BakeryApp extends StatefulWidget {
 }
 
 class _BakeryAppState extends State<BakeryApp> {
-  // Create provider instance here so we can pass it to the router
   final _loginProvider = CustomerLoginProvider();
-  late final _router = createRouter(_loginProvider);
+  final _qrLoginProvider = QRLoginProvider();
+  late final _router = createRouter(_loginProvider, _qrLoginProvider);
 
   @override
   void dispose() {
@@ -79,8 +79,8 @@ class _BakeryAppState extends State<BakeryApp> {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => TableRequestProvider()),
         ChangeNotifierProvider(create: (_) => QRLoginProvider()),
-        // Use .value so the same instance is shared with the router
         ChangeNotifierProvider.value(value: _loginProvider),
+        ChangeNotifierProvider.value(value: _qrLoginProvider),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ],
       child: MaterialApp.router(
