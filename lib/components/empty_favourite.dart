@@ -16,41 +16,31 @@ class EmptyFavourites extends StatelessWidget {
           children: [
             // ── Lottie animation ──────────────────────────────────────
             Flexible(
-              child: Lottie.asset(
-                'assets/animations/empty_fav.json',
-                width: 250,
-                height: 150,
-                repeat: true,
-                fit: BoxFit.contain,
-                delegates: LottieDelegates(
-                  values: [
-                    // Fill - this already works for you
-                    ValueDelegate.colorFilter(
-                      const ['**', 'Fill 1'],
-                      value:
-                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
-                    ),
+  child: Lottie.asset(
+    'assets/animations/empty_fav.json',
+    width: 250,
+    height: 150,
+    repeat: true,
+    fit: BoxFit.contain,
+    delegates: LottieDelegates(
+      values: [
 
-                    // Strokes - use exact full paths
-                    ValueDelegate.colorFilter(
-                      const ['Checklist', '**', 'Stroke 1'],
-                      value:
-                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
-                    ),
-                    ValueDelegate.colorFilter(
-                      const ['Cricle', '**', 'Stroke 1'],
-                      value:
-                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
-                    ),
-                    ValueDelegate.colorFilter(
-                      const ['Line', '**', 'Stroke 1'],
-                      value:
-                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+        // Fill
+        ValueDelegate.color(
+          const ['**', 'Fill 1'],
+          value: AppColors.primaryRed,
+        ),
+
+        // All strokes
+        ValueDelegate.strokeColor(
+          const ['**', 'Stroke 1'],
+          value: AppColors.primaryRed,
+        ),
+
+      ],
+    ),
+  ),
+),
             // const SizedBox(height: 16),
 
             // ── Headline ──────────────────────────────────────────────

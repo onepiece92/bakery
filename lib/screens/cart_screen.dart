@@ -176,6 +176,31 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                               cartItemId: item.cartItemId,
                                               cartItemQty: item.quantity,
                                             ),
+                                            if (item.selectedVariant != null) ...[
+  const SizedBox(height: 6),
+  Wrap(
+    spacing: 6,
+    children: item.selectedVariant!.optionValues.map((value) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundDark.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusCard),
+          border: Border.all(
+            color: AppColors.backgroundDark.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Text(
+          value,
+          style: AppTextStyles.bodySmallWhite.copyWith(
+            color: AppColors.backgroundDark,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }).toList(),
+  ),
+],
               
                                             if (item.selectedAddons
                                                 .isNotEmpty) ...[
