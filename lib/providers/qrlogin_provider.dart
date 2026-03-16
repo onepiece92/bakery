@@ -1,4 +1,5 @@
 import 'package:bakery_flutter/models/qr_login.dart';
+import 'package:bakery_flutter/services/api_service.dart';
 import 'package:bakery_flutter/services/auth/qrlogin_service.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,14 @@ class QRLoginProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   QrLoginModel? get data => _data;
-
+  QRLoginProvider() {
+    final existing = ApiService.instance.onLogout;
+    ApiService.instance.onLogout = () {
+      existing?.call();
+      final loginType = LocalStorageService.instance.getSessionType();
+      if (loginType == 'qr') logout();
+    };
+  }
   Future<void> login({
     required String businessId,
     required String tableName,
@@ -76,7 +84,11 @@ class QRLoginProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-
+  Future<void> logout() async {
+    await LocalStorageService.instance.clearSession();
+    _data = null;
+    notifyListeners();
+  }
   void reset() {
     debugPrint('QRLoginProvider → reset');
     _isLoading = false;

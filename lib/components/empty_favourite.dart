@@ -1,7 +1,7 @@
+import 'package:bakery_flutter/theme/app_colors.dart';
+import 'package:bakery_flutter/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-
-import '../../components/browse_menu_button.dart';
 
 class EmptyFavourites extends StatelessWidget {
   const EmptyFavourites({super.key});
@@ -19,12 +19,39 @@ class EmptyFavourites extends StatelessWidget {
               child: Lottie.asset(
                 'assets/animations/empty_fav.json',
                 width: 250,
+                height: 150,
                 repeat: true,
                 fit: BoxFit.contain,
+                delegates: LottieDelegates(
+                  values: [
+                    // Fill - this already works for you
+                    ValueDelegate.colorFilter(
+                      const ['**', 'Fill 1'],
+                      value:
+                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
+                    ),
+
+                    // Strokes - use exact full paths
+                    ValueDelegate.colorFilter(
+                      const ['Checklist', '**', 'Stroke 1'],
+                      value:
+                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
+                    ),
+                    ValueDelegate.colorFilter(
+                      const ['Cricle', '**', 'Stroke 1'],
+                      value:
+                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
+                    ),
+                    ValueDelegate.colorFilter(
+                      const ['Line', '**', 'Stroke 1'],
+                      value:
+                          ColorFilter.mode(AppColors.primaryRed, BlendMode.src),
+                    ),
+                  ],
+                ),
               ),
             ),
-
-            const SizedBox(height: 16),
+            // const SizedBox(height: 16),
 
             // ── Headline ──────────────────────────────────────────────
             Text(
@@ -34,17 +61,6 @@ class EmptyFavourites extends StatelessWidget {
             ),
 
             const SizedBox(height: 8),
-
-            // ── Subtitle ──────────────────────────────────────────────
-            Text(
-              'Items you love will show up here.\nTap ♡ on any product to save it.',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    height: 1.6,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 32),
 
             // // ── Browse CTA ────────────────────────────────────────────
             // const BrowseMenuButton(),

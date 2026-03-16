@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/extensions/string_casing_extension.dart';
 import 'package:bakery_flutter/extensions/theme_extension.dart';
+import 'package:bakery_flutter/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
@@ -72,16 +73,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       }
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final cartItem = context
-          .read<CartProvider>()
-          .items
-          .where((i) => i.product.id == widget.product.id)
-          .firstOrNull;
-      if (cartItem != null && mounted) {
-        setState(() => _quantity = cartItem.quantity);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final cartItem = context
+    //       .read<CartProvider>()
+    //       .items
+    //       .where((i) => i.product.id == widget.product.id)
+    //       .firstOrNull;
+    //   if (cartItem != null && mounted) {
+    //     setState(() => _quantity = cartItem.quantity);
+    //   }
+    // });
   }
 
   @override
@@ -135,9 +136,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               width: 40,
                               alignment: Alignment.center,
                               child: Icon(
-                                isFav
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
+                                isFav ? Icons.favorite : Icons.favorite_border,
                                 color: isFav
                                     ? Colors.redAccent
                                     : context.colors.primary,
@@ -198,8 +197,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       // ── Content ───────────────────────────────────────
                       SliverToBoxAdapter(
                         child: Container(
-                          padding:
-                              const EdgeInsets.fromLTRB(24, 24, 24, 140),
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 140),
                           decoration: BoxDecoration(
                             color: context.theme.scaffoldBackgroundColor,
                             borderRadius: const BorderRadius.vertical(
@@ -211,7 +209,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               // Name
                               Text(
                                 widget.product.name.toTitleCase(),
-                                style: context.text.displayMedium,
+                                style: context.text.displayMedium
+                                    ?.copyWith(color: AppColors.backgroundDark),
                               ),
                               const SizedBox(height: 6),
 
@@ -236,15 +235,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       _SectionHeader(title: option.title),
                                       const SizedBox(height: 12),
                                       ...option.values.map((value) {
-                                        final isActive =
-                                            _selectedOptionValues[
-                                                    option.title] ==
-                                                value;
-                                        final matchingItem = variants
-                                            .variantItems
-                                            .firstWhere(
-                                          (item) => item.optionValues
-                                              .contains(value),
+                                        final isActive = _selectedOptionValues[
+                                                option.title] ==
+                                            value;
+                                        final matchingItem =
+                                            variants.variantItems.firstWhere(
+                                          (item) =>
+                                              item.optionValues.contains(value),
                                           orElse: () =>
                                               variants.variantItems.first,
                                         );
@@ -296,48 +293,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     quantity: _quantity,
                     totalPrice: _totalPrice,
                     onDecrement: () {
-                      if (_quantity > 0) {
-                        setState(() => _quantity--);
-                        final cart = context.read<CartProvider>();
-                        if (cart.contains(widget.product)) {
-                          cart.updateById(widget.product.id, _quantity);
-                        }
-                      }
+                      if (_quantity > 0) setState(() => _quantity--);
                     },
                     onIncrement: () {
                       setState(() => _quantity++);
-                      final cart = context.read<CartProvider>();
-                      if (cart.contains(widget.product)) {
-                        cart.updateByLineKey(
-                          '${widget.product.id}__${_matchedVariant?.id ?? 'no_variant'}',
-                          _quantity,
-                        );
-                      } else {
-                        cart.addProduct(
-                          widget.product,
-                          quantity: _quantity,
-                          variant: _matchedVariant,
-                          addons: _selectedAddons,
-                        );
-                      }
                     },
                     onCheckout: () {
                       if (_quantity > 0) {
-                        final cart = context.read<CartProvider>();
-                        if (!cart.contains(widget.product)) {
-                          cart.addProduct(
-                            widget.product,
-                            quantity: _quantity,
-                            variant: _matchedVariant,
-                            addons: _selectedAddons,
-                          );
-                        }
+                        context.read<CartProvider>().addProduct(
+                              widget.product,
+                              quantity: _quantity,
+                              variant: _matchedVariant,
+                              addons: _selectedAddons,
+                            );
                         context.push('/cart');
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content:
-                                  Text('Please select at least 1 item')),
+                              content: Text('Please select at least 1 item')),
                         );
                       }
                     },
@@ -396,9 +369,8 @@ class _OptionItem extends StatelessWidget {
           color: context.theme.cardColor,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isActive
-                ? context.colors.primary
-                : context.theme.dividerColor,
+            color:
+                isActive ? context.colors.primary : context.theme.dividerColor,
             width: isActive ? 1.5 : 1,
           ),
         ),
@@ -422,8 +394,7 @@ class _OptionItem extends StatelessWidget {
               child: Text(
                 name.toTitleCase(),
                 style: context.text.bodyLarge?.copyWith(
-                  fontWeight:
-                      isActive ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ),
@@ -437,8 +408,7 @@ class _OptionItem extends StatelessWidget {
                 color: isActive
                     ? context.colors.primary
                     : context.colors.onSurfaceVariant,
-                fontWeight:
-                    isActive ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ],

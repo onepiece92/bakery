@@ -2,6 +2,7 @@ import 'package:bakery_flutter/models/customerlogin_model.dart';
 import 'package:bakery_flutter/services/auth/customer_login.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:bakery_flutter/services/api_service.dart';
 
 class CustomerLoginProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -11,7 +12,13 @@ class CustomerLoginProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   CustomerLoginResponse? get data => _data;
-
+  
+  CustomerLoginProvider() {
+    ApiService.instance.onLogout = () {
+      final loginType = LocalStorageService.instance.getSessionType();
+      if (loginType == 'customer') logout();
+    };
+  }
   Future<void> login({
     required String email,
     required String password,
@@ -58,32 +65,26 @@ class CustomerLoginProvider extends ChangeNotifier {
   }
 
   // ── LOGOUT ──────────────────────────────────────────────────────────────────
- Future<void> logout() async {
-    debugPrint('====================================');
-    debugPrint('CustomerLoginProvider.logout START');
-    debugPrint('====================================');
+Future<void> logout() async {
+  debugPrint('====================================');
+  debugPrint('CustomerLoginProvider.logout START');
+  debugPrint('====================================');
 
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      await CustomerLoginService.instance.logout();
-      debugPrint('CustomerLoginProvider → API logout successful');
-      final storage = LocalStorageService.instance;
-      await storage.clearAll();
-      debugPrint('CustomerLoginProvider → LocalStorage cleared');
-
-    } catch (e) {
-      debugPrint('CustomerLoginProvider → logout ERROR: $e');
-      await LocalStorageService.instance.clearAll();
-    }
-    _data = null;
-    _errorMessage = null;
-    _isLoading = false;
-    debugPrint('CustomerLoginProvider → logout COMPLETE');
-    notifyListeners();
+  try {
+    await CustomerLoginService.instance.logout();
+    debugPrint('CustomerLoginProvider → API logout successful');
+  } catch (e) {
+    debugPrint('CustomerLoginProvider → logout API ERROR (ignored): $e');
   }
-  // ────────────────────────────────────────────────────────────────────────────
+
+  await LocalStorageService.instance.clearSession();
+  _data = null;
+  _errorMessage = null;
+  _isLoading = false;
+  debugPrint('CustomerLoginProvider → logout COMPLETE');
+  notifyListeners();
+}
+
 
   void reset() {
     debugPrint('CustomerLoginProvider → reset');

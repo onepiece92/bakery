@@ -20,11 +20,11 @@ class CartItem extends Equatable {
         cartItemId = cartItemId ??
             '${product.id}__${selectedVariant?.id ?? 'no_variant'}__${DateTime.now().microsecondsSinceEpoch}';
 
-  String get lineKey {
-    final variantPart = selectedVariant?.id ?? 'no_variant';
-    return '${product.id}__$variantPart';
-  }
-
+ String get lineKey {
+  final variantPart = selectedVariant?.id ?? 'no_variant';
+  final addonPart = (selectedAddons.map((a) => a.id).toList()..sort()).join('_');
+  return '${product.id}__${variantPart}__$addonPart';
+}
   double get unitPrice => selectedVariant?.price ?? product.displayPrice;
   double get addonTotal => selectedAddons.fold(0.0, (sum, a) => sum + a.price);
   double get effectiveUnitPrice => unitPrice + addonTotal;
@@ -33,5 +33,5 @@ class CartItem extends Equatable {
   List<String> get variantLabels => selectedVariant?.optionValues ?? [];
 
   @override
-  List<Object?> get props => [product.id, selectedVariant?.id];
+List<Object?> get props => [cartItemId];
 }

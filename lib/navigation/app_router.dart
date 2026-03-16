@@ -34,7 +34,7 @@ final GlobalKey<NavigatorState> _profileNavigatorKey =
 
 GoRouter createRouter(
   CustomerLoginProvider loginProvider,
-  QRLoginProvider qrLoginProvider,      
+  QRLoginProvider qrLoginProvider,
 ) =>
     GoRouter(
       navigatorKey: _rootNavigatorKey,
@@ -42,9 +42,9 @@ GoRouter createRouter(
       refreshListenable: Listenable.merge([loginProvider, qrLoginProvider]),
       redirect: (context, state) {
         final sessionType = LocalStorageService.instance.getSessionType();
-        final isLoggedIn  = loginProvider.isLoggedIn;
+        final isLoggedIn = loginProvider.isLoggedIn;
         final hasQrSession = qrLoginProvider.data != null;
-        final location    = state.matchedLocation;
+        final location = state.matchedLocation;
         if (sessionType == 'qr' || hasQrSession) return null;
         if (isLoggedIn) return null;
         const protected = ['/cart', '/favourites'];
@@ -55,7 +55,7 @@ GoRouter createRouter(
       },
       errorBuilder: (context, state) =>
           LayoutBuilder(builder: (context, constraints) {
-        final isWide   = constraints.maxWidth > 500;
+        final isWide = constraints.maxWidth > 500;
         final maxWidth = isWide ? 500.0 : double.infinity;
         return Center(
           child: ConstrainedBox(
@@ -107,9 +107,9 @@ GoRouter createRouter(
           path: '/',
           parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
-            final uri         = Uri.base;
+            final uri = Uri.base;
             final tableNumber = uri.queryParameters['tableNumber'];
-            final businessId  = uri.queryParameters['businessId'];
+            final businessId = uri.queryParameters['businessId'];
             debugPrint('====================================');
             debugPrint('ROUTE: /');
             debugPrint('tableId(url)   : $tableNumber');
@@ -118,7 +118,7 @@ GoRouter createRouter(
             return TableWelcomeScreen(
               // tableId:    "Table",
               // businessId: "698c89dd6f97647ce9de2194",
-              tableId:    tableNumber,
+              tableId: tableNumber,
               businessId: businessId,
             );
           },
@@ -207,15 +207,20 @@ GoRouter createRouter(
                 GoRoute(
                   path: '/profile',
                   builder: (context, state) {
-                    // 👇 listen to BOTH providers for reactive UI rebuilds
                     return ListenableBuilder(
                       listenable:
                           Listenable.merge([loginProvider, qrLoginProvider]),
                       builder: (context, _) {
                         final sessionType =
                             LocalStorageService.instance.getSessionType();
-                        final isLoggedIn   = loginProvider.isLoggedIn;
+                        final isLoggedIn = loginProvider.isLoggedIn;
                         final hasQrSession = qrLoginProvider.data != null;
+
+                        // 👇 Add this
+                        debugPrint('🔍 PROFILE BUILDER FIRED');
+                        debugPrint('   sessionType  : $sessionType');
+                        debugPrint('   isLoggedIn   : $isLoggedIn');
+                        debugPrint('   hasQrSession : $hasQrSession');
 
                         if (sessionType == 'qr' || hasQrSession) {
                           return const TableRequestScreen();
