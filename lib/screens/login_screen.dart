@@ -13,7 +13,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final TextEditingController _emailController    = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
     final provider = context.read<CustomerLoginProvider>();
 
     await provider.login(
-      email:    _emailController.text.trim(),
+      email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
     );
 
@@ -41,13 +41,13 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     // ── All theme access through ThemeX ───────────────────────────────────────
-    final provider     = context.watch<CustomerLoginProvider>();
-    final isLoading    = provider.isLoading;
+    final provider = context.watch<CustomerLoginProvider>();
+    final isLoading = provider.isLoading;
     final errorMessage = provider.errorMessage;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide   = constraints.maxWidth > 500;
+        final isWide = constraints.maxWidth > 500;
         final maxWidth = isWide ? 500.0 : double.infinity;
 
         return Center(
@@ -56,11 +56,9 @@ class _LoginState extends State<Login> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(2),
-
                 border: Border(
-              left: BorderSide(color: Colors.grey.shade300),
-                right: BorderSide(color: Colors.grey.shade300),
-        
+                  left: BorderSide(color: Colors.grey.shade300),
+                  right: BorderSide(color: Colors.grey.shade300),
                   bottom: BorderSide.none,
                 ),
               ),
@@ -73,11 +71,13 @@ class _LoginState extends State<Login> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 56),
-                        Image.asset('assets/images/lemon_drizzle_cake.png', height: 150),
+                        Image.asset('assets/images/lemon_drizzle_cake.png',
+                            height: 150),
                         const SizedBox(height: 16),
 
                         // ✅ was: textTheme.headlineLarge
-                        Text("Login to your account", style: context.text.headlineLarge),
+                        Text("Login to your account",
+                            style: context.text.headlineLarge),
                         const SizedBox(height: 6),
 
                         // ✅ was: textTheme.bodyMedium
@@ -88,17 +88,20 @@ class _LoginState extends State<Login> {
                         if (errorMessage != null) ...[
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
                             decoration: BoxDecoration(
                               // ✅ was: Colors.red.withOpacity(0.1) / Colors.red.withOpacity(0.4)
                               color: context.colors.error.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: context.colors.error.withOpacity(0.4)),
+                              border: Border.all(
+                                  color: context.colors.error.withOpacity(0.4)),
                             ),
                             child: Row(
                               children: [
                                 // ✅ was: Colors.redAccent (hardcoded)
-                                Icon(Icons.error_outline, color: context.colors.error, size: 20),
+                                Icon(Icons.error_outline,
+                                    color: context.colors.error, size: 20),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
@@ -123,10 +126,13 @@ class _LoginState extends State<Login> {
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
-                                decoration: const InputDecoration(hintText: "Enter your email"),
+                                decoration: const InputDecoration(
+                                    hintText: "Enter your email"),
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) return 'Please enter your email';
-                                  if (!value.contains('@')) return 'Please enter a valid email';
+                                  if (value == null || value.isEmpty)
+                                    return 'Please enter your email';
+                                  if (!value.contains('@'))
+                                    return 'Please enter a valid email';
                                   return null;
                                 },
                               ),
@@ -134,10 +140,13 @@ class _LoginState extends State<Login> {
                               TextFormField(
                                 controller: _passwordController,
                                 obscureText: true,
-                                decoration: const InputDecoration(hintText: "Password"),
+                                decoration:
+                                    const InputDecoration(hintText: "Password"),
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) return 'Please enter your password';
-                                  if (value.length < 6) return 'Password must be at least 6 characters';
+                                  if (value == null || value.isEmpty)
+                                    return 'Please enter your password';
+                                  if (value.length < 6)
+                                    return 'Password must be at least 6 characters';
                                   return null;
                                 },
                               ),
@@ -185,9 +194,12 @@ class _LoginState extends State<Login> {
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton(
-                            onPressed: isLoading ? null : () => context.push('/signup'),
+                            onPressed: isLoading
+                                ? null
+                                : () => context.push('/signup'),
                             // ✅ was: textTheme.labelLarge
-                            child: Text("Create New Account", style: context.text.labelLarge),
+                            child: Text("Create New Account",
+                                style: context.text.labelLarge),
                           ),
                         ),
                         const SizedBox(height: 32),

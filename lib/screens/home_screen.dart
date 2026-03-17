@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen>
                 scrolledUnderElevation: 0,
                 title: Text(
                   businessName ?? "Foxys Corner".toTitleCase(),
-                  style:AppTextStyles.disPlayMediumWhite,
+                  style: AppTextStyles.disPlayMediumWhite,
                 ),
                 actions: [
                   IconButton(
@@ -164,12 +164,14 @@ class _HomeScreenState extends State<HomeScreen>
                   opacity: _fadeAnim,
                   child: isInitialLoad
                       ? Padding(
-                        padding: const EdgeInsets.only(top:8.0),
-                        child: HomeScreenShimmer(isGrid: viewMode.isGrid),
-                      )
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: HomeScreenShimmer(isGrid: viewMode.isGrid),
+                        )
                       : Column(
                           children: [
-                            SizedBox(height: 15,),
+                            SizedBox(
+                              height: 15,
+                            ),
                             // ── Search ───────────────────────────────────────
                             Padding(
                               padding:
@@ -457,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   return GridProductCard(
                                                     product: p,
                                                     onTap: () => context.push(
-                                                        '/home/product',
+                                                        '/product',
                                                         extra: p),
                                                     onQuickAdd: () =>
                                                         _quickAdd(p),
@@ -481,14 +483,14 @@ class _HomeScreenState extends State<HomeScreen>
                                                   return ProductCard(
                                                     product: p,
                                                     onTap: () => context.push(
-                                                        '/home/product',
+                                                        '/product',
                                                         extra: p),
                                                     onQuickAdd: () =>
                                                         _quickAdd(p),
-                                                    isFavourite: favProv
-                                                        .isFavourite(p.id),
-                                                    onToggleFavourite: () =>
-                                                        favProv.toggle(p.id),
+                                                    // isFavourite: favProv
+                                                    //     .isFavourite(p.id),
+                                                    // onToggleFavourite: () =>
+                                                    //     favProv.toggle(p.id),
                                                   );
                                                 },
                                               ),

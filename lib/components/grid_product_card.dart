@@ -125,7 +125,7 @@ class GridProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          '\$${product.displayPrice.toStringAsFixed(2)}',
+                          'Rs ${product.displayPrice.toStringAsFixed(2)}',
                           style: AppTextStyles.price,
                           overflow: TextOverflow
                               .ellipsis, // shrinks with ... if needed

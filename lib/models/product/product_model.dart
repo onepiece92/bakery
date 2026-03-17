@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-
 class Addon extends Equatable {
   final String id;
   final String name;
@@ -37,7 +36,8 @@ class Addon extends Equatable {
       };
 
   @override
-  List<Object?> get props => [id, name, description, price, maxAvailable, adminId];
+  List<Object?> get props =>
+      [id, name, description, price, maxAvailable, adminId];
 }
 
 class VariantItem extends Equatable {
@@ -89,8 +89,15 @@ class VariantItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, optionValues, price, costPrice,
-        isAvailable, inStock, lowStock, createdAt, updatedAt,
+        id,
+        optionValues,
+        price,
+        costPrice,
+        isAvailable,
+        inStock,
+        lowStock,
+        createdAt,
+        updatedAt,
       ];
 }
 
@@ -125,8 +132,8 @@ class Variants extends Equatable {
   final String id;
   final String productId;
   final String adminId;
-  final List<VariantOption> options; 
-  final List<VariantItem> variantItems; 
+  final List<VariantOption> options;
+  final List<VariantItem> variantItems;
 
   const Variants({
     required this.id,
@@ -216,6 +223,7 @@ class Product extends Equatable {
         .map((v) => v.price)
         .reduce((a, b) => a < b ? a : b);
   }
+
   List<double> get variantPrices =>
       hasVariants ? variants!.variantItems.map((v) => v.price).toList() : [];
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -278,9 +286,27 @@ class Product extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, name, description, image, adminId, sku, categories, soldBy,
-        price, costPrice, isVeg, isAvailable, usesOfferPrice, isTaxable,
-        usesStocks, showInOrdering, inStock, lowStock, orderedCount,
-        addons, tags, variants,
+        id,
+        name,
+        description,
+        image,
+        adminId,
+        sku,
+        categories,
+        soldBy,
+        price,
+        costPrice,
+        isVeg,
+        isAvailable,
+        usesOfferPrice,
+        isTaxable,
+        usesStocks,
+        showInOrdering,
+        inStock,
+        lowStock,
+        orderedCount,
+        addons,
+        tags,
+        variants,
       ];
 }

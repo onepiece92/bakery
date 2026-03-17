@@ -31,7 +31,6 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-       
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: ConstrainedBox(

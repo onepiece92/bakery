@@ -26,95 +26,97 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
     final products = context.watch<ProductProvider>().products;
     final favs = products.where((p) => favProv.isFavourite(p.id)).toList();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 500;
-        final maxWidth = isWide ? 500.0 : double.infinity;
-        return Center(
-          child: ConstrainedBox(
-             constraints: BoxConstraints(maxWidth: maxWidth),
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                border: Border(
+    return LayoutBuilder(builder: (context, constraints) {
+      final isWide = constraints.maxWidth > 500;
+      final maxWidth = isWide ? 500.0 : double.infinity;
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              border: Border(
                 // top: BorderSide(color: Colors.grey.shade300),
                 left: BorderSide(color: Colors.grey.shade300),
                 right: BorderSide(color: Colors.grey.shade300),
                 bottom: BorderSide.none, // removes bottom border
               ),
-                ),
-              child: Scaffold(
-                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                  appBar: AppBar(
-                    automaticallyImplyActions: true,
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('My Favourites',
-                                style: Theme.of(context).textTheme.displayMedium),
-                            const SizedBox(height: 4),
-                            Text(
-                                '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
-                                style: Theme.of(context).textTheme.titleSmall),
-                      ],
-                    ),
-                    // leading: const Padding(
-                    //   padding: EdgeInsets.only(left: 8.0),
-                    //   child: BakeryBackButton(),
-                    // ),
-                  ),
-                  body: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       Text('My Favourites',
-                      //           style: Theme.of(context).textTheme.displayMedium),
-                      //       const SizedBox(height: 4),
-                      //       Text(
-                      //           '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
-                      //           style: Theme.of(context).textTheme.bodySmall),
-                      //     ],
-                      //   ),
-                      // ),
-                      SizedBox(height: 15,),
-                      Expanded(
-                        child: favs.isEmpty
-                            ? EmptyFavourites()
-                            : GridView.builder(
-                                padding: const EdgeInsets.fromLTRB(24, 0, 24, 80),
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
-                                  childAspectRatio: 0.8,
-                                ),
-                                itemCount: favs.length,
-                                itemBuilder: (_, i) {
-                                  final p = favs[i];
-                                  return GridProductCard(
-                                    product: p,
-                                    onTap: () =>
-                                        context.push('/favourites/product', extra: p),
-                                    onQuickAdd: () => cart.addProduct(p),
-                                    isFavourite: favProv.isFavourite(p.id),
-                                    onToggleFavourite: () => favProv.toggle(p.id),
-                                  );
-                                },
-                              ),
-                      ),
-                    ],
-                  )),
             ),
+            child: Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                appBar: AppBar(
+                  automaticallyImplyActions: true,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('My Favourites',
+                          style: Theme.of(context).textTheme.displayMedium),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
+                  // leading: const Padding(
+                  //   padding: EdgeInsets.only(left: 8.0),
+                  //   child: BakeryBackButton(),
+                  // ),
+                ),
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Padding(
+                    //   padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Text('My Favourites',
+                    //           style: Theme.of(context).textTheme.displayMedium),
+                    //       const SizedBox(height: 4),
+                    //       Text(
+                    //           '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
+                    //           style: Theme.of(context).textTheme.bodySmall),
+                    //     ],
+                    //   ),
+                    // ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 8),
+                      child: Text(
+                          '${favs.length} favourite item${favs.length != 1 ? 's' : ''}',
+                          style: AppBarTheme.of(context).titleTextStyle),
+                    ),
+                    Expanded(
+                      child: favs.isEmpty
+                          ? EmptyFavourites()
+                          : GridView.builder(
+                              padding: const EdgeInsets.fromLTRB(15, 0, 15, 80),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.8,
+                              ),
+                              itemCount: favs.length,
+                              itemBuilder: (_, i) {
+                                final p = favs[i];
+                                return GridProductCard(
+                                  product: p,
+                                  onTap: () =>
+                                      context.push('/product', extra: p),
+                                  onQuickAdd: () => cart.addProduct(p),
+                                  isFavourite: favProv.isFavourite(p.id),
+                                  onToggleFavourite: () => favProv.toggle(p.id),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                )),
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 }
 
@@ -134,7 +136,7 @@ class _EmptyFavourites extends StatelessWidget {
             // const SizedBox(height: 16),
             Text('No favourites yet',
                 style: Theme.of(context).textTheme.headlineMedium),
-      
+
             const SizedBox(height: 32),
             const BrowseMenuButton(),
           ],

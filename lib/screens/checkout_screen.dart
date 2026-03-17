@@ -42,8 +42,8 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  int _step = 1; 
-  int _selectedPayment = 2; 
+  int _step = 1;
+  int _selectedPayment = 2;
   late final bool _isBusinessSession =
       LocalStorageService.instance.getIsBusinessSession();
 
@@ -111,14 +111,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ],
                           ),
                         ),
-        
+
                       // Step content
                       Expanded(
                         child: SingleChildScrollView(
                           padding: const EdgeInsets.fromLTRB(24, 0, 24, 140),
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
-            
                             child: (_isBusinessSession && _step == 1)
                                 ? _Step1(addr: addr, key: const ValueKey(1))
                                 : _Step2(
@@ -135,7 +134,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ],
                   ),
-        
+
                   // CTA Button
                   Positioned(
                     bottom: 0,
@@ -358,8 +357,6 @@ class _Step2 extends StatelessWidget {
               product: item.product,
               onTap: () => context.push('/home/product', extra: item.product),
               onQuickAdd: () => cart.addProduct(item.product),
-              isFavourite: favProv.isFavourite(item.product.id),
-              onToggleFavourite: () => favProv.toggle(item.product.id),
             ),
           );
         }),

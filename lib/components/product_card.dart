@@ -9,7 +9,7 @@ import '../theme/app_decorations.dart';
 import '../theme/app_text_styles.dart';
 import '../providers/cart_provider.dart';
 
-class ProductCard extends StatelessWidget {
+class CartCard extends StatelessWidget {
   final Product product;
   final VoidCallback onTap;
   final VoidCallback onQuickAdd;
@@ -18,7 +18,7 @@ class ProductCard extends StatelessWidget {
   final String? cartItemId;
   final int? cartItemQty;
 
-  const ProductCard({
+  const CartCard({
     super.key,
     required this.product,
     required this.onTap,
@@ -137,7 +137,7 @@ class ProductCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '\$${product.displayPrice.toStringAsFixed(2)}',
+                            '\Rs ${product.displayPrice.toStringAsFixed(2)}',
                             style: AppTextStyles.price,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -157,6 +157,185 @@ class ProductCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// import 'package:bakery_flutter/extensions/string_casing_extension.dart';
+// import 'package:bakery_flutter/models/product/product_model.dart';
+// import 'package:bakery_flutter/providers/favourites_provider.dart';
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+// import '../theme/app_colors.dart';
+// import '../theme/app_decorations.dart';
+// import '../theme/app_text_styles.dart';
+// import '../providers/cart_provider.dart';
+
+class ProductCard extends StatelessWidget {
+  final Product product;
+  final VoidCallback onTap; // Navigate to detail (variants or manage)
+  final VoidCallback onQuickAdd; // Direct add 1 (no variants)
+  final String? cartItemId;
+  final int? cartItemQty;
+
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.onTap,
+    required this.onQuickAdd,
+    this.cartItemId,
+    this.cartItemQty,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final qty = cartItemQty ??
+        context.select<CartProvider, int>((cart) => cart.items
+            .where((i) => i.product.id == product.id)
+            .fold(0, (sum, i) => sum + i.quantity));
+
+    final hasVariants = product.hasVariants;
+
+    return GestureDetector(
+      onTap: onTap, // Card tap → detail page
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Hero image + favourite overlay
+            Stack(
+              children: [
+                Image.network(
+                  product.image,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 180,
+                    color: Colors.grey.shade300,
+                    child: const Icon(
+                      Icons.broken_image_rounded,
+                      size: 60,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      height: 180,
+                      color: Colors.grey.shade300,
+                      child: const Center(child: CircularProgressIndicator()),
+                    );
+                  },
+                ),
+
+                // Favourite button (top-right)
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Consumer<FavouritesProvider>(
+                    builder: (context, favProv, _) {
+                      final isFav = favProv.isFavourite(product.id);
+                      return GestureDetector(
+                        onTap: () => favProv.toggle(product.id),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? Colors.redAccent : Colors.white,
+                              size: 24,
+                              key: ValueKey(isFav),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            // Content area
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Name
+                  Text(
+                    product.name.toTitleCase(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Description
+                  Text(
+                    product.description.isNotEmpty
+                        ? product.description.toTitleCase()
+                        : "No Description",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Price + AddCounter (this is the interactive part)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '\Rs ${product.displayPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFF5722),
+                        ),
+                      ),
+                      AddCounter(
+                        qty: qty,
+                        productId: product.id,
+                        hasVariants: hasVariants,
+                        onAdd: () {
+                          // When user taps + on AddCounter and no variants
+                          onQuickAdd();
+                        },
+                        onNavigate:
+                            onTap, // When user taps the counter area and has variants
+                        cartItemId: cartItemId,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -193,8 +372,8 @@ class AddCounter extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeInOut,
-      height: 32,
-      width: showExpanded ? 88 : 32,
+      height: 40,
+      width: showExpanded ? 88 : 80, // slightly wider for "Add +" text
       decoration: BoxDecoration(
         color: AppColors.primaryRed,
         borderRadius: BorderRadius.circular(AppDecorations.radiusSM),
@@ -265,8 +444,26 @@ class AddCounter extends StatelessWidget {
             )
           : GestureDetector(
               onTap: addAction,
-              child: Icon(Icons.add_rounded,
-                  color: Theme.of(context).colorScheme.onSecondary, size: 18),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                // mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    'Add',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

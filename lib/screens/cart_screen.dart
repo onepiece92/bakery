@@ -115,8 +115,11 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
               appBar: AppBar(
                 scrolledUnderElevation: 0,
                 elevation: 0,
-               automaticallyImplyActions: true,
-                title:  Text('Your Cart',style:AppTextStyles.disPlayMediumWhite,),
+                automaticallyImplyActions: true,
+                title: Text(
+                  'Your Cart',
+                  style: AppTextStyles.disPlayMediumWhite,
+                ),
                 actions: [
                   if (cart.items.isNotEmpty)
                     Center(
@@ -124,7 +127,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                         padding: const EdgeInsets.only(right: 24),
                         child: Text(
                           '${cart.totalCount} item${cart.totalCount != 1 ? 's' : ''}',
-                          style:  AppTextStyles.bodySmallWhite,
+                          style: AppTextStyles.bodySmallWhite,
                         ),
                       ),
                     ),
@@ -132,15 +135,14 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
               ),
               body: Stack(
                 children: [
-                
                   Column(
                     children: [
                       Expanded(
                         child: cart.items.isEmpty
                             ? const EmptyCartView()
                             : ListView(
-                                padding: const EdgeInsets.fromLTRB(
-                                    16, 0, 16, 150),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 0, 16, 150),
                                 children: [
                                   ...cart.items.map((item) {
                                     final key = item.cartItemId;
@@ -148,37 +150,33 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                         _expandedNoteKeys.contains(key);
                                     final hasNote = item.note != null &&
                                         item.note!.isNotEmpty;
-              
+
                                     return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 14,top: 14),
+                                      padding: const EdgeInsets.only(
+                                          bottom: 14, top: 14),
                                       child: AnimatedSize(
-                                        duration: const Duration(
-                                            milliseconds: 250),
+                                        duration:
+                                            const Duration(milliseconds: 250),
                                         curve: Curves.easeInOut,
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            ProductCard(
+                                            CartCard(
                                               product: item.product,
                                               onTap: () => context.push(
-                                                  '/home/product',
+                                                  '/product',
                                                   extra: item.product),
-                                              onQuickAdd: () => cart
-                                                  .addProduct(item.product),
-                                              isFavourite: favProv
-                                                  .isFavourite(
-                                                      item.product.id),
-                                              onToggleFavourite: () =>
-                                                  favProv.toggle(
-                                                      item.product.id),
+                                              onQuickAdd: () =>
+                                                  cart.addProduct(item.product),
                                               cartItemId: item.cartItemId,
                                               cartItemQty: item.quantity,
+                                              isFavourite: true,
+                                              onToggleFavourite: () {},
                                             ),
-              
-                                            if (item.selectedAddons
-                                                .isNotEmpty) ...[
+
+                                            if (item
+                                                .selectedAddons.isNotEmpty) ...[
                                               const SizedBox(height: 6),
                                               Wrap(
                                                 spacing: 6,
@@ -196,10 +194,9 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                           .withValues(
                                                               alpha: 0.06),
                                                       borderRadius:
-                                                          BorderRadius
-                                                              .circular(
-                                                                  AppDecorations
-                                                                      .radiusCard),
+                                                          BorderRadius.circular(
+                                                              AppDecorations
+                                                                  .radiusCard),
                                                       border: Border.all(
                                                         color: AppColors
                                                             .terracotta
@@ -213,51 +210,51 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                       children: [
                                                         Text(
                                                           '+ ${addon.name}',
-                                                          style:  AppTextStyles.bodySmallWhite
+                                                          style: AppTextStyles
+                                                              .bodySmallWhite
                                                               .copyWith(
                                                             color: AppColors
                                                                 .terracotta,
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .w500,
+                                                                FontWeight.w500,
                                                           ),
                                                         ),
                                                         const SizedBox(
                                                             width: 4),
                                                         Text(
                                                           '\$${addon.price.toStringAsFixed(2)}',
-                                                          style: AppTextStyles.bodySmallWhite
+                                                          style: AppTextStyles
+                                                              .bodySmallWhite
                                                               .copyWith(
                                                             color: AppColors
                                                                 .terracotta
                                                                 .withValues(
-                                                                    alpha:
-                                                                        0.7),
+                                                                    alpha: 0.7),
                                                           ),
                                                         ),
                                                         const SizedBox(
                                                             width: 6),
                                                         GestureDetector(
                                                           onTap: () {
-                                                            final updatedAddons = item
-                                                                .selectedAddons
-                                                                .where((a) =>
-                                                                    a.id !=
-                                                                    addon.id)
-                                                                .toList();
+                                                            final updatedAddons =
+                                                                item
+                                                                    .selectedAddons
+                                                                    .where((a) =>
+                                                                        a.id !=
+                                                                        addon
+                                                                            .id)
+                                                                    .toList();
                                                             cart.updateAddons(
                                                                 item.cartItemId,
                                                                 updatedAddons);
                                                           },
                                                           child: Icon(
-                                                            Icons
-                                                                .close_rounded,
+                                                            Icons.close_rounded,
                                                             size: 14,
                                                             color: AppColors
                                                                 .terracotta
                                                                 .withValues(
-                                                                    alpha:
-                                                                        0.7),
+                                                                    alpha: 0.7),
                                                           ),
                                                         ),
                                                       ],
@@ -266,13 +263,12 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 }).toList(),
                                               ),
                                             ],
-              
+
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 4, top: 6),
                                               child: GestureDetector(
-                                                onTap: () =>
-                                                    _toggleNote(item),
+                                                onTap: () => _toggleNote(item),
                                                 child: Row(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
@@ -310,7 +306,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 ),
                                               ),
                                             ),
-              
+
                                             // ── Expanded note field ──────────────
                                             if (isExpanded) ...[
                                               const SizedBox(height: 8),
@@ -328,21 +324,18 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                         color: AppColors
                                                             .backgroundDark),
                                                 decoration: InputDecoration(
-                                                  hintText:
-                                                      '',
+                                                  hintText: '',
                                                   hintStyle: context
                                                       .text.bodySmall
                                                       ?.copyWith(
                                                           color: AppColors
                                                               .textLight),
                                                   filled: true,
-                                                  fillColor: context
-                                                      .colors
+                                                  fillColor: context.colors
                                                       .surfaceContainerLow
                                                       .withValues(alpha: 0.4),
                                                   contentPadding:
-                                                      const EdgeInsets.all(
-                                                          10),
+                                                      const EdgeInsets.all(10),
                                                   isDense: true,
                                                   counterStyle: context
                                                       .appTheme.caption
@@ -395,7 +388,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 ),
                                               ),
                                             ],
-              
+
                                             // ── Saved note display ───────────────
                                             if (!isExpanded && hasNote) ...[
                                               const SizedBox(height: 6),
@@ -435,11 +428,10 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                       ),
                                     );
                                   }),
-              
+
                                   // ── Price summary ────────────────────────────
                                   Card(
-                                    color: context
-                                        .colors.surfaceContainerLow
+                                    color: context.colors.surfaceContainerLow
                                         .withValues(alpha: 0.5),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
@@ -459,9 +451,8 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                               value: cart.subtotal),
                                           const SizedBox(height: 10),
                                           Padding(
-                                            padding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 12),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 12),
                                             child: Divider(
                                                 height: 1,
                                                 color: AppColors.backgroundDark
@@ -469,14 +460,13 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                           ),
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text('Total',
                                                   style: context
                                                       .text.headlineMedium),
                                               Text(
-                                                '\$${cart.total.toStringAsFixed(2)}',
+                                                'Rs ${cart.total.toStringAsFixed(2)}',
                                                 style: context
                                                     .appTheme.priceLarge
                                                     .copyWith(
@@ -494,7 +484,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                       ),
                     ],
                   ),
-              
+
                   // ── Checkout button ──────────────────────────────────────────
                   if (cart.items.isNotEmpty && !_isKeyboardOpen)
                     Positioned(
@@ -505,19 +495,18 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                         builder: (context, tableReq, _) => PrimaryButton(
                           label: tableReq.isLoadingFood
                               ? 'Placing Order...'
-                              : 'Checkout — \$${cart.total.toStringAsFixed(2)}',
+                              : 'Checkout — Rs ${cart.total.toStringAsFixed(2)}',
                           onTap: tableReq.isLoadingFood
                               ? null
                               : () async {
                                   _flushNotes(cart);
-              
+
                                   if (cart.items.isEmpty) return;
-              
+
                                   final orderProv =
                                       context.read<OrderProvider>();
-              
-                                  final foodItems =
-                                      cart.items.map((item) {
+
+                                  final foodItems = cart.items.map((item) {
                                     return FoodItemRequest(
                                       product: item.product.id,
                                       quantity: item.quantity,
@@ -529,32 +518,29 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                           .toList(),
                                     );
                                   }).toList();
-              
+
                                   await tableReq.requestFood(
                                     businessId: LocalStorageService.instance
                                             .getBusinessId() ??
                                         '',
                                     foodItems: foodItems,
                                   );
-                                   
-              
+
                                   if (!mounted) return;
-              
+
                                   final success = tableReq
                                           .lastSuccessResponse?['success'] ==
                                       true;
-              
-                                  if (success) {
 
-                                     await orderProv.placeOrder(
+                                  if (success) {
+                                    await orderProv.placeOrder(
                                       items: cart.items.toList(),
                                       subtotal: cart.subtotal,
                                       isBusinessOrder: isBusiness,
                                     );
                                     final orderId =
                                         'order_${DateTime.now().millisecondsSinceEpoch}';
-                                  
-              
+
                                     debugPrint('Order saved: $orderId');
                                     final saved =
                                         HiveOrderService.getOrder(orderId);
@@ -575,8 +561,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                             '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
                                         if (item.note != null &&
                                             item.note!.isNotEmpty) {
-                                          debugPrint(
-                                              '    Note: ${item.note}');
+                                          debugPrint('    Note: ${item.note}');
                                         }
                                         if (item.selectedVariant != null) {
                                           debugPrint(
@@ -593,15 +578,14 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                       debugPrint(
                                           ' ORDER NOT FOUND IN HIVE — something went wrong');
                                     }
-              
+
                                     if (isBusiness) {
                                       debugPrint('===== CART ITEMS =====');
                                       for (final item in cart.items) {
                                         final p = item.product;
                                         debugPrint('---------------------');
                                         debugPrint('ID            : ${p.id}');
-                                        debugPrint(
-                                            'Name          : ${p.name}');
+                                        debugPrint('Name          : ${p.name}');
                                         debugPrint(
                                             'Description   : ${p.description}');
                                         debugPrint(
@@ -678,7 +662,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                       debugPrint(
                                           'Total      : \$${cart.total.toStringAsFixed(2)}');
                                       debugPrint('=====================');
-              
+
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
@@ -693,7 +677,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                     } else {
                                       context.push('/cart/checkout');
                                     }
-              
+
                                     cart.clear();
                                   } else {
                                     debugPrint(
@@ -736,7 +720,7 @@ class _PriceSummaryRow extends StatelessWidget {
           style: context.text.bodyMedium?.copyWith(color: AppColors.textLight),
         ),
         Text(
-          '\$${value.toStringAsFixed(2)}',
+          'Rs ${value.toStringAsFixed(2)}',
           style: context.text.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: AppColors.backgroundDark,
