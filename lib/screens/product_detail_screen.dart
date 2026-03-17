@@ -141,144 +141,142 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
 
-                  // ── 2. Content scrolls up over the fixed image ─
                   SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Transparent gap that "reveals" the fixed image
-                        SizedBox(height: imageHeight - curveRadius),
-
-                        // White card with rounded top corners
-                        Container(
-                          decoration: BoxDecoration(
-                            color: context.theme.scaffoldBackgroundColor,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(curveRadius),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(height: imageHeight - curveRadius),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: context.theme.scaffoldBackgroundColor,
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(curveRadius),
+                              ),
                             ),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(16, 10, 12, 140),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // ── Name ────────────────────────
-                              Text(
-                                widget.product.name.toTitleCase(),
-                                style: context.text.displayMedium
-                                    ?.copyWith(color: AppColors.backgroundDark),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Rs ${(_matchedVariant?.price ?? widget.product.displayPrice).toStringAsFixed(2)}',
-                                style: context.text.titleLarge?.copyWith(
-                                    color: context.colors.primary,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 20),
-                              ),
-                              const SizedBox(height: 10),
+                            padding: const EdgeInsets.fromLTRB(16, 10, 12, 140),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // ── Name ────────────────────────
+                                Text(
+                                  widget.product.name.toTitleCase(),
+                                  style: context.text.displayMedium?.copyWith(
+                                      color: AppColors.backgroundDark),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Rs ${(_matchedVariant?.price ?? widget.product.displayPrice).toStringAsFixed(2)}',
+                                  style: context.text.titleLarge?.copyWith(
+                                      color: context.colors.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 20),
+                                ),
+                                const SizedBox(height: 10),
 
-                              Visibility(
-                                visible: widget.product.description.isNotEmpty,
-                                maintainSize: false,
-                                maintainAnimation: false,
-                                maintainState: false,
-                                child: Text(
-                                  widget.product.description.toTitleCase(),
-                                  style: context.text.bodyMedium?.copyWith(
-                                    color: context.text.bodySmall?.color,
-                                    height: 1.6,
+                                Visibility(
+                                  visible:
+                                      widget.product.description.isNotEmpty,
+                                  maintainSize: false,
+                                  maintainAnimation: false,
+                                  maintainState: false,
+                                  child: Text(
+                                    widget.product.description.toTitleCase(),
+                                    style: context.text.bodyMedium?.copyWith(
+                                      color: context.text.bodySmall?.color,
+                                      height: 1.6,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              // const SizedBox(height: 28),
+                                // const SizedBox(height: 28),
 
-                              // ── Variants ─────────────────────
-                              if (variants != null &&
-                                  variants.options.isNotEmpty) ...[
-                                ...variants.options.map((option) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _SectionHeader(
-                                        title: option.title.toTitleCase(),
-                                        isRequired: true,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      ...option.values.map((value) {
-                                        final isActive = _selectedOptionValues[
-                                                option.title] ==
-                                            value;
-                                        final matchingItem =
-                                            variants.variantItems.firstWhere(
-                                          (item) =>
-                                              item.optionValues.contains(value),
-                                          orElse: () =>
-                                              variants.variantItems.first,
-                                        );
-
-                                        return _OptionItem(
-                                          name: value,
-                                          price: matchingItem.price,
-                                          isActive: isActive,
-                                          onTap: () => setState(() =>
+                                if (variants != null &&
+                                    variants.options.isNotEmpty) ...[
+                                  ...variants.options.map((option) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        _SectionHeader(
+                                          title: option.title.toTitleCase(),
+                                          isRequired: true,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        ...option.values.map((value) {
+                                          final isActive =
                                               _selectedOptionValues[
-                                                  option.title] = value),
-                                        );
-                                      }),
-                                      // const SizedBox(height: 8),
-                                    ],
-                                  );
-                                }),
-                              ],
+                                                      option.title] ==
+                                                  value;
+                                          final matchingItem =
+                                              variants.variantItems.firstWhere(
+                                            (item) => item.optionValues
+                                                .contains(value),
+                                            orElse: () =>
+                                                variants.variantItems.first,
+                                          );
 
-                              // ── Add-ons ──────────────────────
-                              if (addons.isNotEmpty) ...[
-                                const _SectionHeader(
-                                  title: 'Add-ons',
-                                  isRequired: false,
-                                ),
-                                const SizedBox(height: 12),
-                                ...addons.map((addon) {
-                                  final isActive =
-                                      _selectedAddonIds.contains(addon.id);
-                                  return _OptionItem(
-                                    name: addon.name,
-                                    price: addon.price,
-                                    isActive: isActive,
-                                    isCheckbox: true,
-                                    onTap: () => setState(() {
-                                      if (isActive) {
-                                        _selectedAddonIds.remove(addon.id);
-                                      } else {
-                                        _selectedAddonIds.add(addon.id);
-                                      }
-                                    }),
-                                  );
-                                }),
-                                const SizedBox(height: 24),
+                                          return _OptionItem(
+                                            name: value,
+                                            price: matchingItem.price,
+                                            isActive: isActive,
+                                            onTap: () => setState(() =>
+                                                _selectedOptionValues[
+                                                    option.title] = value),
+                                          );
+                                        }),
+                                        // const SizedBox(height: 8),
+                                      ],
+                                    );
+                                  }),
+                                ],
+
+                                if (addons.isNotEmpty) ...[
+                                  const _SectionHeader(
+                                    title: 'Add-ons',
+                                    isRequired: false,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ...addons.map((addon) {
+                                    final isActive =
+                                        _selectedAddonIds.contains(addon.id);
+                                    return _OptionItem(
+                                      name: addon.name,
+                                      price: addon.price,
+                                      isActive: isActive,
+                                      isCheckbox: true,
+                                      onTap: () => setState(() {
+                                        if (isActive) {
+                                          _selectedAddonIds.remove(addon.id);
+                                        } else {
+                                          _selectedAddonIds.add(addon.id);
+                                        }
+                                      }),
+                                    );
+                                  }),
+                                  const SizedBox(height: 24),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
 
-                  // ── 3. Action buttons float above the image ────
                   SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Back
                           _HeroButton(
                             child: const BakeryBackButton(),
                           ),
                           Row(
                             children: [
-                              // Favourite
                               _HeroButton(
                                 onTap: () => favProv.toggle(widget.product.id),
                                 child: Icon(
@@ -347,9 +345,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 }
 
-// ── Private Helper Widgets ────────────────────────────────────────
-
-/// Semi-transparent circular button used over the hero image.
 class _HeroButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
