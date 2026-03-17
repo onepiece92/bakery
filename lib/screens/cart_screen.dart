@@ -103,7 +103,6 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
               border: Border(
-                // top: BorderSide(color: Colors.grey.shade300),
                 left: BorderSide(color: Colors.grey.shade300),
                 right: BorderSide(color: Colors.grey.shade300),
                 bottom: BorderSide.none,
@@ -115,8 +114,11 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
               appBar: AppBar(
                 scrolledUnderElevation: 0,
                 elevation: 0,
-               automaticallyImplyActions: true,
-                title:  Text('Your Cart',style:AppTextStyles.disPlayMediumWhite,),
+                automaticallyImplyActions: true,
+                title: Text(
+                  'Your Cart',
+                  style: AppTextStyles.disPlayMediumWhite,
+                ),
                 actions: [
                   if (cart.items.isNotEmpty)
                     Center(
@@ -124,7 +126,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                         padding: const EdgeInsets.only(right: 24),
                         child: Text(
                           '${cart.totalCount} item${cart.totalCount != 1 ? 's' : ''}',
-                          style:  AppTextStyles.bodySmallWhite,
+                          style: AppTextStyles.bodySmallWhite,
                         ),
                       ),
                     ),
@@ -132,15 +134,14 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
               ),
               body: Stack(
                 children: [
-                
                   Column(
                     children: [
                       Expanded(
                         child: cart.items.isEmpty
                             ? const EmptyCartView()
                             : ListView(
-                                padding: const EdgeInsets.fromLTRB(
-                                    16, 0, 16, 150),
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 0, 16, 150),
                                 children: [
                                   ...cart.items.map((item) {
                                     final key = item.cartItemId;
@@ -148,62 +149,38 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                         _expandedNoteKeys.contains(key);
                                     final hasNote = item.note != null &&
                                         item.note!.isNotEmpty;
-              
+
                                     return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 14,top: 14),
+                                      padding: const EdgeInsets.only(
+                                          bottom: 14, top: 14),
                                       child: AnimatedSize(
-                                        duration: const Duration(
-                                            milliseconds: 250),
+                                        duration:
+                                            const Duration(milliseconds: 250),
                                         curve: Curves.easeInOut,
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
+                                            // ── Product card ──────────────────────
                                             ProductCard(
                                               product: item.product,
-                                              onTap: () => context.push(
-                                                  '/home/product',
-                                                  extra: item.product),
-                                              onQuickAdd: () => cart
-                                                  .addProduct(item.product),
+                                              onTap: () => () {},
+                                              onQuickAdd: () =>
+                                                  cart.addProduct(item.product),
                                               isFavourite: favProv
-                                                  .isFavourite(
-                                                      item.product.id),
-                                              onToggleFavourite: () =>
-                                                  favProv.toggle(
-                                                      item.product.id),
+                                                  .isFavourite(item.product.id),
+                                              onToggleFavourite: () => favProv
+                                                  .toggle(item.product.id),
                                               cartItemId: item.cartItemId,
                                               cartItemQty: item.quantity,
+                                              variantLabels: item
+                                                  .selectedVariant
+                                                  ?.optionValues,
                                             ),
-                                            if (item.selectedVariant != null) ...[
-  const SizedBox(height: 6),
-  Wrap(
-    spacing: 6,
-    children: item.selectedVariant!.optionValues.map((value) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: AppColors.backgroundDark.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(AppDecorations.radiusCard),
-          border: Border.all(
-            color: AppColors.backgroundDark.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Text(
-          value,
-          style: AppTextStyles.bodySmallWhite.copyWith(
-            color: AppColors.backgroundDark,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      );
-    }).toList(),
-  ),
-],
-              
-                                            if (item.selectedAddons
-                                                .isNotEmpty) ...[
+
+                                            // ── Addons ──────────────────────────
+                                            if (item
+                                                .selectedAddons.isNotEmpty) ...[
                                               const SizedBox(height: 6),
                                               Wrap(
                                                 spacing: 6,
@@ -221,10 +198,9 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                           .withValues(
                                                               alpha: 0.06),
                                                       borderRadius:
-                                                          BorderRadius
-                                                              .circular(
-                                                                  AppDecorations
-                                                                      .radiusCard),
+                                                          BorderRadius.circular(
+                                                              AppDecorations
+                                                                  .radiusCard),
                                                       border: Border.all(
                                                         color: AppColors
                                                             .terracotta
@@ -237,52 +213,52 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                           MainAxisSize.min,
                                                       children: [
                                                         Text(
-                                                          '+ ${addon.name}',
-                                                          style:  AppTextStyles.bodySmallWhite
+                                                          ' ${addon.name}',
+                                                          style: AppTextStyles
+                                                              .bodySmallWhite
                                                               .copyWith(
                                                             color: AppColors
                                                                 .terracotta,
                                                             fontWeight:
-                                                                FontWeight
-                                                                    .w500,
+                                                                FontWeight.w500,
                                                           ),
                                                         ),
                                                         const SizedBox(
                                                             width: 4),
                                                         Text(
-                                                          '\$${addon.price.toStringAsFixed(2)}',
-                                                          style: AppTextStyles.bodySmallWhite
+                                                          'Rs ${addon.price.toStringAsFixed(2)}',
+                                                          style: AppTextStyles
+                                                              .bodySmallWhite
                                                               .copyWith(
                                                             color: AppColors
                                                                 .terracotta
                                                                 .withValues(
-                                                                    alpha:
-                                                                        0.7),
+                                                                    alpha: 0.7),
                                                           ),
                                                         ),
                                                         const SizedBox(
                                                             width: 6),
                                                         GestureDetector(
                                                           onTap: () {
-                                                            final updatedAddons = item
-                                                                .selectedAddons
-                                                                .where((a) =>
-                                                                    a.id !=
-                                                                    addon.id)
-                                                                .toList();
+                                                            final updatedAddons =
+                                                                item
+                                                                    .selectedAddons
+                                                                    .where((a) =>
+                                                                        a.id !=
+                                                                        addon
+                                                                            .id)
+                                                                    .toList();
                                                             cart.updateAddons(
                                                                 item.cartItemId,
                                                                 updatedAddons);
                                                           },
                                                           child: Icon(
-                                                            Icons
-                                                                .close_rounded,
+                                                            Icons.close_rounded,
                                                             size: 14,
                                                             color: AppColors
                                                                 .terracotta
                                                                 .withValues(
-                                                                    alpha:
-                                                                        0.7),
+                                                                    alpha: 0.7),
                                                           ),
                                                         ),
                                                       ],
@@ -291,13 +267,13 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 }).toList(),
                                               ),
                                             ],
-              
+
+                                            // ── Add / Edit note toggle ───────────
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   left: 4, top: 6),
                                               child: GestureDetector(
-                                                onTap: () =>
-                                                    _toggleNote(item),
+                                                onTap: () => _toggleNote(item),
                                                 child: Row(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
@@ -312,7 +288,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                               : Icons.add),
                                                       size: 14,
                                                       color:
-                                                          AppColors.terracotta,
+                                                          AppColors.primaryRed,
                                                     ),
                                                     const SizedBox(width: 3),
                                                     Text(
@@ -326,7 +302,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                           .copyWith(
                                                         fontSize: 12,
                                                         color: AppColors
-                                                            .terracotta,
+                                                            .primaryRed,
                                                         fontWeight:
                                                             FontWeight.w500,
                                                       ),
@@ -335,7 +311,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 ),
                                               ),
                                             ),
-              
+
                                             // ── Expanded note field ──────────────
                                             if (isExpanded) ...[
                                               const SizedBox(height: 8),
@@ -344,30 +320,27 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                     _noteControllers[key],
                                                 autofocus: true,
                                                 maxLines: 2,
-                                                maxLength: 200,
+                                                maxLength: 100,
                                                 textCapitalization:
                                                     TextCapitalization
                                                         .sentences,
                                                 style: context.text.bodyMedium
                                                     ?.copyWith(
                                                         color: AppColors
-                                                            .backgroundDark),
+                                                            .primaryRed),
                                                 decoration: InputDecoration(
-                                                  hintText:
-                                                      '',
+                                                  hintText: '',
                                                   hintStyle: context
                                                       .text.bodySmall
                                                       ?.copyWith(
                                                           color: AppColors
                                                               .textLight),
                                                   filled: true,
-                                                  fillColor: context
-                                                      .colors
+                                                  fillColor: context.colors
                                                       .surfaceContainerLow
                                                       .withValues(alpha: 0.4),
-                                                  contentPadding:
-                                                      const EdgeInsets.all(
-                                                          10),
+                                                  // contentPadding:
+                                                  // const EdgeInsets.symmetric(10),
                                                   isDense: true,
                                                   counterStyle: context
                                                       .appTheme.caption
@@ -379,7 +352,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                                 .radiusCard),
                                                     borderSide: BorderSide(
                                                         color: AppColors
-                                                            .backgroundDark
+                                                            .primaryRed
                                                             .withValues(
                                                                 alpha: 0.2)),
                                                   ),
@@ -403,15 +376,16 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                                 .radiusCard),
                                                     borderSide: BorderSide(
                                                         color: AppColors
-                                                            .terracotta,
+                                                            .primaryRed,
                                                         width: 1.5),
                                                   ),
                                                   suffixIcon: IconButton(
                                                     icon: Icon(
                                                         Icons
                                                             .check_circle_rounded,
-                                                        color: AppColors
-                                                            .terracotta,
+                                                        color: const Color
+                                                            .fromRGBO(
+                                                            236, 73, 19, 1),
                                                         size: 20),
                                                     tooltip: 'Save note',
                                                     onPressed: () =>
@@ -420,7 +394,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 ),
                                               ),
                                             ],
-              
+
                                             // ── Saved note display ───────────────
                                             if (!isExpanded && hasNote) ...[
                                               const SizedBox(height: 6),
@@ -428,7 +402,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                                 width: double.infinity,
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                        horizontal: 10,
+                                                        horizontal: 8,
                                                         vertical: 7),
                                                 decoration: BoxDecoration(
                                                   color: AppColors.terracotta
@@ -460,11 +434,10 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                       ),
                                     );
                                   }),
-              
+
                                   // ── Price summary ────────────────────────────
                                   Card(
-                                    color: context
-                                        .colors.surfaceContainerLow
+                                    color: context.colors.surfaceContainerLow
                                         .withValues(alpha: 0.5),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
@@ -476,17 +449,16 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                       ),
                                     ),
                                     child: Padding(
-                                      padding: const EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(12),
                                       child: Column(
                                         children: [
                                           _PriceSummaryRow(
                                               label: 'Subtotal',
                                               value: cart.subtotal),
-                                          const SizedBox(height: 10),
+                                          // const SizedBox(height: 8),
                                           Padding(
-                                            padding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 12),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8),
                                             child: Divider(
                                                 height: 1,
                                                 color: AppColors.backgroundDark
@@ -494,19 +466,28 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                                           ),
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment
-                                                    .spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text('Total',
-                                                  style: context
-                                                      .text.headlineMedium),
                                               Text(
-                                                '\$${cart.total.toStringAsFixed(2)}',
-                                                style: context
-                                                    .appTheme.priceLarge
-                                                    .copyWith(
-                                                  color: AppColors.terracotta,
+                                                'Total',
+                                                style: context.text.bodyLarge
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                  color:
+                                                      AppColors.backgroundDark,
                                                 ),
+                                              ),
+                                              Text(
+                                                'Rs ${cart.total.toStringAsFixed(2)}',
+                                                style: context.text.bodyLarge
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                  color:
+                                                      AppColors.backgroundDark,
+                                                ),
+                                                //     .copyWith(
+                                                //   color: AppColors.terracotta,
+                                                // ),
                                               ),
                                             ],
                                           ),
@@ -519,7 +500,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                       ),
                     ],
                   ),
-              
+
                   // ── Checkout button ──────────────────────────────────────────
                   if (cart.items.isNotEmpty && !_isKeyboardOpen)
                     Positioned(
@@ -527,211 +508,213 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                       left: 0,
                       right: 0,
                       child: Consumer<TableRequestProvider>(
-                        builder: (context, tableReq, _) => PrimaryButton(
-                          label: tableReq.isLoadingFood
-                              ? 'Placing Order...'
-                              : 'Checkout — \$${cart.total.toStringAsFixed(2)}',
-                          onTap: tableReq.isLoadingFood
-                              ? null
-                              : () async {
-                                  _flushNotes(cart);
-              
-                                  if (cart.items.isEmpty) return;
-              
-                                  final orderProv =
-                                      context.read<OrderProvider>();
-              
-                                  final foodItems =
-                                      cart.items.map((item) {
-                                    return FoodItemRequest(
-                                      product: item.product.id,
-                                      quantity: item.quantity,
-                                      note: item.note,
-                                      variant: item.selectedVariant?.id,
-                                      addons: item.selectedAddons
-                                          .map((a) => FoodAddonRequest(
-                                              addonId: a.id, quantity: 1))
-                                          .toList(),
-                                    );
-                                  }).toList();
-              
-                                  await tableReq.requestFood(
-                                    businessId: LocalStorageService.instance
-                                            .getBusinessId() ??
-                                        '',
-                                    foodItems: foodItems,
-                                  );
-                                   
-              
-                                  if (!mounted) return;
-              
-                                  final success = tableReq
-                                          .lastSuccessResponse?['success'] ==
-                                      true;
-              
-                                  if (success) {
+                        builder: (context, tableReq, _) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: PrimaryButton(
+                            isLoading: tableReq.isLoadingFood,
+                            label:
+                                'Checkout',
+                            onTap: tableReq.isLoadingFood
+                                ? null
+                                : () async {
+                                    _flushNotes(cart);
 
-                                     await orderProv.placeOrder(
-                                      items: cart.items.toList(),
-                                      subtotal: cart.subtotal,
-                                      isBusinessOrder: isBusiness,
+                                    if (cart.items.isEmpty) return;
+
+                                    final orderProv =
+                                        context.read<OrderProvider>();
+
+                                    final foodItems = cart.items.map((item) {
+                                      return FoodItemRequest(
+                                        product: item.product.id,
+                                        quantity: item.quantity,
+                                        note: item.note,
+                                        variant: item.selectedVariant?.id,
+                                        addons: item.selectedAddons
+                                            .map((a) => FoodAddonRequest(
+                                                addonId: a.id, quantity: 1))
+                                            .toList(),
+                                      );
+                                    }).toList();
+
+                                    await tableReq.requestFood(
+                                      businessId: LocalStorageService.instance
+                                              .getBusinessId() ??
+                                          '',
+                                      foodItems: foodItems,
                                     );
-                                    final orderId =
-                                        'order_${DateTime.now().millisecondsSinceEpoch}';
-                                  
-              
-                                    debugPrint('Order saved: $orderId');
-                                    final saved =
-                                        HiveOrderService.getOrder(orderId);
-                                    if (saved != null) {
-                                      debugPrint(' ORDER VERIFIED IN HIVE');
-                                      debugPrint(
-                                          'Order ID       : ${saved.orderId}');
-                                      debugPrint(
-                                          'Created At     : ${saved.createdAt}');
-                                      debugPrint(
-                                          'Is Business    : ${saved.isBusinessOrder}');
-                                      debugPrint(
-                                          'Subtotal       : \$${saved.subtotal.toStringAsFixed(2)}');
-                                      debugPrint(
-                                          'Total Items    : ${saved.items.length}');
-                                      for (final item in saved.items) {
+
+                                    if (!mounted) return;
+
+                                    final success = tableReq
+                                            .lastSuccessResponse?['success'] ==
+                                        true;
+
+                                    if (success) {
+                                      await orderProv.placeOrder(
+                                        items: cart.items.toList(),
+                                        subtotal: cart.subtotal,
+                                        isBusinessOrder: isBusiness,
+                                      );
+                                      final orderId =
+                                          'order_${DateTime.now().millisecondsSinceEpoch}';
+
+                                      debugPrint('Order saved: $orderId');
+                                      final saved =
+                                          HiveOrderService.getOrder(orderId);
+                                      if (saved != null) {
+                                        debugPrint(' ORDER VERIFIED IN HIVE');
                                         debugPrint(
-                                            '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
-                                        if (item.note != null &&
-                                            item.note!.isNotEmpty) {
+                                            'Order ID       : ${saved.orderId}');
+                                        debugPrint(
+                                            'Created At     : ${saved.createdAt}');
+                                        debugPrint(
+                                            'Is Business    : ${saved.isBusinessOrder}');
+                                        debugPrint(
+                                            'Subtotal       : \$${saved.subtotal.toStringAsFixed(2)}');
+                                        debugPrint(
+                                            'Total Items    : ${saved.items.length}');
+                                        for (final item in saved.items) {
                                           debugPrint(
-                                              '    Note: ${item.note}');
+                                              '  > ${item.product.name} x${item.quantity} — \$${item.lineTotal.toStringAsFixed(2)}');
+                                          if (item.note != null &&
+                                              item.note!.isNotEmpty) {
+                                            debugPrint(
+                                                '    Note: ${item.note}');
+                                          }
+                                          if (item.selectedVariant != null) {
+                                            debugPrint(
+                                                '    Variant: ${item.selectedVariant!.optionValues.join(' / ')}');
+                                          }
+                                          if (item.selectedAddons.isNotEmpty) {
+                                            debugPrint(
+                                                '    Addons: ${item.selectedAddons.map((a) => a.name).join(', ')}');
+                                          }
                                         }
-                                        if (item.selectedVariant != null) {
-                                          debugPrint(
-                                              '    Variant: ${item.selectedVariant!.optionValues.join(' / ')}');
-                                        }
-                                        if (item.selectedAddons.isNotEmpty) {
-                                          debugPrint(
-                                              '    Addons: ${item.selectedAddons.map((a) => a.name).join(', ')}');
-                                        }
+                                        debugPrint(
+                                            'Total Orders in box : ${HiveOrderService.getAllOrders().length}');
+                                      } else {
+                                        debugPrint(
+                                            ' ORDER NOT FOUND IN HIVE — something went wrong');
                                       }
-                                      debugPrint(
-                                          'Total Orders in box : ${HiveOrderService.getAllOrders().length}');
+
+                                      if (isBusiness) {
+                                        debugPrint('===== CART ITEMS =====');
+                                        for (final item in cart.items) {
+                                          final p = item.product;
+                                          debugPrint('---------------------');
+                                          debugPrint('ID            : ${p.id}');
+                                          debugPrint(
+                                              'Name          : ${p.name}');
+                                          debugPrint(
+                                              'Description   : ${p.description}');
+                                          debugPrint(
+                                              'Image         : ${p.image}');
+                                          debugPrint(
+                                              'Admin ID      : ${p.adminId}');
+                                          debugPrint(
+                                              'SKU           : ${p.sku}');
+                                          debugPrint(
+                                              'Categories    : ${p.categories}');
+                                          debugPrint(
+                                              'Sold By       : ${p.soldBy}');
+                                          debugPrint(
+                                              'Price         : \$${p.price.toStringAsFixed(2)}');
+                                          debugPrint(
+                                              'Cost Price    : \$${p.costPrice.toStringAsFixed(2)}');
+                                          debugPrint(
+                                              'Display Price : \$${p.displayPrice.toStringAsFixed(2)}');
+                                          debugPrint(
+                                              'Is Veg        : ${p.isVeg}');
+                                          debugPrint(
+                                              'Is Available  : ${p.isAvailable}');
+                                          debugPrint(
+                                              'Uses Offer Px : ${p.usesOfferPrice}');
+                                          debugPrint(
+                                              'Is Taxable    : ${p.isTaxable}');
+                                          debugPrint(
+                                              'Uses Stocks   : ${p.usesStocks}');
+                                          debugPrint(
+                                              'Show Ordering : ${p.showInOrdering}');
+                                          debugPrint(
+                                              'In Stock      : ${p.inStock}');
+                                          debugPrint(
+                                              'Low Stock     : ${p.lowStock}');
+                                          debugPrint(
+                                              'Ordered Count : ${p.orderedCount}');
+                                          debugPrint(
+                                              'Tags          : ${p.tags.join(', ')}');
+                                          debugPrint(
+                                              'Has Variants  : ${p.hasVariants}');
+                                          if (p.hasVariants) {
+                                            final v = p.variants!;
+                                            debugPrint(
+                                                '  Variant ID       : ${v.id}');
+                                            debugPrint(
+                                                '  Variant Admin ID : ${v.adminId}');
+                                            debugPrint('  Options:');
+                                            for (final opt in v.options) {
+                                              debugPrint(
+                                                  '    [${opt.id}] ${opt.title}: ${opt.values.join(', ')}');
+                                            }
+                                            debugPrint('  Variant Items:');
+                                            for (final vi in v.variantItems) {
+                                              debugPrint(
+                                                  '    [${vi.id}] ${vi.optionValues.join(' / ')} — \$${vi.price.toStringAsFixed(2)} | Cost: \$${vi.costPrice.toStringAsFixed(2)} | Stock: ${vi.inStock} | Available: ${vi.isAvailable}');
+                                            }
+                                          }
+                                          if (p.addons.isNotEmpty) {
+                                            debugPrint('  Addons:');
+                                            for (final a in p.addons) {
+                                              debugPrint(
+                                                  '    [${a.id}] ${a.name} — \$${a.price.toStringAsFixed(2)} | Max: ${a.maxAvailable} | ${a.description}');
+                                            }
+                                          }
+                                          debugPrint(
+                                              'Qty in Cart   : ${item.quantity}');
+                                          debugPrint(
+                                              'Note          : ${item.note ?? '—'}');
+                                          debugPrint(
+                                              'Line Total    : \$${item.lineTotal.toStringAsFixed(2)}');
+                                        }
+                                        debugPrint('---------------------');
+                                        debugPrint(
+                                            'Subtotal   : \$${cart.subtotal.toStringAsFixed(2)}');
+                                        debugPrint(
+                                            'Total      : \$${cart.total.toStringAsFixed(2)}');
+                                        debugPrint('=====================');
+
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              tableReq.lastSuccessResponse?[
+                                                      'message'] ??
+                                                  'Order placed!',
+                                            ),
+                                            backgroundColor:
+                                                AppColors.terracotta,
+                                          ),
+                                        );
+                                      } else {
+                                        context.push('/cart/checkout');
+                                      }
+
+                                      cart.clear();
                                     } else {
                                       debugPrint(
-                                          ' ORDER NOT FOUND IN HIVE — something went wrong');
-                                    }
-              
-                                    if (isBusiness) {
-                                      debugPrint('===== CART ITEMS =====');
-                                      for (final item in cart.items) {
-                                        final p = item.product;
-                                        debugPrint('---------------------');
-                                        debugPrint('ID            : ${p.id}');
-                                        debugPrint(
-                                            'Name          : ${p.name}');
-                                        debugPrint(
-                                            'Description   : ${p.description}');
-                                        debugPrint(
-                                            'Image         : ${p.image}');
-                                        debugPrint(
-                                            'Admin ID      : ${p.adminId}');
-                                        debugPrint('SKU           : ${p.sku}');
-                                        debugPrint(
-                                            'Categories    : ${p.categories}');
-                                        debugPrint(
-                                            'Sold By       : ${p.soldBy}');
-                                        debugPrint(
-                                            'Price         : \$${p.price.toStringAsFixed(2)}');
-                                        debugPrint(
-                                            'Cost Price    : \$${p.costPrice.toStringAsFixed(2)}');
-                                        debugPrint(
-                                            'Display Price : \$${p.displayPrice.toStringAsFixed(2)}');
-                                        debugPrint(
-                                            'Is Veg        : ${p.isVeg}');
-                                        debugPrint(
-                                            'Is Available  : ${p.isAvailable}');
-                                        debugPrint(
-                                            'Uses Offer Px : ${p.usesOfferPrice}');
-                                        debugPrint(
-                                            'Is Taxable    : ${p.isTaxable}');
-                                        debugPrint(
-                                            'Uses Stocks   : ${p.usesStocks}');
-                                        debugPrint(
-                                            'Show Ordering : ${p.showInOrdering}');
-                                        debugPrint(
-                                            'In Stock      : ${p.inStock}');
-                                        debugPrint(
-                                            'Low Stock     : ${p.lowStock}');
-                                        debugPrint(
-                                            'Ordered Count : ${p.orderedCount}');
-                                        debugPrint(
-                                            'Tags          : ${p.tags.join(', ')}');
-                                        debugPrint(
-                                            'Has Variants  : ${p.hasVariants}');
-                                        if (p.hasVariants) {
-                                          final v = p.variants!;
-                                          debugPrint(
-                                              '  Variant ID       : ${v.id}');
-                                          debugPrint(
-                                              '  Variant Admin ID : ${v.adminId}');
-                                          debugPrint('  Options:');
-                                          for (final opt in v.options) {
-                                            debugPrint(
-                                                '    [${opt.id}] ${opt.title}: ${opt.values.join(', ')}');
-                                          }
-                                          debugPrint('  Variant Items:');
-                                          for (final vi in v.variantItems) {
-                                            debugPrint(
-                                                '    [${vi.id}] ${vi.optionValues.join(' / ')} — \$${vi.price.toStringAsFixed(2)} | Cost: \$${vi.costPrice.toStringAsFixed(2)} | Stock: ${vi.inStock} | Available: ${vi.isAvailable}');
-                                          }
-                                        }
-                                        if (p.addons.isNotEmpty) {
-                                          debugPrint('  Addons:');
-                                          for (final a in p.addons) {
-                                            debugPrint(
-                                                '    [${a.id}] ${a.name} — \$${a.price.toStringAsFixed(2)} | Max: ${a.maxAvailable} | ${a.description}');
-                                          }
-                                        }
-                                        debugPrint(
-                                            'Qty in Cart   : ${item.quantity}');
-                                        debugPrint(
-                                            'Note          : ${item.note ?? '—'}');
-                                        debugPrint(
-                                            'Line Total    : \$${item.lineTotal.toStringAsFixed(2)}');
-                                      }
-                                      debugPrint('---------------------');
-                                      debugPrint(
-                                          'Subtotal   : \$${cart.subtotal.toStringAsFixed(2)}');
-                                      debugPrint(
-                                          'Total      : \$${cart.total.toStringAsFixed(2)}');
-                                      debugPrint('=====================');
-              
+                                          ' FOOD REQUEST FAILED — ${tableReq.message}');
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
-                                          content: Text(
-                                            tableReq.lastSuccessResponse?[
-                                                    'message'] ??
-                                                'Order placed!',
-                                          ),
-                                          backgroundColor: AppColors.terracotta,
+                                          content: Text(tableReq.message ??
+                                              'Failed to place order.'),
+                                          backgroundColor: Colors.red,
                                         ),
                                       );
-                                    } else {
-                                      context.push('/cart/checkout');
                                     }
-              
-                                    cart.clear();
-                                  } else {
-                                    debugPrint(
-                                        ' FOOD REQUEST FAILED — ${tableReq.message}');
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(tableReq.message ??
-                                            'Failed to place order.'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                },
+                                  },
+                          ),
                         ),
                       ),
                     ),
@@ -758,15 +741,16 @@ class _PriceSummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: context.text.bodyMedium?.copyWith(color: AppColors.textLight),
+          style:context.text.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.backgroundDark,
+            ),
         ),
-        Text(
-          '\$${value.toStringAsFixed(2)}',
-          style: context.text.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.backgroundDark,
-          ),
-        ),
+        Text('Rs ${value.toStringAsFixed(2)}',
+            style: context.text.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.backgroundDark,
+            )),
       ],
     );
   }

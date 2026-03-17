@@ -1,5 +1,7 @@
+import 'package:bakery_flutter/components/primary_button.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
 import 'package:bakery_flutter/providers/qrlogin_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +25,7 @@ class TableWelcomeScreen extends StatefulWidget {
 class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
   bool _isLoading = false;
   String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +44,7 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
     debugPrint('token(storage) : $token');
     debugPrint('isBusiness     : $isBusiness');
     debugPrint('====================================');
+
     if (widget.tableId != null && widget.businessId != null) {
       debugPrint('CASE 1: QR params in URL → _handleQRLogin()');
       _handleQRLogin();
@@ -90,7 +94,7 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
   }
 
   // ── CASE 2 & 3: Verify Token via fetchProducts ─────────────────────────────
-Future<void> _verifyToken({required bool isBusinessSession}) async {
+  Future<void> _verifyToken({required bool isBusinessSession}) async {
     debugPrint('--- _verifyToken START ---');
     debugPrint('isBusinessSession : $isBusinessSession');
     setState(() { _isLoading = true; _errorMessage = null; });
@@ -279,78 +283,36 @@ Future<void> _verifyToken({required bool isBusinessSession}) async {
                               const SizedBox(height: 28),
 
                             // ── Start Ordering (Guest) ─────────────────────
-                            SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  debugPrint('====================================');
-                                  debugPrint('USER ACTION  : Continue as Guest');
-                                  debugPrint('SESSION TYPE : GUEST');
-                                  debugPrint('====================================');
-                  
-                                  if (mounted) context.go('/home');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFE84C1E),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Start Ordering',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Icon(Icons.restaurant_menu, color: Colors.white, size: 20),
-                                  ],
-                                ),
-                              ),
+                            PrimaryButton(
+                              label: 'Start Ordering',
+                               isLoading: _isLoading,
+                              onTap: () {
+                                debugPrint('====================================');
+                                debugPrint('USER ACTION  : Continue as Guest');
+                                debugPrint('SESSION TYPE : GUEST');
+                                debugPrint('====================================');
+                                if (mounted) context.go('/home');
+                              },
                             ),
 
                             const SizedBox(height: 12),
 
                             // ── Login with Account ─────────────────────────
-                            SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  debugPrint('====================================');
-                                  debugPrint('USER ACTION  : Tapped Login with Account');
-                                  debugPrint('Navigating to: /login');
-                                  debugPrint('====================================');
-                                  context.push('/login');
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: Colors.white24, width: 1),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Login with Account',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
+                            SecondaryButton(
+                              label: 'Login with Account',
+                              onTap: () {
+                                debugPrint('====================================');
+                                debugPrint('USER ACTION  : Tapped Login with Account');
+                                debugPrint('Navigating to: /login');
+                                debugPrint('====================================');
+                                context.push('/login');
+                              },
                             ),
 
                             const SizedBox(height: 20),
 
                             // ── QR Hint ────────────────────────────────────
-                            const _ScanQrHint(),
+                            // const _ScanQrHint(),
 
                             const SizedBox(height: 16),
 

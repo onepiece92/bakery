@@ -168,7 +168,7 @@ class _NavItemCart extends StatelessWidget {
                     width: 18,
                     height: 18,
                     decoration: const BoxDecoration(
-                      color: AppColors.terracotta,
+                      color: AppColors.primaryRed,
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,

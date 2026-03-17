@@ -28,7 +28,7 @@ final class AppTheme {
           headlineSmall: AppTextStyles.headlineSmall,
           titleLarge: AppTextStyles.titleLarge,
           // bodyLarge: AppTextStyles.bodyLarge,
-            titleSmall: AppTextStyles.bodySmallWhite, 
+          titleSmall: AppTextStyles.bodySmallWhite,
           bodyMedium: AppTextStyles.bodyMedium,
           bodySmall: AppTextStyles.bodySmall,
           labelMedium: AppTextStyles.label,
@@ -38,7 +38,10 @@ final class AppTheme {
           backgroundColor: AppColors.primaryRed,
           elevation: 0,
           centerTitle: false,
-          iconTheme: const IconThemeData(color: AppColors.backgroundLight),
+          iconTheme: const IconThemeData(
+            color: AppColors.backgroundLight,
+            // color: AppColors.white,
+          ),
           titleTextStyle: AppTextStyles.headlineLarge,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -95,7 +98,7 @@ final class AppTheme {
                 return AppColors.primaryRed;
               }
               // Default → Tailwind gray-100 (from HTML quantity track bg).
-              return AppColors.beige;
+              return Colors.transparent;
             }),
             foregroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.selected)) {
@@ -117,7 +120,6 @@ final class AppTheme {
         segmentedButtonTheme: SegmentedButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
-    
               if (states.contains(WidgetState.selected)) {
                 return AppColors.primaryRed;
               }
@@ -131,7 +133,6 @@ final class AppTheme {
               // Unselected → primary red text on white.
               return AppColors.primaryRed;
             }),
-            
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppDecorations.radiusS),
@@ -145,15 +146,18 @@ final class AppTheme {
           fillColor: AppColors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),
-            borderSide: const BorderSide(color: AppColors.lightGold, width: 1.5),
+            borderSide:
+                const BorderSide(color: AppColors.lightGold, width: 1.5),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),
-            borderSide: const BorderSide(color: AppColors.warmWhite, width: 1.5),
+            borderSide:
+                const BorderSide(color: AppColors.warmWhite, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppDecorations.radiusM),
-            borderSide: const BorderSide(color: AppColors.caramel, width: 1.5),
+            borderSide:
+                const BorderSide(color: AppColors.primaryRed, width: 1.5),
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -208,7 +212,6 @@ final class AppTheme {
         ],
       );
 }
-
 
 class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   // ── Gradients ──────────────────────────────────────────────

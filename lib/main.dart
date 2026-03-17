@@ -36,6 +36,7 @@ void main() async {
   Hive.registerAdapter(OrderModelAdapter());
 
   await HiveOrderService.openBox();
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -56,6 +57,7 @@ class BakeryApp extends StatefulWidget {
 }
 
 class _BakeryAppState extends State<BakeryApp> {
+  // ✅ Single instances shared with both the router and the provider tree
   final _loginProvider = CustomerLoginProvider();
   final _qrLoginProvider = QRLoginProvider();
   late final _router = createRouter(_loginProvider, _qrLoginProvider);
@@ -63,6 +65,7 @@ class _BakeryAppState extends State<BakeryApp> {
   @override
   void dispose() {
     _loginProvider.dispose();
+    _qrLoginProvider.dispose(); // ✅ was missing
     super.dispose();
   }
 
@@ -78,10 +81,9 @@ class _BakeryAppState extends State<BakeryApp> {
         ChangeNotifierProvider(create: (_) => ViewModeProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => TableRequestProvider()),
-        ChangeNotifierProvider(create: (_) => QRLoginProvider()),
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider.value(value: _loginProvider),
         ChangeNotifierProvider.value(value: _qrLoginProvider),
-        ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ],
       child: MaterialApp.router(
         title: 'Foxys Corner',

@@ -21,11 +21,12 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 0;
-  int _activeImage = 0;
   final Map<String, String> _selectedOptionValues = {};
   final Set<String> _selectedAddonIds = {};
 
   final TextEditingController _instructionsCtrl = TextEditingController();
+
+  // ── Computed helpers ──────────────────────────────────────────
 
   VariantItem? get _matchedVariant {
     final variants = widget.product.variants;
@@ -60,6 +61,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   double get _totalPrice => _unitPrice * _quantity;
 
+  // ── Lifecycle ─────────────────────────────────────────────────
+
   @override
   void initState() {
     super.initState();
@@ -72,17 +75,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         }
       }
     }
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   final cartItem = context
-    //       .read<CartProvider>()
-    //       .items
-    //       .where((i) => i.product.id == widget.product.id)
-    //       .firstOrNull;
-    //   if (cartItem != null && mounted) {
-    //     setState(() => _quantity = cartItem.quantity);
-    //   }
-    // });
   }
 
   @override
@@ -100,9 +92,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final variants = widget.product.variants;
     final addons = widget.product.addons;
 
+    const double imageHeight = 320.0;
+    const double curveRadius = 28.0;
+
     return LayoutBuilder(builder: (context, constraints) {
       final isWide = constraints.maxWidth > 500;
       final maxWidth = isWide ? 500.0 : double.infinity;
+
       return Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
@@ -115,116 +111,88 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               backgroundColor: context.theme.scaffoldBackgroundColor,
               body: Stack(
                 children: [
-                  CustomScrollView(
-                    slivers: [
-                      // ── Hero ──────────────────────────────────────────
-                      SliverAppBar(
-                        expandedHeight: 280,
-                        scrolledUnderElevation: 0,
-                        elevation: 0,
-                        pinned: true,
-                        backgroundColor: context.theme.scaffoldBackgroundColor,
-                        leading: const Padding(
-                          padding: EdgeInsets.only(left: 8.0),
-                          child: BakeryBackButton(),
-                        ),
-                        actions: [
-                          GestureDetector(
-                            onTap: () => favProv.toggle(widget.product.id),
-                            child: Container(
-                              margin: const EdgeInsets.all(8),
-                              width: 40,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                isFav ? Icons.favorite : Icons.favorite_border,
-                                color: isFav
-                                    ? Colors.redAccent
-                                    : context.colors.primary,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(
-                                right: 8, top: 8, bottom: 8),
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: context.theme.scaffoldBackgroundColor
-                                  .withValues(alpha: 0.85),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.share_outlined,
-                              color: context.colors.onSurfaceVariant,
-                              size: 18,
-                            ),
-                          ),
-                        ],
-                        flexibleSpace: FlexibleSpaceBar(
-                          background: Container(
-                            decoration: BoxDecoration(
-                              gradient: context.appTheme.heroGradient,
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.network(
-                                  widget.product.image,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const Icon(
-                                    Icons.broken_image_rounded,
-                                    size: 40,
-                                  ),
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return const Center(
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                  // ── 1. Fixed image pinned behind everything ────
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: imageHeight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: context.appTheme.heroGradient,
                       ),
+                      child: Image.network(
+                        widget.product.image,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Center(
+                          child: Icon(
+                            Icons.broken_image_rounded,
+                            size: 48,
+                          ),
+                        ),
+                        loadingBuilder: (_, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
 
-                      // ── Content ───────────────────────────────────────
-                      SliverToBoxAdapter(
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 140),
+                  // ── 2. Content scrolls up over the fixed image ─
+                  SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Transparent gap that "reveals" the fixed image
+                        SizedBox(height: imageHeight - curveRadius),
+
+                        // White card with rounded top corners
+                        Container(
                           decoration: BoxDecoration(
                             color: context.theme.scaffoldBackgroundColor,
                             borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(28)),
+                              top: Radius.circular(curveRadius),
+                            ),
                           ),
+                          padding: const EdgeInsets.fromLTRB(16, 10, 12, 140),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Name
+                              // ── Name ────────────────────────
                               Text(
                                 widget.product.name.toTitleCase(),
                                 style: context.text.displayMedium
                                     ?.copyWith(color: AppColors.backgroundDark),
                               ),
                               const SizedBox(height: 6),
-
-                              // Description
                               Text(
-                                widget.product.description.toTitleCase(),
-                                style: context.text.bodyMedium?.copyWith(
-                                  color: context.text.bodySmall?.color,
-                                  height: 1.6,
+                                'Rs ${(_matchedVariant?.price ?? widget.product.displayPrice).toStringAsFixed(2)}',
+                                style: context.text.titleLarge?.copyWith(
+                                    color: context.colors.primary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 20),
+                              ),
+                              const SizedBox(height: 10),
+
+                              Visibility(
+                                visible: widget.product.description.isNotEmpty,
+                                maintainSize: false,
+                                maintainAnimation: false,
+                                maintainState: false,
+                                child: Text(
+                                  widget.product.description.toTitleCase(),
+                                  style: context.text.bodyMedium?.copyWith(
+                                    color: context.text.bodySmall?.color,
+                                    height: 1.6,
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              // const SizedBox(height: 28),
 
-                              // ── Variants ─────────────────────────────
+                              // ── Variants ─────────────────────
                               if (variants != null &&
                                   variants.options.isNotEmpty) ...[
                                 ...variants.options.map((option) {
@@ -232,7 +200,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      _SectionHeader(title: option.title),
+                                      _SectionHeader(
+                                        title: option.title.toTitleCase(),
+                                        isRequired: true,
+                                      ),
                                       const SizedBox(height: 12),
                                       ...option.values.map((value) {
                                         final isActive = _selectedOptionValues[
@@ -255,15 +226,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                                   option.title] = value),
                                         );
                                       }),
-                                      const SizedBox(height: 16),
+                                      // const SizedBox(height: 8),
                                     ],
                                   );
                                 }),
                               ],
 
-                              // ── Addons ────────────────────────────────
+                              // ── Add-ons ──────────────────────
                               if (addons.isNotEmpty) ...[
-                                const _SectionHeader(title: 'Add-ons'),
+                                const _SectionHeader(
+                                  title: 'Add-ons',
+                                  isRequired: false,
+                                ),
                                 const SizedBox(height: 12),
                                 ...addons.map((addon) {
                                   final isActive =
@@ -272,6 +246,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     name: addon.name,
                                     price: addon.price,
                                     isActive: isActive,
+                                    isCheckbox: true,
                                     onTap: () => setState(() {
                                       if (isActive) {
                                         _selectedAddonIds.remove(addon.id);
@@ -286,34 +261,81 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             ],
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  ProductBottomCta(
-                    quantity: _quantity,
-                    totalPrice: _totalPrice,
-                    onDecrement: () {
-                      if (_quantity > 0) setState(() => _quantity--);
-                    },
-                    onIncrement: () {
-                      setState(() => _quantity++);
-                    },
-                    onCheckout: () {
-                      if (_quantity > 0) {
-                        context.read<CartProvider>().addProduct(
-                              widget.product,
-                              quantity: _quantity,
-                              variant: _matchedVariant,
-                              addons: _selectedAddons,
-                            );
-                        context.push('/cart');
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Please select at least 1 item')),
-                        );
-                      }
-                    },
+
+                  // ── 3. Action buttons float above the image ────
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Back
+                          _HeroButton(
+                            child: const BakeryBackButton(),
+                          ),
+                          Row(
+                            children: [
+                              // Favourite
+                              _HeroButton(
+                                onTap: () => favProv.toggle(widget.product.id),
+                                child: Icon(
+                                  isFav
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color:
+                                      isFav ? Colors.redAccent : Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Share
+                              // _HeroButton(
+                              //   child: const Icon(
+                              //     Icons.share_outlined,
+                              //     color: Colors.white,
+                              //     size: 20,
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: ProductBottomCta(
+                      quantity: _quantity,
+                      totalPrice: _totalPrice,
+                      onDecrement: () {
+                        if (_quantity > 0) setState(() => _quantity--);
+                      },
+                      onIncrement: () {
+                        setState(() => _quantity++);
+                      },
+                      onCheckout: () {
+                        if (_quantity > 0) {
+                          context.read<CartProvider>().addProduct(
+                                widget.product,
+                                quantity: _quantity,
+                                variant: _matchedVariant,
+                                addons: _selectedAddons,
+                              );
+                          context.push('/cart-screen');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please select at least 1 item'),
+                            ),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -327,19 +349,78 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
 // ── Private Helper Widgets ────────────────────────────────────────
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
+/// Semi-transparent circular button used over the hero image.
+class _HeroButton extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+
+  const _HeroButton({required this.child, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: context.text.titleMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-        fontSize: 18,
-        color: context.colors.onSurface,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: const BoxDecoration(
+          color: Colors.black26,
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: child,
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final bool isRequired;
+
+  const _SectionHeader({
+    required this.title,
+    this.isRequired = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: context.text.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            color: context.colors.onSurface,
+          ),
+        ),
+        if (isRequired)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFEBEE),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'Required',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: context.colors.primary,
+              ),
+            ),
+          )
+        else
+          Text(
+            'Optional',
+            style: TextStyle(
+              fontSize: 13,
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
+      ],
     );
   }
 }
@@ -349,12 +430,14 @@ class _OptionItem extends StatelessWidget {
   final double price;
   final bool isActive;
   final VoidCallback onTap;
+  final bool isCheckbox;
 
   const _OptionItem({
     required this.name,
     required this.price,
     required this.isActive,
     required this.onTap,
+    this.isCheckbox = false,
   });
 
   @override
@@ -376,20 +459,31 @@ class _OptionItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isActive
-                      ? context.colors.primary
-                      : context.theme.unselectedWidgetColor,
-                  width: isActive ? 6 : 1.5,
+            // Selection indicator
+            if (isCheckbox)
+              Icon(
+                isActive ? Icons.check_circle : Icons.radio_button_off,
+                color: isActive
+                    ? context.colors.primary
+                    : context.theme.unselectedWidgetColor,
+                size: 22,
+              )
+            else
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isActive
+                        ? context.colors.primary
+                        : context.theme.unselectedWidgetColor,
+                    width: isActive ? 6 : 1.5,
+                  ),
                 ),
               ),
-            ),
             const SizedBox(width: 14),
+            // Label
             Expanded(
               child: Text(
                 name.toTitleCase(),
@@ -398,12 +492,13 @@ class _OptionItem extends StatelessWidget {
                 ),
               ),
             ),
+            // Price
             Text(
               price == 0
                   ? 'Free'
                   : price > 0
-                      ? price.toStringAsFixed(2)
-                      : price.abs().toStringAsFixed(2),
+                      ? 'Rs ${price.toStringAsFixed(2)}'
+                      : 'Rs ${price.abs().toStringAsFixed(2)}',
               style: context.text.bodyMedium?.copyWith(
                 color: isActive
                     ? context.colors.primary

@@ -57,14 +57,13 @@ class _ProductBottomCtaState extends State<ProductBottomCta>
       left: 0,
       right: 0,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(32),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: Theme.of(context)
                     .scaffoldBackgroundColor
@@ -85,39 +84,38 @@ class _ProductBottomCtaState extends State<ProductBottomCta>
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // ── Animated price (left) ─────────────────────────
-                  Expanded(
-                    child: Align(
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, anim) => SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.4),
+                        end: Offset.zero,
+                      ).animate(
+                          CurvedAnimation(parent: anim, curve: Curves.easeOut)),
+                      child: FadeTransition(opacity: anim, child: child),
+                    ),
+                    child: FittedBox(
+                      key: ValueKey(widget.totalPrice), // ← key moved here
+                      fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        transitionBuilder: (child, anim) => SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0, 0.4),
-                            end: Offset.zero,
-                          ).animate(CurvedAnimation(
-                              parent: anim, curve: Curves.easeOut)),
-                          child: FadeTransition(opacity: anim, child: child),
-                        ),
-                        child: Text(
-                          '\$${widget.totalPrice.toStringAsFixed(2)}',
-                          key: ValueKey(widget.totalPrice),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: cs.onSurface,
-                                letterSpacing: -0.5,
-                              ),
-                        ),
+                      child: Text(
+                        '${widget.totalPrice.toStringAsFixed(2)}',
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  color: cs.onSurface,
+                                  letterSpacing: -0.5,
+                                ),
                       ),
                     ),
                   ),
-      
+
                   const SizedBox(width: 12),
-      
+
                   // ── Stepper pill (center-right) ───────────────────
                   Container(
                     height: 48,
@@ -162,9 +160,9 @@ class _ProductBottomCtaState extends State<ProductBottomCta>
                       ],
                     ),
                   ),
-      
+
                   const SizedBox(width: 12),
-      
+
                   // ── Pulsing basket button ─────────────────────────
                   GestureDetector(
                     onTap: widget.onCheckout,

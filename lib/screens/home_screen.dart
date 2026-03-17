@@ -14,6 +14,7 @@ import 'package:bakery_flutter/screens/shimmer/homepage_shimmer.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
 import 'package:bakery_flutter/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 import '../../providers/cart_provider.dart';
@@ -33,7 +34,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   String _selectedCategory = 'all';
   String _searchQuery = '';
   String _sortBy = 'default';
@@ -42,20 +43,64 @@ class _HomeScreenState extends State<HomeScreen>
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
 
+  // FIX 1: Flag so the intro animation only plays ONCE on first load,
+  // never re-triggers when navigating back from QR scanner or other pages.
+  bool _hasAnimated = false;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
     _animCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_animCtrl.isCompleted) {
+      _initialLoad();
+      if (mounted && !_hasAnimated) {
+        _hasAnimated = true;
         _animCtrl.forward();
       }
     });
   }
 
+  // FIX 2: didChangeDependencies is called when the route is popped back to
+  // this screen. Restore the correct SystemUI here so the QR scanner's
+  // edgeToEdge mode doesn't leave the home screen in a broken state.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+      ),
+    );
+  }
+
+  // FIX 3: Separated initial load (always fetches) from pull-to-refresh.
+  // On first launch, fetch everything. On return from other screens,
+  // _initialLoad is NOT called again because it's only in initState.
+  Future<void> _initialLoad() async {
+    await Future.wait([
+      Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
+      Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
+    ]);
+    if (!mounted) return;
+    await Provider.of<FavouritesProvider>(context, listen: false)
+        .loadFavourites();
+    if (!mounted) return;
+    Provider.of<OrderProvider>(context, listen: false).loadOrders();
+  }
+
+  // FIX 4: Pull-to-refresh always force-fetches fresh data from server,
+  // but NEVER triggers the shimmer (isLoading stays false if data exists).
+  // This is only called by the RefreshIndicator swipe gesture.
   Future<void> _refresh() async {
     await Future.wait([
       Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
@@ -99,8 +144,12 @@ class _HomeScreenState extends State<HomeScreen>
     final recentOrders = context.watch<OrderProvider>().recentOrders;
     final productProvider = context.watch<ProductProvider>();
     final categoryProvider = context.watch<CategoryProvider>();
+
+    // FIX 5: Only show shimmer on the true initial load (no data yet).
+    // When returning from QR scanner, products already exist → no shimmer flash.
     final isInitialLoad =
-        productProvider.isLoading || categoryProvider.isLoading;
+        (productProvider.isLoading && productProvider.products.isEmpty) ||
+        (categoryProvider.isLoading && categoryProvider.categories.isEmpty);
 
     return LayoutBuilder(builder: (context, constraints) {
       final isWide = constraints.maxWidth > 500;
@@ -125,15 +174,24 @@ class _HomeScreenState extends State<HomeScreen>
                 scrolledUnderElevation: 0,
                 title: Text(
                   businessName ?? "Foxys Corner".toTitleCase(),
-                  style:AppTextStyles.disPlayMediumWhite,
+                  style: AppTextStyles.disPlayMediumWhite,
                 ),
                 actions: [
                   IconButton(
                     onPressed: () async {
                       final scannedValue =
-                          await context.push<String>('/home/scan');
+                          await context.push<String>('/scan');
                       if (scannedValue != null) {
                         debugPrint('Scanned: $scannedValue');
+                      }
+                      // FIX 6: Explicitly re-assert SystemUI after returning
+                      // from the QR scanner, in case didChangeDependencies
+                      // was not enough (race condition safety net).
+                      if (mounted) {
+                        SystemChrome.setEnabledSystemUIMode(
+                          SystemUiMode.manual,
+                          overlays: SystemUiOverlay.values,
+                        );
                       }
                     },
                     style: IconButton.styleFrom(
@@ -160,20 +218,24 @@ class _HomeScreenState extends State<HomeScreen>
               body: GestureDetector(
                 onTap: () => FocusScope.of(context).unfocus(),
                 behavior: HitTestBehavior.translucent,
+                // FIX 7: FadeTransition wraps the body permanently.
+                // Because _animCtrl is already completed on return,
+                // opacity stays at 1.0 — no re-fade on navigation back.
                 child: FadeTransition(
                   opacity: _fadeAnim,
                   child: isInitialLoad
-                      ? Padding(
-                        padding: const EdgeInsets.only(top:8.0),
-                        child: HomeScreenShimmer(isGrid: viewMode.isGrid),
-                      )
+                      ? const Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: HomeScreenShimmer(isGrid: false),
+                        )
                       : Column(
                           children: [
-                            SizedBox(height: 15,),
-                            // ── Search ───────────────────────────────────────
+                            const SizedBox(height: 15),
+
+                            // ── Search ─────────────────────────────────────
                             Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 24),
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: _SearchBar(
                                 controller: _searchCtrl,
                                 onChanged: (v) =>
@@ -186,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                             const SizedBox(height: 8),
 
-                            // ── Category Pills ────────────────────────────────
+                            // ── Category Pills ────────────────────────────
                             SizedBox(
                               height: 60,
                               child: categoryProvider.error != null
@@ -200,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       scrollDirection: Axis.horizontal,
                                       clipBehavior: Clip.hardEdge,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 22),
+                                          horizontal: 16),
                                       children: [
                                         CategoryPill(
                                           label: 'All',
@@ -239,7 +301,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     ),
                             ),
 
-                            // ── RefreshIndicator wraps only the ListView ──────
+                            // ── Product List ──────────────────────────────
                             Expanded(
                               child: RefreshIndicator(
                                 onRefresh: _refresh,
@@ -247,8 +309,8 @@ class _HomeScreenState extends State<HomeScreen>
                                   controller: _scrollController,
                                   physics:
                                       const AlwaysScrollableScrollPhysics(),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16, 0, 16, 0),
                                   children: [
                                     if (productProvider.error != null)
                                       Padding(
@@ -290,15 +352,15 @@ class _HomeScreenState extends State<HomeScreen>
                                                     onTap: () => context.push(
                                                         '/home/recent_orders'),
                                                     child: Text(
-                                                      'View all →',
+                                                      'View all',
                                                       style: context
                                                           .text.bodySmall
                                                           ?.copyWith(
                                                         color: context
-                                                            .colors.tertiary,
+                                                            .colors.primary,
                                                         fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: 13,
+                                                            FontWeight.w600,
+                                                        fontSize: 12,
                                                       ),
                                                     ),
                                                   ),
@@ -315,7 +377,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                   itemCount:
                                                       recentOrders.length,
                                                   separatorBuilder: (_, __) =>
-                                                      const SizedBox(width: 12),
+                                                      const SizedBox(
+                                                          width: 12),
                                                   itemBuilder: (_, i) =>
                                                       GestureDetector(
                                                     onTap: () => context.push(
@@ -344,8 +407,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                                       i];
 
                                                               final foodItems =
-                                                                  order.items.map(
-                                                                      (item) {
+                                                                  order.items
+                                                                      .map(
+                                                                          (item) {
                                                                 return FoodItemRequest(
                                                                   product: item
                                                                       .productId,
@@ -407,7 +471,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                     bottom: 12),
                                                 child: Text(
                                                   '${items.length} result${items.length != 1 ? 's' : ''}',
-                                                  style: context.text.bodySmall,
+                                                  style:
+                                                      context.text.bodySmall,
                                                 ),
                                               ),
                                             SectionHeader(
@@ -417,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 children: [
                                                   const SizedBox(width: 8),
                                                   SizedBox(
-                                                    width: 120,
+                                                    width: 100,
                                                     child: _ViewToggle(
                                                       isGrid: viewMode.isGrid,
                                                       onToggle: (v) => context
@@ -457,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   return GridProductCard(
                                                     product: p,
                                                     onTap: () => context.push(
-                                                        '/home/product',
+                                                        '/product',
                                                         extra: p),
                                                     onQuickAdd: () =>
                                                         _quickAdd(p),
@@ -481,7 +546,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   return ProductCard(
                                                     product: p,
                                                     onTap: () => context.push(
-                                                        '/home/product',
+                                                        '/product',
                                                         extra: p),
                                                     onQuickAdd: () =>
                                                         _quickAdd(p),

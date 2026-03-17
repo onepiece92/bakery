@@ -17,6 +17,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onToggleFavourite;
   final String? cartItemId;
   final int? cartItemQty;
+  final List<String>? variantLabels;
 
   const ProductCard({
     super.key,
@@ -27,6 +28,7 @@ class ProductCard extends StatelessWidget {
     required this.onToggleFavourite,
     this.cartItemId,
     this.cartItemQty,
+    this.variantLabels,
   });
 
   @override
@@ -83,18 +85,15 @@ class ProductCard extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 12.0, top: 6),
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
                             child: AutoScrollTicker(
-                              // text: "dsknvjsdvnjdnvjkdfnvdfkjvnkdfvnkfdnv",
-                              text: product.name.toTitleCase(),
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.backgroundDark,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                                text: product.name.toTitleCase(),
+                                style: AppTextStyles.bodyLarge.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.backgroundDark,
+                                    fontSize: 15)),
                           ),
                           Consumer<FavouritesProvider>(
                             builder: (context, favProv, _) {
@@ -119,16 +118,64 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
 
+                    // ── Variant chip below name ──────────────
+                    if (variantLabels != null && variantLabels!.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: variantLabels!.map((label) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryRed.withValues(alpha: .9),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                  color: AppColors.primaryRed
+                                      .withValues(alpha: .8)),
+                            ),
+                            child: Text(
+                              label,
+                              style: AppTextStyles.bodySmallWhite.copyWith(
+                                color: AppColors.backgroundLight,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(
+                        height: 2,
+                      )
+                    ],
+                    // ─────────────────────────────────────────
+
                     // Description only if present
                     product.description.isNotEmpty
-                        ? Text(
-                            product.description.toTitleCase(),
-                            style: AppTextStyles.labelSmall,
+                        ? Padding(
+                            padding: const EdgeInsets.only(right: 4.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    product.description.toTitleCase(),
+                                    style: AppTextStyles.bodyLarge.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.backgroundDark,
+                                        fontSize: 10)),
+                                SizedBox(
+                                  height: 2,
+                                )
+                              ],
+                            ),
                           )
-                        : Text(
-                            "No Description",
-                            style: AppTextStyles.labelSmall,
-                          ),
+                        : Text("No Description",
+                            style: AppTextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.backgroundDark,
+                                fontSize: 10)),
 
                     // Price + Add button always pinned to bottom
                     Padding(
@@ -137,8 +184,11 @@ class ProductCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '\$${product.displayPrice.toStringAsFixed(2)}',
-                            style: AppTextStyles.price,
+                            'Rs ${product.displayPrice.toStringAsFixed(2)}',
+                            style: AppTextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.backgroundDark,
+                                fontSize: 13),
                             overflow: TextOverflow.ellipsis,
                           ),
                           AddCounter(

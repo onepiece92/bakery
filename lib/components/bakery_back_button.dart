@@ -16,7 +16,7 @@ class BakeryBackButton extends StatelessWidget {
         shadowColor: Colors.transparent,
       ),
       icon: Icon(Icons.chevron_left_rounded,
-          size: 28, color: color ?? Theme.of(context).colorScheme.onSurface),
+          size: 28, color: color ?? Theme.of(context).colorScheme.onSecondary),
     );
   }
 }

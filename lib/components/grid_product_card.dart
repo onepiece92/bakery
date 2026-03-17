@@ -114,10 +114,11 @@ class GridProductCard extends StatelessWidget {
                     child: AutoScrollTicker(
                       // text: "DSJVNJFVNKDFNVKDFNVKDNVKDFNV",
                       text: product.name.toTitleCase(),
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.backgroundDark,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.backgroundDark,
+                                        fontSize: 15
+                                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -125,7 +126,7 @@ class GridProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          '\$${product.displayPrice.toStringAsFixed(2)}',
+                          'Rs ${product.displayPrice.toStringAsFixed(2)}',
                           style: AppTextStyles.price,
                           overflow: TextOverflow
                               .ellipsis, // shrinks with ... if needed

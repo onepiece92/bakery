@@ -7,6 +7,7 @@ import 'package:bakery_flutter/models/services_model.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
+import 'package:bakery_flutter/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -140,7 +141,10 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                     padding: EdgeInsets.only(left: 8.0),
                     child: BakeryBackButton(),
                   ),
-                  title: const Text('Recent Orders'),
+                  title: Text(
+                    'Recent Orders',
+                    style: AppTextStyles.disPlayMediumWhite,
+                  ),
                 ),
                 body: orders.isEmpty
                     // ── Empty state ──────────────────────────────────────
@@ -184,13 +188,11 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                   borderRadius: BorderRadius.circular(22),
                                 ),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Order History',
-                                      style:
-                                          context.text.labelSmall?.copyWith(
+                                      style: context.text.labelSmall?.copyWith(
                                         color: context.colors.tertiary,
                                         letterSpacing: 1.5,
                                         fontSize: 11,
@@ -211,8 +213,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                               '${orders.length}',
                                               style: context.text.displayLarge
                                                   ?.copyWith(
-                                                color:
-                                                    context.colors.onPrimary,
+                                                color: context.colors.onPrimary,
                                                 fontSize: 32,
                                               ),
                                             ),
@@ -235,8 +236,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                               '\$${totalSpent.toStringAsFixed(2)}',
                                               style: context.text.displayLarge
                                                   ?.copyWith(
-                                                color:
-                                                    context.colors.onPrimary,
+                                                color: context.colors.onPrimary,
                                                 fontSize: 24,
                                               ),
                                             ),
@@ -256,17 +256,16 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                   ],
                                 ),
                               ),
-                
+
                               // ── Order cards ──────────────────────────────
                               ...orders.asMap().entries.map((entry) {
                                 final i = entry.key;
                                 final order = entry.value;
-                
+
                                 // Guard against controller list mismatch
                                 if (i >= _cardCtrls.length) {
                                   return Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.only(bottom: 12),
                                     child: OrderCard(
                                       order: order,
                                       featured: false,
@@ -275,7 +274,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                     ),
                                   );
                                 }
-                
+
                                 final ctrl = _cardCtrls[i];
                                 return FadeTransition(
                                   opacity: CurvedAnimation(
