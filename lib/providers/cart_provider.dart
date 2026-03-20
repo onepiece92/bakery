@@ -6,6 +6,8 @@ class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
 
   List<CartItem> get items => List.unmodifiable(_items);
+  int get uniqueItemCount => _items.length;
+  
 
   int get totalCount => _items.fold(0, (sum, i) => sum + i.quantity);
 

@@ -93,7 +93,7 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
     }
   }
 
-  // ── CASE 2 & 3: Verify Token via fetchProducts ─────────────────────────────
+
   Future<void> _verifyToken({required bool isBusinessSession}) async {
     debugPrint('--- _verifyToken START ---');
     debugPrint('isBusinessSession : $isBusinessSession');
@@ -297,7 +297,7 @@ class _TableWelcomeScreenState extends State<TableWelcomeScreen> {
 
                             const SizedBox(height: 12),
 
-                            // ── Login with Account ─────────────────────────
+             
                             SecondaryButton(
                               label: 'Login with Account',
                               onTap: () {

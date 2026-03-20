@@ -1,5 +1,6 @@
 import 'package:bakery_flutter/components/comming_soon.dart';
 import 'package:bakery_flutter/extensions/theme_extension.dart';
+import 'package:bakery_flutter/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import '../../components/primary_button.dart';
 import 'package:go_router/go_router.dart';
@@ -431,7 +432,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
             child: Scaffold(
-              appBar: AppBar(automaticallyImplyActions: true,),
+              appBar: AppBar(title: Text( "Notifications", style: AppTextStyles.disPlayMediumWhite,),  automaticallyImplyActions: true,),
               backgroundColor: context.theme.scaffoldBackgroundColor,
               body: Center(
                 child: CommingSoon(

@@ -94,7 +94,7 @@ class TableRequestProvider extends ChangeNotifier {
   Future<void> requestWater({
     required String businessId,
     required String tableNumber,
-    required String waterProductId,
+    // required String waterProductId,
   }) async {
     if (isCoolingDown || _isLoadingWater) return;
 
@@ -107,7 +107,7 @@ class TableRequestProvider extends ChangeNotifier {
         WaterRequest(
           businessId: businessId,
           tableNumber: tableNumber,
-          waterProductId: waterProductId,
+          // waterProductId: waterProductId,
         ),
       );
       _lastResponse = response;

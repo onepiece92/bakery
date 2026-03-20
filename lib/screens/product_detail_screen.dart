@@ -177,20 +177,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 ),
                                 const SizedBox(height: 10),
 
-                                Visibility(
-                                  visible:
-                                      widget.product.description.isNotEmpty,
-                                  maintainSize: false,
-                                  maintainAnimation: false,
-                                  maintainState: false,
-                                  child: Text(
-                                    widget.product.description.toTitleCase(),
-                                    style: context.text.bodyMedium?.copyWith(
-                                      color: context.text.bodySmall?.color,
-                                      height: 1.6,
-                                    ),
+                                  Visibility(
+                                visible: widget.product.description.isNotEmpty,
+                                maintainSize: false,
+                                maintainAnimation: false,
+                                maintainState: false,
+                                child: Text(
+                                  widget.product.description.toTitleCase(),
+                                  style: context.text.bodyMedium?.copyWith(
+                                    color: context.text.bodySmall?.color,
+                                    height: 1.6,
                                   ),
                                 ),
+                              ),
                                 // const SizedBox(height: 28),
 
                                 if (variants != null &&
@@ -455,15 +454,15 @@ class _OptionItem extends StatelessWidget {
         child: Row(
           children: [
             // Selection indicator
-            if (isCheckbox)
-              Icon(
-                isActive ? Icons.check_circle : Icons.radio_button_off,
-                color: isActive
-                    ? context.colors.primary
-                    : context.theme.unselectedWidgetColor,
-                size: 22,
-              )
-            else
+            // if (isCheckbox)
+            //   Icon(
+            //     isActive ? Icons.check_circle : Icons.radio_button_off,
+            //     color: isActive
+            //         ? context.colors.primary
+            //         : context.theme.unselectedWidgetColor,
+            //     size: 22,
+            //   )
+            // else
               Container(
                 width: 22,
                 height: 22,

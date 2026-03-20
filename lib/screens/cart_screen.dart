@@ -1,3 +1,4 @@
+import 'package:bakery_flutter/extensions/string_casing_extension.dart';
 import 'package:bakery_flutter/models/cart_item.dart';
 import 'package:bakery_flutter/models/services_model.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
@@ -139,363 +140,287 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                       Expanded(
                         child: cart.items.isEmpty
                             ? const EmptyCartView()
-                            : ListView(
+                            : ListView.separated(
                                 padding:
                                     const EdgeInsets.fromLTRB(16, 0, 16, 150),
-                                children: [
-                                  ...cart.items.map((item) {
-                                    final key = item.cartItemId;
-                                    final isExpanded =
-                                        _expandedNoteKeys.contains(key);
-                                    final hasNote = item.note != null &&
-                                        item.note!.isNotEmpty;
-
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: 14, top: 14),
-                                      child: AnimatedSize(
-                                        duration:
-                                            const Duration(milliseconds: 250),
-                                        curve: Curves.easeInOut,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            // ── Product card ──────────────────────
-                                            ProductCard(
-                                              product: item.product,
-                                              onTap: () => () {},
-                                              onQuickAdd: () =>
-                                                  cart.addProduct(item.product),
-                                              isFavourite: favProv
-                                                  .isFavourite(item.product.id),
-                                              onToggleFavourite: () => favProv
-                                                  .toggle(item.product.id),
-                                              cartItemId: item.cartItemId,
-                                              cartItemQty: item.quantity,
-                                              variantLabels: item
-                                                  .selectedVariant
-                                                  ?.optionValues,
+                                itemCount: cart.items.length + 1,
+                                separatorBuilder: (context, index) =>
+                                    const Divider(height: 1.5,),
+                                itemBuilder: (context, index) {
+                                 
+                                  if (index == cart.items.length) {
+                                    return Column(
+                                      children: [
+                                        // Divider(),
+                                        SizedBox(height: 8,),
+                                        Card(
+                                          color: context
+                                              .colors.surfaceContainerLow
+                                              .withValues(alpha: 0.5),
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                AppDecorations.radiusCard),
+                                            side: BorderSide(
+                                              color: AppColors.backgroundDark
+                                                  .withValues(alpha: 0.05),
                                             ),
-
-                                            // ── Addons ──────────────────────────
-                                            if (item
-                                                .selectedAddons.isNotEmpty) ...[
-                                              const SizedBox(height: 6),
-                                              Wrap(
-                                                spacing: 6,
-                                                runSpacing: 6,
-                                                children: item.selectedAddons
-                                                    .map((addon) {
-                                                  return Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 5),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors
-                                                          .terracotta
-                                                          .withValues(
-                                                              alpha: 0.06),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              AppDecorations
-                                                                  .radiusCard),
-                                                      border: Border.all(
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12),
+                                            child: Column(
+                                              children: [
+                                                _PriceSummaryRow(
+                                                    label: 'Subtotal',
+                                                    value: cart.subtotal),
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8),
+                                                  child: Divider(
+                                                    height: 1,
+                                                    color: AppColors
+                                                        .backgroundDark
+                                                        .withValues(alpha: 0.1),
+                                                  ),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      'Total',
+                                                      style: context
+                                                          .text.bodyLarge
+                                                          ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
                                                         color: AppColors
-                                                            .terracotta
-                                                            .withValues(
-                                                                alpha: 0.2),
+                                                            .backgroundDark,
                                                       ),
                                                     ),
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Text(
-                                                          ' ${addon.name}',
-                                                          style: AppTextStyles
-                                                              .bodySmallWhite
-                                                              .copyWith(
-                                                            color: AppColors
-                                                                .terracotta,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 4),
-                                                        Text(
-                                                          'Rs ${addon.price.toStringAsFixed(2)}',
-                                                          style: AppTextStyles
-                                                              .bodySmallWhite
-                                                              .copyWith(
-                                                            color: AppColors
-                                                                .terracotta
-                                                                .withValues(
-                                                                    alpha: 0.7),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 6),
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            final updatedAddons =
-                                                                item
-                                                                    .selectedAddons
-                                                                    .where((a) =>
-                                                                        a.id !=
-                                                                        addon
-                                                                            .id)
-                                                                    .toList();
-                                                            cart.updateAddons(
-                                                                item.cartItemId,
-                                                                updatedAddons);
-                                                          },
-                                                          child: Icon(
-                                                            Icons.close_rounded,
-                                                            size: 14,
-                                                            color: AppColors
-                                                                .terracotta
-                                                                .withValues(
-                                                                    alpha: 0.7),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ],
-
-                                            // ── Add / Edit note toggle ───────────
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 4, top: 6),
-                                              child: GestureDetector(
-                                                onTap: () => _toggleNote(item),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      isExpanded
-                                                          ? Icons
-                                                              .keyboard_arrow_up_rounded
-                                                          : (hasNote
-                                                              ? Icons
-                                                                  .edit_note_rounded
-                                                              : Icons.add),
-                                                      size: 14,
-                                                      color:
-                                                          AppColors.primaryRed,
-                                                    ),
-                                                    const SizedBox(width: 3),
                                                     Text(
-                                                      isExpanded
-                                                          ? 'Hide note'
-                                                          : (hasNote
-                                                              ? 'Edit note'
-                                                              : 'Add note'),
+                                                      'Rs ${cart.total.toStringAsFixed(2)}',
                                                       style: context
-                                                          .appTheme.caption
-                                                          .copyWith(
-                                                        fontSize: 12,
-                                                        color: AppColors
-                                                            .primaryRed,
+                                                          .text.bodyLarge
+                                                          ?.copyWith(
                                                         fontWeight:
-                                                            FontWeight.w500,
+                                                            FontWeight.w600,
+                                                        color: AppColors
+                                                            .backgroundDark,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+
+                                  // ── CART ITEMS ───────────────────────────────────
+                                  final item = cart.items[index];
+                                  final key = item.cartItemId;
+                                  final isExpanded =
+                                      _expandedNoteKeys.contains(key);
+                                  final hasNote = item.note != null &&
+                                      item.note!.isNotEmpty;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                    child: AnimatedSize(
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      curve: Curves.easeInOut,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          CartCard(
+                                            product: item.product,
+                                              unitPrice: item.effectiveUnitPrice,
+                                            onTap: () => () {},
+                                            onQuickAdd: () =>
+                                                cart.addProduct(item.product),
+                                            isFavourite: favProv
+                                                .isFavourite(item.product.id),
+                                            onToggleFavourite: () =>
+                                                favProv.toggle(item.product.id),
+                                            cartItemId: item.cartItemId,
+                                            cartItemQty: item.quantity,
+                                            variantLabels: item
+                                                .selectedVariant?.optionValues,
+                                          ),
+
+                                          if (item
+                                              .selectedAddons.isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            Wrap(
+                                              spacing: 6,
+                                              runSpacing: 6,
+                                              children: item.selectedAddons
+                                                  .map((addon) {
+                                                return Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 5),
+                                                  decoration: BoxDecoration(
+                                                  
+                                                    // color: AppColors.primaryRed
+                                                    //     .withValues(
+                                                    //         alpha: 0.06),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            AppDecorations
+                                                                .radiusCard),
+                                                    border: Border.all(
+                                                      color: AppColors
+                                                          .primaryRed
+                                                          // .withValues(
+                                                          //     alpha: 0.2),
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        addon.name.toTitleCase(),
+                                                        style: AppTextStyles
+                                                            .bodySmallWhite
+                                                            .copyWith(
+                                                          color: AppColors
+                                                              .primaryRed,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        'Rs ${addon.price.toStringAsFixed(2)}',
+                                                        style: AppTextStyles
+                                                            .bodySmallWhite
+                                                            .copyWith(
+                                                          color: AppColors
+                                                              .primaryRed
+                                                              // .withValues(
+                                                              //     alpha: 0.7),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          final updatedAddons =
+                                                              item.selectedAddons
+                                                                  .where((a) =>
+                                                                      a.id !=
+                                                                      addon.id)
+                                                                  .toList();
+                                                          cart.updateAddons(
+                                                              item.cartItemId,
+                                                              updatedAddons);
+                                                        },
+                                                        child: Icon(
+                                                          Icons.close_rounded,
+                                                          size: 14,
+                                                          color: AppColors
+                                                              .primaryRed
+                                                              .withValues(
+                                                                  alpha: 0.7),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ],
+
+                                          // NOTE TOGGLE (same as your code)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 4, top: 6),
+                                            child: GestureDetector(
+                                              onTap: () => _toggleNote(item),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    isExpanded
+                                                        ? Icons
+                                                            .keyboard_arrow_up_rounded
+                                                        : (hasNote
+                                                            ? Icons
+                                                                .edit_note_rounded
+                                                            : Icons.add),
+                                                    size: 14,
+                                                    color: AppColors.primaryRed,
+                                                  ),
+                                                  const SizedBox(width: 3),
+                                                  Text(
+                                                    isExpanded
+                                                        ? 'Hide note'
+                                                        : (hasNote
+                                                            ? 'Edit note'
+                                                            : 'Add note'),
+                                                    style: context
+                                                        .appTheme.caption
+                                                        .copyWith(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppColors.primaryRed,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
+                                          ),
 
-                                            // ── Expanded note field ──────────────
-                                            if (isExpanded) ...[
-                                              const SizedBox(height: 8),
-                                              TextField(
-                                                controller:
-                                                    _noteControllers[key],
-                                                autofocus: true,
-                                                maxLines: 2,
-                                                maxLength: 100,
-                                                textCapitalization:
-                                                    TextCapitalization
-                                                        .sentences,
-                                                style: context.text.bodyMedium
-                                                    ?.copyWith(
-                                                        color: AppColors
-                                                            .primaryRed),
-                                                decoration: InputDecoration(
-                                                  hintText: '',
-                                                  hintStyle: context
-                                                      .text.bodySmall
-                                                      ?.copyWith(
-                                                          color: AppColors
-                                                              .textLight),
-                                                  filled: true,
-                                                  fillColor: context.colors
-                                                      .surfaceContainerLow
-                                                      .withValues(alpha: 0.4),
-                                                  // contentPadding:
-                                                  // const EdgeInsets.symmetric(10),
-                                                  isDense: true,
-                                                  counterStyle: context
-                                                      .appTheme.caption
-                                                      .copyWith(fontSize: 10),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            AppDecorations
-                                                                .radiusCard),
-                                                    borderSide: BorderSide(
-                                                        color: AppColors
-                                                            .primaryRed
-                                                            .withValues(
-                                                                alpha: 0.2)),
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            AppDecorations
-                                                                .radiusCard),
-                                                    borderSide: BorderSide(
-                                                        color: AppColors
-                                                            .backgroundDark
-                                                            .withValues(
-                                                                alpha: 0.2)),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            AppDecorations
-                                                                .radiusCard),
-                                                    borderSide: BorderSide(
-                                                        color: AppColors
-                                                            .primaryRed,
-                                                        width: 1.5),
-                                                  ),
-                                                  suffixIcon: IconButton(
-                                                    icon: Icon(
-                                                        Icons
-                                                            .check_circle_rounded,
-                                                        color: const Color
-                                                            .fromRGBO(
-                                                            236, 73, 19, 1),
-                                                        size: 20),
-                                                    tooltip: 'Save note',
-                                                    onPressed: () =>
-                                                        _toggleNote(item),
-                                                  ),
+                                          if (isExpanded) ...[
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: _noteControllers[key],
+                                              autofocus: true,
+                                              maxLines: 2,
+                                              maxLength: 100,
+                                              textCapitalization:
+                                                  TextCapitalization.sentences,
+                                              decoration: InputDecoration(
+                                                suffixIcon: IconButton(
+                                                  icon: const Icon(Icons
+                                                      .check_circle_rounded),
+                                                  onPressed: () =>
+                                                      _toggleNote(item),
                                                 ),
                                               ),
-                                            ],
-
-                                            // ── Saved note display ───────────────
-                                            if (!isExpanded && hasNote) ...[
-                                              const SizedBox(height: 6),
-                                              Container(
-                                                width: double.infinity,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 7),
-                                                decoration: BoxDecoration(
-                                                  color: AppColors.terracotta
-                                                      .withValues(alpha: 0.06),
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          AppDecorations
-                                                              .radiusCard),
-                                                  border: Border.all(
-                                                      color: AppColors
-                                                          .terracotta
-                                                          .withValues(
-                                                              alpha: 0.15)),
-                                                ),
-                                                child: Text(
-                                                  item.note!,
-                                                  style: context.text.bodySmall
-                                                      ?.copyWith(
-                                                          color: AppColors
-                                                              .terracotta),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ],
-                                        ),
-                                      ),
-                                    );
-                                  }),
 
-                                  // ── Price summary ────────────────────────────
-                                  Card(
-                                    color: context.colors.surfaceContainerLow
-                                        .withValues(alpha: 0.5),
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          AppDecorations.radiusCard),
-                                      side: BorderSide(
-                                        color: AppColors.backgroundDark
-                                            .withValues(alpha: 0.05),
-                                      ),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Column(
-                                        children: [
-                                          _PriceSummaryRow(
-                                              label: 'Subtotal',
-                                              value: cart.subtotal),
-                                          // const SizedBox(height: 8),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8),
-                                            child: Divider(
-                                                height: 1,
-                                                color: AppColors.backgroundDark
-                                                    .withValues(alpha: 0.1)),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                'Total',
-                                                style: context.text.bodyLarge
-                                                    ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                  color:
-                                                      AppColors.backgroundDark,
-                                                ),
+                                          if (!isExpanded && hasNote) ...[
+                                            Container(
+                                              width: double.infinity,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 7),
+                                              child: Text(
+                                                item.note!,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              Text(
-                                                'Rs ${cart.total.toStringAsFixed(2)}',
-                                                style: context.text.bodyLarge
-                                                    ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                  color:
-                                                      AppColors.backgroundDark,
-                                                ),
-                                                //     .copyWith(
-                                                //   color: AppColors.terracotta,
-                                                // ),
-                                              ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
                       ),
                     ],
@@ -512,8 +437,7 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                           padding: const EdgeInsets.all(8.0),
                           child: PrimaryButton(
                             isLoading: tableReq.isLoadingFood,
-                            label:
-                                'Checkout',
+                            label: 'Checkout',
                             onTap: tableReq.isLoadingFood
                                 ? null
                                 : () async {
@@ -741,10 +665,10 @@ class _PriceSummaryRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style:context.text.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: AppColors.backgroundDark,
-            ),
+          style: context.text.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: AppColors.backgroundDark,
+          ),
         ),
         Text('Rs ${value.toStringAsFixed(2)}',
             style: context.text.bodyLarge?.copyWith(

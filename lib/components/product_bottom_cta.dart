@@ -57,13 +57,13 @@ class _ProductBottomCtaState extends State<ProductBottomCta>
       left: 0,
       right: 0,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+        padding: const EdgeInsets.fromLTRB(4, 0, 4, 16),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(32),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
               decoration: BoxDecoration(
                 color: Theme.of(context)
                     .scaffoldBackgroundColor
@@ -102,7 +102,7 @@ class _ProductBottomCtaState extends State<ProductBottomCta>
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '${widget.totalPrice.toStringAsFixed(2)}',
+                        'Rs ${widget.totalPrice.toStringAsFixed(2)}',
                         style:
                             Theme.of(context).textTheme.displaySmall?.copyWith(
                                   fontSize: 22,

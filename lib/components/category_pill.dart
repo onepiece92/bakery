@@ -21,7 +21,7 @@ class CategoryPill extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return AnimatedScale(
-      scale:  1.0,
+      scale: 1.0,
       // scale: active ? 1.05 : 1.0,
       duration: const Duration(milliseconds: 200),
       child: ChoiceChip(
@@ -33,11 +33,12 @@ class CategoryPill extends StatelessWidget {
               Text(
                 icon,
                 style: theme.textTheme.labelLarge?.copyWith(
-                  height: 1.2,
-                  color: active ? colorScheme.onSecondary : colorScheme.onSurface,
+                  // height: 1.2,
+                  color:
+                      active ? colorScheme.onSecondary : colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
             ],
             Text(
               label,
@@ -65,7 +66,7 @@ class CategoryPill extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
-        elevation: active ? 4 : 1,
+        elevation: 1,
         // shadowColor: active ? colorScheme.primary : theme.shadowColor,
       ),
     );

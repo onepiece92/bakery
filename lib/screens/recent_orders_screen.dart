@@ -182,7 +182,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                     end: Alignment.bottomRight,
                                     colors: [
                                       context.colors.primary,
-                                      context.colors.onSurfaceVariant,
+                                      context.colors.primary,
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(22),
@@ -193,7 +193,7 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                     Text(
                                       'Order History',
                                       style: context.text.labelSmall?.copyWith(
-                                        color: context.colors.tertiary,
+                                        color: context.colors.onSecondary,
                                         letterSpacing: 1.5,
                                         fontSize: 11,
                                       ),
@@ -221,8 +221,8 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                               'orders placed',
                                               style: context.text.bodySmall
                                                   ?.copyWith(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5),
+                                                color: context.colors.onPrimary,
+                                               
                                                 fontSize: 13,
                                               ),
                                             ),
@@ -233,22 +233,22 @@ class _RecentOrdersScreenState extends State<RecentOrdersScreen>
                                               CrossAxisAlignment.end,
                                           children: [
                                             Text(
-                                              '\$${totalSpent.toStringAsFixed(2)}',
+                                              'Rs ${totalSpent.toStringAsFixed(2)}',
                                               style: context.text.displayLarge
                                                   ?.copyWith(
                                                 color: context.colors.onPrimary,
                                                 fontSize: 24,
                                               ),
                                             ),
-                                            Text(
-                                              'total spent',
-                                              style: context.text.bodySmall
-                                                  ?.copyWith(
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5),
-                                                fontSize: 13,
-                                              ),
-                                            ),
+                                            // Text(
+                                            //   'total spent',
+                                            //   style: context.text.bodySmall
+                                            //       ?.copyWith(
+                                            //     color: Colors.white
+                                            //         .withValues(alpha: 0.5),
+                                            //     fontSize: 13,
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ],

@@ -101,18 +101,18 @@ class WaterRequest {
   const WaterRequest({
     required this.businessId,
     required this.tableNumber,
-    required this.waterProductId,
+    // required this.waterProductId,
   });
 
   final String businessId;
   final String tableNumber;
-  final String waterProductId;
+  // final String waterProductId;
 
   Map<String, dynamic> toJson() => {
         'requestType': 'water',
         'table_number': tableNumber,
         'businessId': businessId,
-        'waterProductId': waterProductId,
+        // 'waterProductId': waterProductId,
       };
 }
 

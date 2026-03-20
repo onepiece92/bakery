@@ -5,13 +5,16 @@ import 'package:bakery_flutter/extensions/string_casing_extension.dart';
 import 'package:bakery_flutter/extensions/theme_extension.dart';
 import 'package:bakery_flutter/models/product/product_model.dart';
 import 'package:bakery_flutter/models/services_model.dart';
+import 'package:bakery_flutter/providers/customerlogin_provider.dart';
 import 'package:bakery_flutter/providers/order_provider.dart';
 import 'package:bakery_flutter/providers/product_provider.dart';
 import 'package:bakery_flutter/providers/category_provider.dart';
+import 'package:bakery_flutter/providers/qrlogin_provider.dart';
 import 'package:bakery_flutter/providers/table_request_provider.dart';
 import 'package:bakery_flutter/providers/view_provider.dart';
 import 'package:bakery_flutter/screens/shimmer/homepage_shimmer.dart';
 import 'package:bakery_flutter/services/localstorage_service.dart';
+import 'package:bakery_flutter/theme/app_colors.dart';
 import 'package:bakery_flutter/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -83,9 +86,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  // FIX 3: Separated initial load (always fetches) from pull-to-refresh.
-  // On first launch, fetch everything. On return from other screens,
-  // _initialLoad is NOT called again because it's only in initState.
+
   Future<void> _initialLoad() async {
     await Future.wait([
       Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
@@ -97,21 +98,43 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     Provider.of<OrderProvider>(context, listen: false).loadOrders();
   }
-
-  // FIX 4: Pull-to-refresh always force-fetches fresh data from server,
-  // but NEVER triggers the shimmer (isLoading stays false if data exists).
-  // This is only called by the RefreshIndicator swipe gesture.
-  Future<void> _refresh() async {
+Future<void> _refresh() async {
+  try {
     await Future.wait([
       Provider.of<ProductProvider>(context, listen: false).fetchProducts(),
       Provider.of<CategoryProvider>(context, listen: false).fetchCategories(),
     ]);
+
     if (!mounted) return;
+
     await Provider.of<FavouritesProvider>(context, listen: false)
         .loadFavourites();
+
     if (!mounted) return;
-    Provider.of<OrderProvider>(context, listen: false).loadOrders();
+
+     Provider.of<OrderProvider>(context, listen: false).loadOrders();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      
+      const SnackBar(
+          backgroundColor: AppColors.primaryRed,
+        content: Text("Refresh successful"),
+        duration: Duration(seconds: 2),
+
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Refresh failed: $e"),
+        backgroundColor: AppColors.primaryRed,
+      ),
+    );
   }
+}
 
   @override
   void dispose() {
@@ -140,6 +163,8 @@ class _HomeScreenState extends State<HomeScreen>
     final favProv = context.watch<FavouritesProvider>();
     final viewMode = context.watch<ViewModeProvider>();
     final businessName = LocalStorageService.instance.getBusinessName();
+    final businessName1 = context.watch<QRLoginProvider>().businessName;
+
     final bool showRecent = _searchQuery.isEmpty && _selectedCategory == 'all';
     final recentOrders = context.watch<OrderProvider>().recentOrders;
     final productProvider = context.watch<ProductProvider>();
@@ -173,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen>
                 elevation: 0,
                 scrolledUnderElevation: 0,
                 title: Text(
-                  businessName ?? "Foxys Corner".toTitleCase(),
+                  businessName1 ?? "Foxys Corner".toTitleCase(),
                   style: AppTextStyles.disPlayMediumWhite,
                 ),
                 actions: [
@@ -195,18 +220,18 @@ class _HomeScreenState extends State<HomeScreen>
                       }
                     },
                     style: IconButton.styleFrom(
-                      backgroundColor: context.theme.dividerColor,
-                      foregroundColor: context.colors.onSurfaceVariant,
+                      // backgroundColor: context.theme.dividerColor,
+                      foregroundColor: context.colors.onSecondary,
                       minimumSize: const Size(44, 44),
                     ),
                     icon: const Icon(Icons.qr_code_scanner_outlined, size: 22),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   IconButton(
                     onPressed: () => context.push('/profile/notifications'),
                     style: IconButton.styleFrom(
-                      backgroundColor: context.theme.dividerColor,
-                      foregroundColor: context.colors.onSurfaceVariant,
+                      // backgroundColor: context.theme.dividerColor,
+                      foregroundColor: context.colors.onSecondary,
                       minimumSize: const Size(44, 44),
                     ),
                     icon: const Icon(Icons.notifications_outlined, size: 22),
@@ -550,13 +575,14 @@ class _HomeScreenState extends State<HomeScreen>
                                                         extra: p),
                                                     onQuickAdd: () =>
                                                         _quickAdd(p),
-                                                    isFavourite: favProv
-                                                        .isFavourite(p.id),
-                                                    onToggleFavourite: () =>
-                                                        favProv.toggle(p.id),
+                                                    // isFavourite: favProv
+                                                    //     .isFavourite(p.id),
+                                                    // onToggleFavourite: () =>
+                                                    //     favProv.toggle(p.id),
                                                   );
                                                 },
                                               ),
+                                              SizedBox(height: 20,)
                                           ],
                                         );
                                       }),

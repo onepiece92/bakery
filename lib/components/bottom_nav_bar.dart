@@ -17,7 +17,7 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cartCount = context.watch<CartProvider>().totalCount;
+    final cartCount = context.watch<CartProvider>().items.length;
     final isBusinessSession =
         LocalStorageService.instance.getIsBusinessSession();
 

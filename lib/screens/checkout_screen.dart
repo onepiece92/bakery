@@ -358,8 +358,8 @@ class _Step2 extends StatelessWidget {
               product: item.product,
               onTap: () => context.push('/home/product', extra: item.product),
               onQuickAdd: () => cart.addProduct(item.product),
-              isFavourite: favProv.isFavourite(item.product.id),
-              onToggleFavourite: () => favProv.toggle(item.product.id),
+              // isFavourite: favProv.isFavourite(item.product.id),
+              // onToggleFavourite: () => favProv.toggle(item.product.id),
             ),
           );
         }),

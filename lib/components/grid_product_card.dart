@@ -127,7 +127,8 @@ class GridProductCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Rs ${product.displayPrice.toStringAsFixed(2)}',
-                          style: AppTextStyles.price,
+                          style: TextStyle(fontSize: 12),
+                          // style: AppTextStyles.price,
                           overflow: TextOverflow
                               .ellipsis, // shrinks with ... if needed
                           maxLines: 1,
@@ -143,6 +144,8 @@ class GridProductCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                      SizedBox(height: 6,)
+
                 ],
               ),
             ),
@@ -176,7 +179,7 @@ class _GridAddCounter extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = MediaQuery.of(context).size.width;
-        final expandedWidth = screenWidth > 400 ? 80.0 : 52.0;
+        final expandedWidth = screenWidth > 400 ? 120.0 : 52.0;
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 280),

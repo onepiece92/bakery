@@ -59,12 +59,12 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                   children: [
                     const SizedBox(height: 15),
 
-                    // ── Section header (mirrors HomeScreen "Featured Products") ──
+                  
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: SectionHeader(
                         title:
-                            'Favourites',
+                        favs.isEmpty ? "" : "Favourites",
                             // '${favs.length} saved item${favs.length != 1 ? 's' : ''}',
                         trailing: favs.isNotEmpty
                             ? Row(
@@ -119,7 +119,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                 )
                               : ListView.separated(
                                   padding: const EdgeInsets.fromLTRB(
-                                      24, 0, 24, 80),
+                                      16, 0, 16, 80),
                                   itemCount: favs.length,
                                   separatorBuilder: (_, __) =>
                                       const SizedBox(height: 14),
@@ -131,9 +131,9 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                                           '/product',
                                           extra: p),
                                       onQuickAdd: () => cart.addProduct(p),
-                                      isFavourite: favProv.isFavourite(p.id),
-                                      onToggleFavourite: () =>
-                                          favProv.toggle(p.id),
+                                      // isFavourite: favProv.isFavourite(p.id),
+                                      // onToggleFavourite: () =>
+                                      //     favProv.toggle(p.id),
                                     );
                                   },
                                 ),

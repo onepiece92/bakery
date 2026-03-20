@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'app_shell.dart';
+import 'package:bakery_flutter/theme/app_text_styles.dart';
 import '../screens/home_screen.dart';
 import '../screens/product_detail_screen.dart';
 import '../screens/cart_screen.dart';
@@ -56,7 +57,7 @@ GoRouter createRouter(
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Scaffold(
-              appBar: AppBar(title: const Text('Page Not Found')),
+              appBar: AppBar(title:  Text('Page Not Found', style: AppTextStyles.disPlayMediumWhite ,)),
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

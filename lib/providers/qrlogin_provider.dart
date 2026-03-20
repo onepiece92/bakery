@@ -9,8 +9,10 @@ class QRLoginProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   QrLoginModel? _data;
+  String? businessName;
 
   bool get isLoading => _isLoading;
+  String? get getbusinessName => businessName;
   String? get errorMessage => _errorMessage;
   QrLoginModel? get data => _data;
   QRLoginProvider() {
@@ -58,6 +60,7 @@ class QRLoginProvider extends ChangeNotifier {
       debugPrint('businessId   : ${data.business.id}');
       debugPrint('businessName : ${data.business.name}');
       debugPrint('expiresAt    : ${data.expiresAt}');
+      businessName = data.business.name;
 
       // Save to LocalStorage
       final storage = LocalStorageService.instance;
